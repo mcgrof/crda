@@ -21,7 +21,10 @@
 #include <openssl/sha.h>
 #endif
 
-/* public key */
+/*
+ * public key
+ * generated using scripts/mk-openssl-bignum.sh
+ */
 static BN_ULONG e_1[] = { 65537, };
 
 static BN_ULONG n_1[] = {

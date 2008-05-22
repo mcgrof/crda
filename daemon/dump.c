@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 
 	dblen = stat.st_size;
 
-	db = mmap(NULL, dblen, PROT_READ, MAP_SHARED, fd, 0);
+	db = mmap(NULL, dblen, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (db == MAP_FAILED) {
 		perror("failed to mmap db file");
 		return 2;

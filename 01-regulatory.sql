@@ -1,3 +1,4 @@
+use regulatory;
 
 /* This is the DB schema of the CRDA database */
 

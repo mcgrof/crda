@@ -42,6 +42,7 @@ reg_country_ptr = PTR(output)
 # add number of countries
 cursor.execute('SELECT COUNT(*) FROM reg_country;')
 be32(output, cursor.fetchone()[0])
+siglen = PTR(output)
 
 power_rules = {}
 # just to make sure db scheme isn't bad
@@ -111,11 +112,18 @@ for country in cursor:
     # struct regdb_file_reg_country
     output.write(struct.pack('>ccxxI', str(alpha2[0]), str(alpha2[1]), reg_rules_collections[reg_collection_id]))
 
+# determine signature length
 key = RSA.load_key('key.priv.pem')
 hash = sha.new()
 hash.update(output.getvalue())
 sig = key.sign(hash.digest())
-assert len(sig) == 128
+# write it to file
+siglen.set(len(sig))
+# sign again
+hash = sha.new()
+hash.update(output.getvalue())
+sig = key.sign(hash.digest())
+
 output.write(sig)
 
 outfile = open('regulatory.bin', 'w')

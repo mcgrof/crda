@@ -17,13 +17,9 @@
 #define REGDB_VERSION	19
 
 /*
- * We currently only support sha1-hashed files, update the
- * version number for other hashes/multiple-hash schemes.
- *
- * The signature is appended to the file to allow it to be
- * checked easily, it extends over the whole rest of the file.
+ * The signature at the end of the file is an RSA-signed
+ * SHA-1 hash of the file.
  */
-#define REGDB_SIGNATURE_SIZE	128
 
 struct regdb_file_header {
 	/* must be REGDB_MAGIC */
@@ -33,6 +29,8 @@ struct regdb_file_header {
 	/* pointer (offset) into file where country list starts */
 	__be32	reg_country_ptr;
 	__be32	reg_country_num;
+	/* length (in bytes) of the signature at the end of the file */
+	__be32	signature_length;
 };
 
 struct regdb_file_reg_rule {

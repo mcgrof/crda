@@ -1,4 +1,4 @@
-all:	regulatory.bin verify
+all:	regulatory.bin
 
 
 regulatory.bin:	regulatory.sqlite dbgen.py key.priv.pem
@@ -13,9 +13,6 @@ regulatory.sqlite: db/*.sql
 		if [ $$i = "db/00-database.sql" ] ; then continue ; fi ;\
 		sed 's/AUTO_INCREMENT/AUTOINCREMENT/; s/use regulatory;//' < $$i | sqlite3 regulatory.sqlite ;\
 	done
-
-verify:	regulatory.sqlite scripts/verify.sh key.pub.pem
-	@./scripts/verify.sh
 
 generate_keys:
 	openssl genrsa -out key.priv.pem 2048

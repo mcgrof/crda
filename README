@@ -1,0 +1,39 @@
+CRDA
+-----
+
+This is the Central Regulatory Domain Agent effort.
+
+Primative diagram:
+
+Db --> Fdb
+D can read Fdb
+K queries D, D reads Fdb, D passes an R to the Kernel
+K enforces R
+
+Legend:
+
+Db: MySQL database
+Fdb: File database
+D: CRDA Daemon
+K: The Linux kernel
+R: A regulatory domain structure built by D and passed to the K
+
+Phase I
+--------
+For now we will build a MySQL database with some temporary data to populate the database
+and a script to extract this into a file, Fdb. Proper regulatory information is coming.
+
+Phase II
+--------
+Userspace CRDA daemon which can read Fdb, and given a country outputs a regulatory domain
+definition for that country.
+
+Phase III
+---------
+Add nl80211 commands and attributes in the kernel to handle receiving a regulatory domain
+structure from the CRDA daemon.
+
+Phase IV
+--------
+Test with a driver, zd1211rw.
+

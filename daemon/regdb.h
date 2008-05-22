@@ -16,6 +16,15 @@
  */
 #define REGDB_VERSION	19
 
+/*
+ * We currently only support sha1-hashed files, update the
+ * version number for other hashes/multiple-hash schemes.
+ *
+ * The signature is appended to the file to allow it to be
+ * checked easily, it extends over the whole rest of the file.
+ */
+#define REGDB_SIGNATURE_SIZE	128
+
 struct regdb_file_header {
 	/* must be REGDB_MAGIC */
 	__be32	magic;

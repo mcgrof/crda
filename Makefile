@@ -1,4 +1,4 @@
-all:	regulatory.bin
+all:	regulatory.bin verify
 
 
 regulatory.bin:	regulatory.sqlite dbgen.py
@@ -13,3 +13,6 @@ regulatory.sqlite: db/*.sql
 		if [ $$i = "db/00-database.sql" ] ; then continue ; fi ;\
 		sed 's/AUTO_INCREMENT/AUTOINCREMENT/; s/use regulatory;//' < $$i | sqlite3 regulatory.sqlite ;\
 	done
+
+verify:	regulatory.sqlite verify.sh
+	@./verify.sh

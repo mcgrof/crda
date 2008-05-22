@@ -3,6 +3,8 @@
 from pysqlite2 import dbapi2 as db
 from cStringIO import StringIO
 import struct
+from M2Crypto import RSA
+import sha
 
 MAGIC = 0x52474442
 VERSION = 19
@@ -37,7 +39,6 @@ output = StringIO()
 be32(output, MAGIC)
 be32(output, VERSION)
 reg_country_ptr = PTR(output)
-
 # add number of countries
 cursor.execute('SELECT COUNT(*) FROM reg_country;')
 be32(output, cursor.fetchone()[0])
@@ -109,6 +110,13 @@ for country in cursor:
     reg_country_id, alpha2, reg_collection_id = country
     # struct regdb_file_reg_country
     output.write(struct.pack('>ccxxI', str(alpha2[0]), str(alpha2[1]), reg_rules_collections[reg_collection_id]))
+
+key = RSA.load_key('test-key.priv.pem')
+hash = sha.new()
+hash.update(output.getvalue())
+sig = key.sign(hash.digest())
+assert len(sig) == 128
+output.write(sig)
 
 outfile = open('regulatory.bin', 'w')
 outfile.write(output.getvalue())

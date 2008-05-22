@@ -111,7 +111,7 @@ for country in cursor:
     # struct regdb_file_reg_country
     output.write(struct.pack('>ccxxI', str(alpha2[0]), str(alpha2[1]), reg_rules_collections[reg_collection_id]))
 
-key = RSA.load_key('test-key.priv.pem')
+key = RSA.load_key('key.priv.pem')
 hash = sha.new()
 hash.update(output.getvalue())
 sig = key.sign(hash.digest())

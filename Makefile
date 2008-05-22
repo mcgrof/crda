@@ -1,7 +1,7 @@
 all:	regulatory.bin verify
 
 
-regulatory.bin:	regulatory.sqlite dbgen.py
+regulatory.bin:	regulatory.sqlite dbgen.py key.priv.pem
 	@./dbgen.py
 
 clean:
@@ -14,5 +14,5 @@ regulatory.sqlite: db/*.sql
 		sed 's/AUTO_INCREMENT/AUTOINCREMENT/; s/use regulatory;//' < $$i | sqlite3 regulatory.sqlite ;\
 	done
 
-verify:	regulatory.sqlite verify.sh
+verify:	regulatory.sqlite verify.sh key.pub.pem
 	@./verify.sh

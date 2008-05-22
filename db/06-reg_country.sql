@@ -92,8 +92,6 @@ insert into reg_country (alpha2, reg_collection_id) values ("BG", 15);
 
 /* DMN_MKK1_MKKA */
 insert into reg_country (alpha2, reg_collection_id) values ("JP", 16);
-/* DMN_MKK1_FCCA */
-insert into reg_country (alpha2, reg_collection_id) values ("J1", 17);
 /* DMN_MKK2_MKKA */
 insert into reg_country (alpha2, reg_collection_id) values ("J2", 18);
 

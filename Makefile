@@ -1,4 +1,11 @@
+all:	regulatory.bin
 
+
+regulatory.bin:	regulatory.sqlite dbgen.py
+	@./dbgen.py
+
+clean:
+	@rm -f regulatory.sqlite regulatory.bin *~
 
 regulatory.sqlite: db/*.sql
 	@rm -f requlatory.sqlite

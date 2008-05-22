@@ -1,5 +1,11 @@
 #include <linux/types.h>
 
+/*
+ * WARNING: This file needs to be kept in sync with
+ *  - the database scheme
+ *  - the generator code (dbgen.py)
+ */
+
 /* spells "RGDB" */
 #define REGDB_MAGIC	0x52474442
 

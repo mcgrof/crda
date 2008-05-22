@@ -2,6 +2,13 @@
 
 set -e
 
+echo -n 'Verifying database signature: '
+
+if ! which openssl >/dev/null ; then
+	echo "OpenSSL not installed, cannot verify"
+	exit 0
+fi
+
 DBFILE=regulatory.bin
 
 flen=$(stat -c '%s' regulatory.bin)

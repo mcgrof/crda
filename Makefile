@@ -16,4 +16,3 @@ regulatory.sqlite: db/*.sql
 
 generate_keys:
 	openssl genrsa -out key.priv.pem 2048
-	openssl rsa -in key.priv.pem -pubout -out key.pub.pem

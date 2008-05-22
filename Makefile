@@ -14,8 +14,8 @@ regulatory.sqlite: db/*.sql
 		sed 's/AUTO_INCREMENT/AUTOINCREMENT/; s/use regulatory;//' < $$i | sqlite3 regulatory.sqlite ;\
 	done
 
-verify:	regulatory.sqlite verify.sh key.pub.pem
-	@./verify.sh
+verify:	regulatory.sqlite scripts/verify.sh key.pub.pem
+	@./scripts/verify.sh
 
 generate_keys:
 	openssl genrsa -out key.priv.pem 2048

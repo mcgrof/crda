@@ -1,4 +1,7 @@
-CFLAGS += -Wall -g3 -lssl
+CFLAGS += -Wall -g3
+
+#CFLAGS += -lssl
+CFLAGS += -lgcrypt
 
 all:	dump
 

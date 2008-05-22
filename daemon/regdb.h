@@ -11,7 +11,8 @@
 
 /*
  * Only supported version now, start at arbitrary number
- * to have some more magic :)
+ * to have some more magic. We still consider this to be
+ * "Version 1" of the file.
  */
 #define REGDB_VERSION	19
 

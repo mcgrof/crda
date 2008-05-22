@@ -3,7 +3,6 @@
 from pysqlite2 import dbapi2 as db
 from cStringIO import StringIO
 import struct
-from M2Crypto import RSA
 import sha
 
 MAGIC = 0x52474442
@@ -111,6 +110,11 @@ for country in cursor:
     reg_country_id, alpha2, reg_collection_id = country
     # struct regdb_file_reg_country
     output.write(struct.pack('>ccxxI', str(alpha2[0]), str(alpha2[1]), reg_rules_collections[reg_collection_id]))
+
+# Load RSA only now so people can use this script
+# without having those libraries installed to verify
+# their SQL changes
+from M2Crypto import RSA
 
 # determine signature length
 key = RSA.load_key('key.priv.pem')

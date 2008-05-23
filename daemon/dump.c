@@ -221,25 +221,35 @@ static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 	struct regdb_file_reg_rule *rule;
 	struct regdb_file_freq_range *freq;
 	struct regdb_file_power_rule *power;
+	char *ofdm = "", *cck = "", env[3] = { 'O', 'I', '\0' };
 
 	rule = get_file_ptr(db, dblen, sizeof(*rule), ruleptr);
 	freq = get_file_ptr(db, dblen, sizeof(*freq), rule->freq_range_ptr);
 	power = get_file_ptr(db, dblen, sizeof(*power), rule->power_rule_ptr);
 
-	printf("\t%d..%d kHz (maxbw: %d kHz, mod: 0x%x, restrict: 0x%x)\n",
-	       ntohl(freq->start_freq),
-	       ntohl(freq->end_freq),
-	       ntohl(freq->max_bandwidth),
-	       ntohl(freq->modulation_cap),
-	       ntohl(freq->misc_restrictions));
+	if (ntohl(freq->modulation_cap) & 2)
+		ofdm = ", OFDM";
+	if (ntohl(freq->modulation_cap) & 1)
+		cck = ", CCK";
 
-	printf("\t -> env: '%.1s', ag: %d, ir_ptmp: %d, ir_ptp: %d, eirp_pmtp: %d, eirp_ptp: %d\n",
-	       &power->environment_cap,
-	       ntohl(power->max_antenna_gain),
-	       ntohl(power->max_ir_ptmp),
-	       ntohl(power->max_ir_ptp),
-	       ntohl(power->max_eirp_pmtp),
-	       ntohl(power->max_eirp_ptp));
+	printf("\t(%.3f - %.3f @ %.3f%s%s), ",
+	       (float)ntohl(freq->start_freq)/1000.0,
+	       (float)ntohl(freq->end_freq)/1000.0,
+	       (float)ntohl(freq->max_bandwidth)/1000.0,
+	       cck, ofdm);
+
+	if (power->environment_cap != ' ') {
+		env[0] = power->environment_cap;
+		env[1] = '\0';
+	}
+
+	printf("(%s, %.3f, %.3f, %.3f, %.3f, %.3f)\n",
+	       env,
+	       (float)ntohl(power->max_antenna_gain/1000.0),
+	       (float)ntohl(power->max_ir_ptmp/1000.0),
+	       (float)ntohl(power->max_ir_ptp/1000.0),
+	       (float)ntohl(power->max_eirp_pmtp/1000.0),
+	       (float)ntohl(power->max_eirp_ptp)/1000.0);
 }
 
 int main(int argc, char **argv)
@@ -402,7 +412,7 @@ int main(int argc, char **argv)
 		struct regdb_file_reg_country *country = countries + i;
 		int num_rules;
 
-		printf("Country %.2s\n", country->alpha2);
+		printf("country %.2s:\n", country->alpha2);
 		rcoll = get_file_ptr(db, dblen, sizeof(*rcoll), country->reg_collection_ptr);
 		num_rules = ntohl(rcoll->reg_rule_num);
 		/* re-get pointer with sanity checking for num_rules */

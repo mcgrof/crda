@@ -125,10 +125,12 @@ class DBParser(object):
             self._syntax_error("band does not exist")
         if not pname in self._power:
             self._syntax_error("power does not exist")
+        bname = self._banddup[bname]
+        pname = self._powerdup[pname]
         self._bands_used[bname] = True
         self._power_used[pname] = True
         # de-duplicate so binary database is more compact
-        self._current_country.append((self._banddup[bname], self._powerdup[pname]))
+        self._current_country.append((bname, pname))
 
     def parse(self, f):
         self._current_country = None
@@ -168,15 +170,23 @@ class DBParser(object):
             v.sort()
             for k in k.split(','):
                 countries[k] = tuple(v)
-        for u in self._bands:
-            if u in self._bands_used:
+        bands = {}
+        for k, v in self._bands.iteritems():
+            if k in self._bands_used:
+                bands[k] = v
                 continue
-            sys.stderr.write('Unused band definition "%s"\n' % u)
-        for u in self._power:
-            if u in self._power_used:
+            # we de-duplicated, but don't warn again about the dupes
+            if self._banddup[k] == k:
+                sys.stderr.write('Unused band definition "%s"\n' % k)
+        power = {}
+        for k, v in self._power.iteritems():
+            if k in self._power_used:
+                power[k] = v
                 continue
-            sys.stderr.write('Unused power definition "%s"\n' % u)
-        return self._bands, self._power, countries
+            # we de-duplicated, but don't warn again about the dupes
+            if self._powerdup[k] == k:
+                sys.stderr.write('Unused power definition "%s"\n' % k)
+        return bands, power, countries
 
 def create_rules(countries):
     result = {}

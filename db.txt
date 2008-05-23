@@ -1,0 +1,201 @@
+############
+# First: band definitions
+
+band WORLD: 2432 - 2442 @ 20, OFDM, CCK
+
+band FCCA-1: 2412 - 2462 @ 20, OFDM, CCK
+band FCCA-2: 2437 - 2437 @ 40, OFDM, CCK
+band FCCA-3: 2442 - 2462 @ 20, OFDM, CCK
+
+# ETSIC also uses FCCA-1/-2
+band ETSIC: 2442 - 2472 @ 20, OFDM, CCK
+
+band MKKA-1: 2412 - 2472 @ 20, OFDM, CCK
+band MKKA-2: 2484 - 2484 @ 20, CCK
+
+band DEBUG-24: 2412 - 2732 @ 40, OFDM, CCK
+
+# 5 GHz ranges follow
+
+band APL1: 5745 - 5825 @ 20, OFDM
+band APL2: 5745 - 5805 @ 20, OFDM
+
+band APL3-1: 5280 - 5320 @ 20, OFDM
+band APL3-2: 5745 - 5805 @ 20, OFDM
+
+# DMN_APL4 --- DMN_ETSI2 uses only the first frequency range
+# DMN_ETS5 uses the same freq range as DMN_ETSI2 so we can combine these two
+band APL4-1: 5180 - 5240 @ 20, OFDM
+band APL4-2: 5745 - 5825 @ 20, OFDM
+
+# DMN_ETSI1 -- DMN_ETSI3 and DMN_ETSI4 uses the first freq range of DMN_ETSI1
+# DMN_ETSI4 overlaps with ETSI3 so we deleted it
+band ETSI1: 5180 - 5320 @ 20, OFDM
+band ETSI2: 5500 - 5700 @ 20, OFDM
+
+band ETSI6-1: 5180 - 5280 @ 20, OFDM
+band ETSI6-2: 5500 - 5700 @ 20, OFDM
+
+band FCC1-1: 5180 - 5200 @ 20, OFDM
+band FCC1-2: 5210 - 5210 @ 40, OFDM
+band FCC1-3: 5220 - 5240 @ 20, OFDM
+band FCC1-4: 5250 - 5250 @ 40, OFDM
+band FCC1-5: 5260 - 5280 @ 20, OFDM
+band FCC1-6: 5290 - 5290 @ 40, OFDM
+band FCC1-7: 5300 - 5320 @ 20, OFDM
+band FCC1-8: 5745 - 5745 @ 20, OFDM
+band FCC1-9: 5760 - 5760 @ 40, OFDM
+band FCC1-10: 5765 - 5785 @ 20, OFDM
+band FCC1-11: 5800 - 5800 @ 40, OFDM
+band FCC1-12: 5805 - 5825 @ 20, OFDM
+
+# FCC3 is FCC1 + this
+band FCC3: 5500 - 5700 @ 20, OFDM
+
+# MKK1
+band MKK1: 5170 - 5230 @ 20, OFDM
+
+# MKK2 is MKK1 + this
+band MKK2: 5040 - 5080 @ 20, OFDM
+
+band DEBUG-50: 5005 - 6100 @ 40, OFDM, CCK
+
+
+############
+# Second: power definitions
+
+# OI is the identifier we use for outdoor+indoor which is usually a space
+power DEFAULT: OI, 6, 30, 30, 36, 255
+
+############
+# Finally, country definitions
+
+country 00:
+	WORLD, DEFAULT
+
+country 01:
+	DEBUG-24, DEFAULT
+
+country 02:
+	DEBUG-50, DEFAULT
+
+country 03:
+	DEBUG-24, DEFAULT
+	DEBUG-50, DEFAULT
+
+country BR, BZ:
+	FCCA-1, DEFAULT
+	FCCA-2, DEFAULT
+	ETSIC, DEFAULT
+
+country PH:
+	FCC1-1, DEFAULT
+	FCC1-2, DEFAULT
+	FCC1-3, DEFAULT
+	FCC1-4, DEFAULT
+	FCC1-5, DEFAULT
+	FCC1-6, DEFAULT
+	FCC1-7, DEFAULT
+	FCC1-8, DEFAULT
+	FCC1-9, DEFAULT
+	FCC1-10, DEFAULT
+	FCC1-11, DEFAULT
+	FCC1-12, DEFAULT
+	WORLD, DEFAULT
+
+country CO, DO, GT, MX, PA, PR, US:
+	ETSI1, DEFAULT
+	ETSI2, DEFAULT
+	WORLD, DEFAULT
+
+country AU, HK, MO:
+	FCCA-1, DEFAULT
+	FCCA-2, DEFAULT
+	FCCA-3, DEFAULT
+	ETSI1, DEFAULT
+	ETSI2, DEFAULT
+
+country CA:
+	FCCA-1, DEFAULT
+	FCCA-2, DEFAULT
+	ETSIC, DEFAULT
+
+country NZ:
+	FCC1-1, DEFAULT
+	FCC1-2, DEFAULT
+	FCC1-3, DEFAULT
+	FCC1-4, DEFAULT
+	FCC1-5, DEFAULT
+	FCC1-6, DEFAULT
+	FCC1-7, DEFAULT
+	FCC1-8, DEFAULT
+	FCC1-9, DEFAULT
+	FCC1-10, DEFAULT
+	FCC1-11, DEFAULT
+	FCC1-12, DEFAULT
+	FCC3, DEFAULT
+
+country UZ:
+	ETSI1, DEFAULT
+	ETSI2, DEFAULT
+	WORLD, DEFAULT
+
+country CY, DE, DK, EE, ES, FI, GB, IE, IS, IT, LT, LU, LN, NO, PL, PT, SE, SI, UK, ZA:
+	APL4-1, DEFAULT
+	WORLD, DEFAULT
+
+country CH, HU, LI, AT:
+	ETSI1, DEFAULT
+	WORLD, DEFAULT
+
+country CZ, F2, HR, SK, TN, TR, AM, AZ, BE, GE, MC, TT:
+	ETSI6-1, DEFAULT
+	ETSI6-2, DEFAULT
+	WORLD, DEFAULT
+
+country BG:
+	MKKA-1, DEFAULT
+	MKKA-2, DEFAULT
+	MKK1, DEFAULT
+
+country JP:
+	MKK1, DEFAULT
+	FCCA-1, DEFAULT
+	FCCA-2, DEFAULT
+	FCCA-3, DEFAULT
+
+country J2:
+	MKKA-1, DEFAULT
+	MKKA-2, DEFAULT
+	MKK1, DEFAULT
+	MKK2, DEFAULT
+
+country BN, CH, IR, CL:
+	APL1, DEFAULT
+	WORLD, DEFAULT
+
+country BO:
+	APL1, DEFAULT
+	FCCA-1, DEFAULT
+	FCCA-2, DEFAULT
+	ETSIC, DEFAULT
+
+country KP, KR, TH, UY:
+	APL2, DEFAULT
+	WORLD, DEFAULT
+
+country VE:
+	APL2, DEFAULT
+	FCCA-1, DEFAULT
+	FCCA-2, DEFAULT
+	ETSIC, DEFAULT
+
+country AR, TW:
+	APL3-1, DEFAULT
+	APL3-2, DEFAULT
+	WORLD, DEFAULT
+
+country SG:
+	APL4-1, DEFAULT
+	APL4-2, DEFAULT
+	WORLD, DEFAULT

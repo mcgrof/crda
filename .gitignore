@@ -2,3 +2,4 @@
 regulatory.sqlite
 regulatory.bin
 daemon/dump
+*.pyc

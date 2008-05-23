@@ -58,7 +58,9 @@ def _country(macro, bpc, code):
         f.table_row(0),
     ])
 
-    for b, p in country[code]:
+    l = list(country[code])
+    l.sort(cmp=lambda x,y: cmp(band[x[0]], band[y[0]]))
+    for b, p in l:
         b = band[b]
         p = power[p]
         flags = []

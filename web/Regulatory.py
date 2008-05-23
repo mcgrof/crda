@@ -126,6 +126,7 @@ def _get_iso_code(code):
 def macro_Regulatory(macro):
     _ = macro.request.getText
     request = macro.request
+    f = macro.formatter
 
     country = request.form.get('alpha2', [None])[0]
 
@@ -150,14 +151,14 @@ def macro_Regulatory(macro):
         f.heading(0, 1),
     ])
 
-    result.append(macro.formatter.bullet_list(1))
+    result.append(f.bullet_list(1))
     for name, code in countries:
         result.extend([
-          macro.formatter.listitem(1),
+          f.listitem(1),
           request.page.link_to(request, name, querystr={'alpha2': code}),
-          macro.formatter.listitem(0),
+          f.listitem(0),
         ])
-    result.append(macro.formatter.bullet_list(0))
+    result.append(f.bullet_list(0))
 
     return ''.join(result)
 

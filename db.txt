@@ -67,7 +67,9 @@ power DEFAULT: OI, 6, 30, 30, 36, 255
 # Finally, country definitions
 
 country 00:
-	WORLD, DEFAULT
+	# power definition is the same as DEFAULT, just to
+	# illustrate inlining it...
+	WORLD, (OI, 6, 30, 30, 36, 255)
 
 country 01:
 	(2412 - 2732 @ 40, OFDM, CCK), DEFAULT

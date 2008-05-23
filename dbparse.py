@@ -78,6 +78,9 @@ class DBParser(object):
         except ValueError:
             self._syntax_error("power name must be followed by colon")
 
+        self._parse_power_def(pname, line)
+
+    def _parse_power_def(self, pname, line, dupwarn=True):
         try:
             (environ,
              max_ant_gain,
@@ -102,8 +105,9 @@ class DBParser(object):
              max_ir_ptp, max_eirp_ptmp, max_eirp_ptp)
         self._powerdup[pname] = pname
         if p in self._powerrev:
-            self._warn('Duplicate power definition ("%s" and "%s")' % (
-                          pname, self._powerrev[p]))
+            if dupwarn:
+                self._warn('Duplicate power definition ("%s" and "%s")' % (
+                              pname, self._powerrev[p]))
             self._powerdup[pname] = self._powerrev[p]
         self._power[pname] = p
         self._powerrev[p] = pname
@@ -140,6 +144,14 @@ class DBParser(object):
                     self._syntax_error("country definition must have power")
             except ValueError:
                 self._syntax_error("country definition must have band and power")
+
+        if pname[0] == '(':
+            if not pname[-1] == ')':
+                self._syntax_error("Badly parenthesised power definition")
+            power = pname[1:-1]
+            pname = 'UNNAMED %d' % self._lineno
+            self._parse_power_def(pname, power, dupwarn=False)
+
         if not bname in self._bands:
             self._syntax_error("band does not exist")
         if not pname in self._power:

@@ -130,7 +130,7 @@ def macro_Regulatory(macro):
     country = request.form.get('alpha2', [None])[0]
 
     dbpath = '/tmp/db.txt'
-    if hasattr('regdb_path', request.cfg):
+    if hasattr(request.cfg, 'regdb_path'):
         dbpath = request.cfg.regdb_path
     bpc = DBParser().parse(open(dbpath))
 

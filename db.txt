@@ -13,8 +13,6 @@ band ETSIC: 2442 - 2472 @ 20, OFDM, CCK
 band MKKA-1: 2412 - 2472 @ 20, OFDM, CCK
 band MKKA-2: 2484 - 2484 @ 20, CCK
 
-band DEBUG-24: 2412 - 2732 @ 40, OFDM, CCK
-
 # 5 GHz ranges follow
 
 band APL1: 5745 - 5825 @ 20, OFDM
@@ -58,8 +56,6 @@ band MKK1: 5170 - 5230 @ 20, OFDM
 # MKK2 is MKK1 + this
 band MKK2: 5040 - 5080 @ 20, OFDM
 
-band DEBUG-50: 5005 - 6100 @ 40, OFDM, CCK
-
 
 ############
 # Second: power definitions
@@ -74,14 +70,14 @@ country 00:
 	WORLD, DEFAULT
 
 country 01:
-	DEBUG-24, DEFAULT
+	(2412 - 2732 @ 40, OFDM, CCK), DEFAULT
 
 country 02:
-	DEBUG-50, DEFAULT
+	(5005 - 6100 @ 40, OFDM, CCK), DEFAULT
 
 country 03:
-	DEBUG-24, DEFAULT
-	DEBUG-50, DEFAULT
+	(2412 - 2732 @ 40, OFDM, CCK), DEFAULT
+	(5005 - 6100 @ 40, OFDM, CCK), DEFAULT
 
 country BR, BZ:
 	FCCA-1, DEFAULT

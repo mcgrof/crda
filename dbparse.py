@@ -21,7 +21,7 @@ class DBParser(object):
     def _warn(self, txt):
         sys.stderr.write("Warning (line %d): %s\n" % (self._lineno, txt))
 
-    def _parse_band_def(self, bname, banddef):
+    def _parse_band_def(self, bname, banddef, dupwarn=True):
         line = banddef
         try:
             freqs, line = line.split(',', 1)
@@ -53,8 +53,9 @@ class DBParser(object):
         b = (start, end, bw, fl)
         self._banddup[bname] = bname
         if b in self._bandrev:
-            self._warn('Duplicate band definition ("%s" and "%s")' % (
-                          bname, self._bandrev[b]))
+            if dupwarn:
+                self._warn('Duplicate band definition ("%s" and "%s")' % (
+                              bname, self._bandrev[b]))
             self._banddup[bname] = self._bandrev[b]
         self._bands[bname] = b
         self._bandrev[b] = bname
@@ -123,21 +124,29 @@ class DBParser(object):
         self._current_country_name = cname
 
     def _parse_country_item(self, line):
-        try:
-            bname, pname = line.split(',', 1)
-            if not bname:
-                self._syntax_error("country definition must have band name")
-            if not pname:
-                self._syntax_error("country definition must have power name")
-        except ValueError:
-            self._syntax_error("country definition must have band and power names")
+        if line[0] == '(':
+            try:
+                band, pname = line[1:].split('),')
+                bname = 'UNNAMED %d' % self._lineno
+                self._parse_band_def(bname, band, dupwarn=False)
+            except:
+                self._syntax_error("Badly parenthesised band definition")
+        else:
+            try:
+                bname, pname = line.split(',', 1)
+                if not bname:
+                    self._syntax_error("country definition must have band")
+                if not pname:
+                    self._syntax_error("country definition must have power")
+            except ValueError:
+                self._syntax_error("country definition must have band and power")
         if not bname in self._bands:
             self._syntax_error("band does not exist")
         if not pname in self._power:
             self._syntax_error("power does not exist")
+        # de-duplicate so binary database is more compact
         bname = self._banddup[bname]
         pname = self._powerdup[pname]
-        # de-duplicate so binary database is more compact
         self._bands_used[bname] = True
         self._power_used[pname] = True
         tup = (bname, pname)

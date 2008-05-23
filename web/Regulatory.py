@@ -142,13 +142,14 @@ def macro_Regulatory(macro):
     countries = [(_get_iso_code(code), code) for code in countries]
     countries.sort()
 
+    result = []
+
     result.extend([
         f.heading(1, 1),
         f.text('Countries'),
         f.heading(0, 1),
     ])
 
-    result = []
     result.append(macro.formatter.bullet_list(1))
     for name, code in countries:
         result.extend([

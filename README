@@ -12,17 +12,16 @@ K enforces R
 
 Legend:
 
-Db: SQL database (defined in db/01-regulatory.sql)
-Fdb: File database (defined in daemon/regdb.h)
+Db: text file (db.txt)
+Fdb: binary database (defined in daemon/regdb.h)
 D: CRDA Daemon
 K: The Linux kernel
 R: A regulatory domain structure built by D and passed to the K
 
 Phase I
 --------
-We have scripts to populate the (My)SQL database in db/*.sql, which are then
-dumped into an sqlite database for the dbgen.py script which generates the
-binary database Fdb. Proper regulatory information is coming too.
+We parse the text file database db.txt into the binary database that
+tools (including the daemon) should use.
 
 Example C code to read Fdb is available as daemon/dump.c.
 

@@ -26,7 +26,12 @@ struct regdb_file_header {
 	__be32	magic;
 	/* must be REGDB_VERSION */
 	__be32	version;
-	/* pointer (offset) into file where country list starts */
+	/*
+	 * Pointer (offset) into file where country list starts
+	 * and number of countries. The country list is sorted
+	 * alphabetically to allow binary searching (should it
+	 * become really huge.)
+	 */
 	__be32	reg_country_ptr;
 	__be32	reg_country_num;
 	/* length (in bytes) of the signature at the end of the file */

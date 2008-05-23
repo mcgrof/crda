@@ -55,8 +55,10 @@ struct regdb_file_freq_range {
 struct regdb_file_power_rule {
 	__u8	environment_cap;
 	__u8	PAD[3];
-	__be32	max_antenna_gain,
-		max_ir_ptmp,
+	/* antenna gain is in mBi (100 * dBi) */
+	__be32	max_antenna_gain;
+	/* these are in mBm (100 * dBm) */
+	__be32	max_ir_ptmp,
 		max_ir_ptp,
 		max_eirp_pmtp,
 		max_eirp_ptp;

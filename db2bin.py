@@ -47,7 +47,7 @@ siglen = PTR(output)
 power_rules = {}
 for power_rule_id, pr in power.iteritems():
     environ = pr[0]
-    pr = [int(v * 1000) for v in pr[1:]]
+    pr = [int(v * 100) for v in pr[1:]]
     power_rules[power_rule_id] = output.tell()
     # struct regdb_file_power_rule
     output.write(struct.pack('>cxxxIIIII', str(environ), *pr))

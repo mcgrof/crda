@@ -82,7 +82,7 @@ power_rule = 0
 for power_rule_id, pr in power.iteritems():
     power_rule += 1
     environ = pr[0]
-    pr = [int(v * 1000) for v in pr[1:]]
+    pr = [int(v * 100) for v in pr[1:]]
     power_rules[power_rule_id] = power_rule
     print 'INSERT INTO power_rule (power_rule_id, environment_cap, max_antenna_gain_mbi, max_ir_ptmp_mbm, max_ir_ptp_mbm, max_eirp_pmtp_mbm, max_eirp_ptp_mbm) VALUES',
     print "(%d, '%s', %d, %d, %d, %d, %d);" % (power_rule, environ, pr[0], pr[1], pr[2], pr[3], pr[4])

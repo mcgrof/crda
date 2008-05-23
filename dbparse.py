@@ -18,6 +18,9 @@ class DBParser(object):
         txt = txt and ' (%s)' % txt or ''
         raise SyntaxError("Syntax error in line %d%s" % (self._lineno, txt))
 
+    def _warn(self, txt):
+        sys.stderr.write("Warning (line %d): %s\n" % (self._lineno, txt))
+
     def _parse_band(self, line):
         try:
             bname, line = line.split(':', 1)
@@ -56,7 +59,8 @@ class DBParser(object):
         b = (start, end, bw, fl)
         self._banddup[bname] = bname
         if b in self._bandrev:
-            sys.stderr.write('Duplicate band definition (%s and %s)\n' % (bname, self._bandrev[b]))
+            self._warn('Duplicate band definition ("%s" and "%s")' % (
+                          bname, self._bandrev[b]))
             self._banddup[bname] = self._bandrev[b]
         self._bands[bname] = b
         self._bandrev[b] = bname
@@ -93,7 +97,8 @@ class DBParser(object):
              max_ir_ptp, max_eirp_ptmp, max_eirp_ptp)
         self._powerdup[pname] = pname
         if p in self._powerrev:
-            sys.stderr.write('Duplicate power definition (%s and %s)\n' % (pname, self._powerrev[p]))
+            self._warn('Duplicate power definition ("%s" and "%s")' % (
+                          pname, self._powerrev[p]))
             self._powerdup[pname] = self._powerrev[p]
         self._power[pname] = p
         self._powerrev[p] = pname
@@ -111,6 +116,7 @@ class DBParser(object):
         if not cname in self._countries:
             self._countries[cname] = []
         self._current_country = self._countries[cname]
+        self._current_country_name = cname
 
     def _parse_country_item(self, line):
         try:
@@ -127,10 +133,15 @@ class DBParser(object):
             self._syntax_error("power does not exist")
         bname = self._banddup[bname]
         pname = self._powerdup[pname]
+        # de-duplicate so binary database is more compact
         self._bands_used[bname] = True
         self._power_used[pname] = True
-        # de-duplicate so binary database is more compact
-        self._current_country.append((bname, pname))
+        tup = (bname, pname)
+        if tup in self._current_country:
+            self._warn('Rule "%s, %s" added to "%s" twice' % (
+                          bname, pname, self._current_country_name))
+        else:
+            self._current_country.append((bname, pname))
 
     def parse(self, f):
         self._current_country = None
@@ -177,7 +188,7 @@ class DBParser(object):
                 continue
             # we de-duplicated, but don't warn again about the dupes
             if self._banddup[k] == k:
-                sys.stderr.write('Unused band definition "%s"\n' % k)
+                self._warn('Unused band definition "%s"' % k)
         power = {}
         for k, v in self._power.iteritems():
             if k in self._power_used:
@@ -185,7 +196,7 @@ class DBParser(object):
                 continue
             # we de-duplicated, but don't warn again about the dupes
             if self._powerdup[k] == k:
-                sys.stderr.write('Unused power definition "%s"\n' % k)
+                self._warn('Unused power definition "%s"' % k)
         return bands, power, countries
 
 def create_rules(countries):

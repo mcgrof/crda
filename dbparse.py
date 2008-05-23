@@ -46,7 +46,7 @@ class DBParser(object):
         try:
             start, end = freqs.split('-')
             start = float(start)
-            end = float(start)
+            end = float(end)
         except ValueError:
             self._syntax_error("band must have frequency range")
 

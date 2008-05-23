@@ -421,6 +421,7 @@ int main(int argc, char **argv)
 				     country->reg_collection_ptr);
 		for (j = 0; j < num_rules; j++)
 			print_reg_rule(db, dblen, rcoll->reg_rule_ptrs[j]);
+		printf("\n");
 	}
 
 	return 0;

@@ -21,14 +21,8 @@ class DBParser(object):
     def _warn(self, txt):
         sys.stderr.write("Warning (line %d): %s\n" % (self._lineno, txt))
 
-    def _parse_band(self, line):
-        try:
-            bname, line = line.split(':', 1)
-            if not bname:
-                self._syntax_error("'band' keyword must be followed by name")
-        except ValueError:
-            self._syntax_error("band name must be followed by colon")
-
+    def _parse_band_def(self, bname, banddef):
+        line = banddef
         try:
             freqs, line = line.split(',', 1)
         except ValueError:
@@ -64,6 +58,16 @@ class DBParser(object):
             self._banddup[bname] = self._bandrev[b]
         self._bands[bname] = b
         self._bandrev[b] = bname
+
+    def _parse_band(self, line):
+        try:
+            bname, line = line.split(':', 1)
+            if not bname:
+                self._syntax_error("'band' keyword must be followed by name")
+        except ValueError:
+            self._syntax_error("band name must be followed by colon")
+
+        self._parse_band_def(bname, line)
 
     def _parse_power(self, line):
         try:

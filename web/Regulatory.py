@@ -23,8 +23,6 @@ def _country(macro, bpc, code):
         f.heading(0, 1),
     ])
 
-
-        
     result.append(f.table(1))
     result.extend([
         f.table_row(1),
@@ -143,6 +141,12 @@ def macro_Regulatory(macro):
     countries = country.keys()
     countries = [(_get_iso_code(code), code) for code in countries]
     countries.sort()
+
+    result.extend([
+        f.heading(1, 1),
+        f.text('Countries'),
+        f.heading(0, 1),
+    ])
 
     result = []
     result.append(macro.formatter.bullet_list(1))

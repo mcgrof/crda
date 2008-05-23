@@ -2,8 +2,8 @@
 
 /*
  * WARNING: This file needs to be kept in sync with
- *  - the database scheme
- *  - the generator code (dbgen.py)
+ *  - the parser (dbparse.py)
+ *  - the generator code (db2bin.py)
  */
 
 /* spells "RGDB" */

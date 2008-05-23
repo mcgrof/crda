@@ -59,6 +59,7 @@ class DBParser(object):
             self._banddup[bname] = self._bandrev[b]
         self._bands[bname] = b
         self._bandrev[b] = bname
+        self._bandline[bname] = self._lineno
 
     def _parse_band(self, line):
         try:
@@ -111,6 +112,7 @@ class DBParser(object):
             self._powerdup[pname] = self._powerrev[p]
         self._power[pname] = p
         self._powerrev[p] = pname
+        self._powerline[pname] = self._lineno
 
     def _parse_country(self, line):
         try:
@@ -156,11 +158,11 @@ class DBParser(object):
             self._syntax_error("band does not exist")
         if not pname in self._power:
             self._syntax_error("power does not exist")
+        self._bands_used[bname] = True
+        self._power_used[pname] = True
         # de-duplicate so binary database is more compact
         bname = self._banddup[bname]
         pname = self._powerdup[pname]
-        self._bands_used[bname] = True
-        self._power_used[pname] = True
         tup = (bname, pname)
         if tup in self._current_country:
             self._warn('Rule "%s, %s" added to "%s" twice' % (
@@ -179,6 +181,8 @@ class DBParser(object):
         self._powerrev = {}
         self._banddup = {}
         self._powerdup = {}
+        self._bandline = {}
+        self._powerline = {}
 
         self._lineno = 0
         for line in f:
@@ -209,18 +213,20 @@ class DBParser(object):
         bands = {}
         for k, v in self._bands.iteritems():
             if k in self._bands_used:
-                bands[k] = v
+                bands[self._banddup[k]] = v
                 continue
             # we de-duplicated, but don't warn again about the dupes
             if self._banddup[k] == k:
+                self._lineno = self._bandline[k]
                 self._warn('Unused band definition "%s"' % k)
         power = {}
         for k, v in self._power.iteritems():
             if k in self._power_used:
-                power[k] = v
+                power[self._powerdup[k]] = v
                 continue
             # we de-duplicated, but don't warn again about the dupes
             if self._powerdup[k] == k:
+                self._lineno = self._powerline[k]
                 self._warn('Unused power definition "%s"' % k)
         return bands, power, countries
 

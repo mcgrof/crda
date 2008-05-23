@@ -2,7 +2,7 @@
 
 import sys
 
-power_flags = {
+band_flags = {
     'OFDM': 2,
     'CCK': 1,
 }
@@ -46,9 +46,9 @@ class DBParser(object):
 
         fl = 0
         for f in flags:
-            if not f in power_flags:
+            if not f in band_flags:
                 self._syntax_error("Invalid band flag")
-            fl |= power_flags[f]
+            fl |= band_flags[f]
 
         b = (start, end, bw, fl)
         self._banddup[bname] = bname

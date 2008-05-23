@@ -58,7 +58,7 @@ for freq_range_id, fr in bands.iteritems():
     fl = fr[3]
     fr = [int(f * 1000) for f in fr[:3]]
     # struct regdb_file_freq_range
-    output.write(struct.pack('>IIIII', fl, fr[0], fr[1], fr[2], 0))
+    output.write(struct.pack('>IIIII', fr[0], fr[1], fr[2], fl, 0))
 
 
 reg_rules = {}

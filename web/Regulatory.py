@@ -136,7 +136,10 @@ def macro_Regulatory(macro):
     bpc = DBParser().parse(open(dbpath))
 
     if country:
-        return _country(macro, bpc, country)
+        try:
+            return _country(macro, bpc, country)
+        except KeyError:
+            return f.text('No such country code')
 
     band, power, country = bpc
     countries = country.keys()

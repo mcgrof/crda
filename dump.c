@@ -68,7 +68,7 @@ static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 	       (float)ntohl(power->max_antenna_gain/100.0),
 	       (float)ntohl(power->max_ir_ptmp/100.0),
 	       (float)ntohl(power->max_ir_ptp/100.0),
-	       (float)ntohl(power->max_eirp_pmtp/100.0),
+	       (float)ntohl(power->max_eirp_ptmp/100.0),
 	       (float)ntohl(power->max_eirp_ptp)/100.0);
 }
 

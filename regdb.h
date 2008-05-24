@@ -60,7 +60,7 @@ struct regdb_file_power_rule {
 	/* these are in mBm (100 * dBm) */
 	__be32	max_ir_ptmp,
 		max_ir_ptp,
-		max_eirp_pmtp,
+		max_eirp_ptmp,
 		max_eirp_ptp;
 };
 

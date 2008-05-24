@@ -1,41 +1,48 @@
-CRDA
------
+ Central Regulatory Domain Agent (CRDA)
+========================================
 
-This is the Central Regulatory Domain Agent effort.
+This is the Central Regulatory Domain Agent for Linux. It serves two
+purposes: keep a database of world-wide regulatory information and
+tell the Linux kernel what to enforce.
 
-Primitive diagram:
+ REQUIREMENTS
+==============
 
-Db --> Fdb
-D can read Fdb (regulatory.bin)
-K queries D, D reads Fdb, D passes an R to the Kernel
-K enforces R
+The package requirements currently are:
+ * python and the m2crypto package (python-m2crypto)
+ * libgcrypt or libssl (openssl) header files
+ * MoinMoin (http://moinmo.in) for the web viewer
 
-Legend:
+ OVERVIEW
+==========
 
-Db: text file (db.txt)
-Fdb: binary database (defined in regdb.h)
-D: CRDA Daemon
-K: The Linux kernel
-R: A regulatory domain structure built by D and passed to the K
+The regulatory information is collected in a text file, `db.txt'. This
+text file is then compiled into a binary database `regulatory.bin' and
+digitally signed with the key in `key.priv.pem'. The binary database
+is then used by the regulatory agent to update the in-kernel enforcement
+table.
 
-Phase I
---------
-We parse the text file database db.txt into the binary database that
-tools (including the daemon) should use.
+ TECHNICAL INFORMATION
+=======================
 
-Example C code to read Fdb is available as dump.c.
+The regulatory information in `db.txt' is stored in a human-readable
+format which can be read using the `dbparse.py' python module. This
+python module is used by the web viewer (web/Regulatory.py) which is
+implemented as a MoinMoin macro (and used on http://linuxwireless.org)
+to allow viewing the database for verification.
 
-Phase II
---------
-Userspace CRDA daemon which can read Fdb, and given a country outputs a regulatory domain
-definition for that country.
+The dbparse module is also used by db2bin.py, the `compiler', which
+compiles and signs the binary database.
 
-Phase III
----------
-Add nl80211 commands and attributes in the kernel to handle receiving a regulatory domain
-structure from the CRDA daemon.
+The binary database file format is described in `regdb.h' (which has
+to be kept in sync with the compiler.
 
-Phase IV
---------
-Test with a driver, zd1211rw.
+The key file, key.priv.pem, has to be an RSA key, for example created
+with openssl using `openssl genrsa -out key.priv.pem 1024'. The file
+in this source distribution is not meant to be used, it serves as a
+placeholder.
 
+Under certain circumstances it may be desirable to have the regulatory
+accept multiple keys, this can be achieved by compiling it when more
+than one key is present in the source directory (named *.pem). In this
+case, the agent will accept a signature of any of those keys.

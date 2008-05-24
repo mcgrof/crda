@@ -23,6 +23,13 @@ def _country(macro, countries, code):
         f.heading(0, 1),
     ])
 
+    if country.comments:
+        result.extend([
+            f.preformatted(1),
+            f.text('\n'.join(country.comments)),
+            f.preformatted(0),
+        ])
+
     result.append(f.table(1))
     result.extend([
         f.table_row(1),

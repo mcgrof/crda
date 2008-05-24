@@ -130,7 +130,8 @@ class DBParser(object):
                 self._syntax_error("Invalid band flag")
             fl |= band_flags[f]
 
-        b = FreqBand(start, end, bw, fl)
+        b = FreqBand(start, end, bw, fl, comments=self._comments)
+        self._comments = []
         self._banddup[bname] = bname
         if b in self._bandrev:
             if dupwarn:
@@ -183,7 +184,9 @@ class DBParser(object):
             self._syntax_error("Invalid environment specifier")
 
         p = PowerRestriction(environ, max_ant_gain, max_ir_ptmp,
-                             max_ir_ptp, max_eirp_ptmp, max_eirp_ptp)
+                             max_ir_ptp, max_eirp_ptmp, max_eirp_ptp,
+                             comments=self._comments)
+        self._comments = []
         self._powerdup[pname] = pname
         if p in self._powerrev:
             if dupwarn:
@@ -205,7 +208,8 @@ class DBParser(object):
             self._syntax_error("country name must be followed by colon")
 
         if not cname in self._countries:
-            self._countries[cname] = Country()
+            self._countries[cname] = Country(comments=self._comments)
+        self._comments = []
         self._current_country = self._countries[cname]
         self._current_country_name = cname
 
@@ -265,24 +269,34 @@ class DBParser(object):
         self._bandline = {}
         self._powerline = {}
 
+        self._comments = []
+
         self._lineno = 0
         for line in f:
             self._lineno += 1
             line = line.strip()
+            if line[0:1] == '#':
+                self._comments.append(line[1:].strip())
             line = line.replace(' ', '').replace('\t', '')
+            if not line:
+                self._comments = []
             line = line.split('#')[0]
             if not line:
                 continue
             if line[0:4] == 'band':
                 self._parse_band(line[4:])
                 self._current_country = None
+                self._comments = []
             elif line[0:5] == 'power':
                 self._parse_power(line[5:])
                 self._current_country = None
+                self._comments = []
             elif line[0:7] == 'country':
                 self._parse_country(line[7:])
+                self._comments = []
             elif self._current_country is not None:
                 self._parse_country_item(line)
+                self._comments = []
             else:
                 self._syntax_error("Expected band, power or country definition")
 

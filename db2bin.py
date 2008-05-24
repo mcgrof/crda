@@ -3,10 +3,24 @@
 from cStringIO import StringIO
 import struct
 import sha
-from dbparse import DBParser, create_rules, create_collections
+from dbparse import DBParser
 
 MAGIC = 0x52474442
 VERSION = 19
+
+def create_rules(countries):
+    result = {}
+    for c in countries.itervalues():
+        for rule in c.restrictions:
+            result[rule] = 1
+    return result.keys()
+
+def create_collections(countries):
+    result = {}
+    for c in countries.itervalues():
+        result[c.restrictions] = 1
+    return result.keys()
+
 
 def be32(output, val):
     output.write(struct.pack('>I', val))
@@ -30,7 +44,13 @@ class PTR(object):
         return self._offset
 
 p = DBParser()
-bands, power, countries = p.parse(file('db.txt'))
+countries = p.parse(file('db.txt'))
+power = {}
+bands = {}
+for c in countries.itervalues():
+    for b, p in c.restrictions:
+        bands[b] = b
+        power[p] = p
 rules = create_rules(countries)
 rules.sort(cmp=lambda x, y: cmp(bands[x[0]], bands[y[0]]))
 collections = create_collections(countries)
@@ -50,8 +70,9 @@ power_rules = {}
 pi = [(i, p) for i, p in power.iteritems()]
 pi.sort(cmp=lambda x, y: cmp(x[1], y[1]))
 for power_rule_id, pr in pi:
-    environ = pr[0]
-    pr = [int(v * 100) for v in pr[1:]]
+    environ = pr.environment
+    pr = [int(v * 100) for v in (pr.max_ant_gain, pr.max_ir_ptmp, pr.max_ir_ptp,
+                                 pr.max_eirp_ptmp, pr.max_eirp_ptp)]
     power_rules[power_rule_id] = output.tell()
     # struct regdb_file_power_rule
     output.write(struct.pack('>cxxxIIIII', str(environ), *pr))
@@ -61,8 +82,8 @@ bi = [(f, i) for f, i in bands.iteritems()]
 bi.sort(cmp=lambda x, y: cmp(x[1], y[1]))
 for freq_range_id, fr in bands.iteritems():
     freq_ranges[freq_range_id] = output.tell()
-    fl = fr[3]
-    fr = [int(f * 1000) for f in fr[:3]]
+    fl = fr.flags
+    fr = [int(f * 1000) for f in (fr.start, fr.end, fr.maxbw)]
     # struct regdb_file_freq_range
     output.write(struct.pack('>IIIII', fr[0], fr[1], fr[2], fl, 0))
 
@@ -80,8 +101,8 @@ reg_rules_collections = {}
 for coll in collections:
     reg_rules_collections[coll] = output.tell()
     # struct regdb_file_reg_rules_collection
-    be32(output, len(coll))
     coll = list(coll)
+    be32(output, len(coll))
     coll.sort(cmp=lambda x, y: cmp(bands[x[0]], bands[y[0]]))
     for regrule in coll:
         be32(output, reg_rules[regrule])
@@ -94,7 +115,7 @@ countrynames.sort()
 for alpha2 in countrynames:
     coll = countries[alpha2]
     # struct regdb_file_reg_country
-    output.write(struct.pack('>ccxxI', str(alpha2[0]), str(alpha2[1]), reg_rules_collections[coll]))
+    output.write(struct.pack('>ccxxI', str(alpha2[0]), str(alpha2[1]), reg_rules_collections[coll.restrictions]))
 
 # Load RSA only now so people can use this script
 # without having those libraries installed to verify

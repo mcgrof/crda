@@ -156,13 +156,13 @@ country CY, DK, EE, ES, FI, GB, IE, IS, IT, LT, LU, LN, NO, PL, PT, SE, SI, UK, 
 	APL4-1, DEFAULT
 	WORLD, DEFAULT
 
+# Data from "Frequenznutzungsplan April 2008"
+# (http://www.bundesnetzagentur.de/media/archive/13358.pdf)
 country DE:
-	## Data from "Frequenznutzungsplan April 2008"
-	## (http://www.bundesnetzagentur.de/media/archive/13358.pdf)
-	## entries 279004 and 280006
+	# entries 279004 and 280006
 	# TODO: max EIRP: 100 mW
 	(2400 - 2483.5 @ 40, OFDM, CCK), (OI, 0, 0, 0, 0, 0)
-	## entry 303005
+	# entry 303005
 	# TODO: max EIRP: 200 mW
 	# TODO: maximum power spectrum density: 0.25 mW/25 kHz
 	# TODO: DFS required

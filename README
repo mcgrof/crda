@@ -3,7 +3,7 @@ CRDA
 
 This is the Central Regulatory Domain Agent effort.
 
-Primative diagram:
+Primitive diagram:
 
 Db --> Fdb
 D can read Fdb (regulatory.bin)
@@ -13,7 +13,7 @@ K enforces R
 Legend:
 
 Db: text file (db.txt)
-Fdb: binary database (defined in daemon/regdb.h)
+Fdb: binary database (defined in regdb.h)
 D: CRDA Daemon
 K: The Linux kernel
 R: A regulatory domain structure built by D and passed to the K
@@ -23,7 +23,7 @@ Phase I
 We parse the text file database db.txt into the binary database that
 tools (including the daemon) should use.
 
-Example C code to read Fdb is available as daemon/dump.c.
+Example C code to read Fdb is available as dump.c.
 
 Phase II
 --------

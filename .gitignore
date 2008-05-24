@@ -1,5 +1,6 @@
 *~
 regulatory.sqlite
 regulatory.bin
-daemon/dump
+dump
 *.pyc
+keys-*.c

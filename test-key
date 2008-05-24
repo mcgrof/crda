@@ -1,3 +1,6 @@
+This file is not named *.pem on purpose so it will not be added
+to the default verification key list.
+
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAuLoAeB1DUceJZdqWZ5OZGLWfuM9OoXy+etdpr0mgu689owre
 xi+TF7Y2K2UfXyyq8hoZEoIsQluokEtjXJGMvv/4G1El6pZV4N9ZsBBKiE+aH+gC

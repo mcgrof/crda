@@ -4,3 +4,4 @@ regulatory.bin
 dump
 *.pyc
 keys-*.c
+key.priv.pem

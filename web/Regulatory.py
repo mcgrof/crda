@@ -129,16 +129,15 @@ def macro_Regulatory(macro):
     dbpath = '/tmp/db.txt'
     if hasattr(request.cfg, 'regdb_path'):
         dbpath = request.cfg.regdb_path
-    bpc = DBParser().parse(open(dbpath))
+    countries = DBParser().parse(open(dbpath))
 
     if country:
         try:
-            return _country(macro, bpc, country)
+            return _country(macro, countries, country)
         except KeyError:
             return f.text('No such country code')
 
-    band, power, country = bpc
-    countries = country.keys()
+    countries = countries.keys()
     countries = [(_get_iso_code(code), code) for code in countries]
     countries.sort()
 

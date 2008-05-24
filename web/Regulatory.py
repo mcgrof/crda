@@ -12,16 +12,27 @@ from dbparse import DBParser, band_flags
 Dependencies = ["time"]
 
 def _country(macro, countries, code):
-    country = countries[code]
     result = []
 
     f = macro.formatter
+
+    try:
+        countryname = _get_iso_code(code, unknown=False)
+    except KeyError:
+        return f.text('No such country code')
 
     result.extend([
         f.heading(1, 1),
         f.text('Regulatory definition for %s' % _get_iso_code(code)),
         f.heading(0, 1),
     ])
+
+    try:
+        country = countries[code]
+    except:
+        result.append(f.text('No information available'))
+        return ''.join(result)
+    
 
     if country.comments:
         result.extend([
@@ -114,7 +125,7 @@ def _country(macro, countries, code):
 
 _iso_list = {}
 
-def _get_iso_code(code):
+def _get_iso_code(code, unknown=True):
     if not _iso_list:
         for line in codecs.open('/usr/share/iso-codes/iso_3166.tab', encoding='utf-8'):
             line = line.strip()
@@ -124,7 +135,10 @@ def _get_iso_code(code):
         _iso_list['01'] = 'Debug 2'
         _iso_list['02'] = 'Debug 3'
         _iso_list['03'] = 'Debug 4'
-    return _iso_list.get(code, 'Unknown (%s)' % code)
+    if unknown:
+        return _iso_list.get(code, 'Unknown (%s)' % code)
+    else:
+        return _iso_list[code]
 
 def macro_Regulatory(macro):
     _ = macro.request.getText
@@ -139,10 +153,7 @@ def macro_Regulatory(macro):
     countries = DBParser().parse(open(dbpath))
 
     if country:
-        try:
-            return _country(macro, countries, country)
-        except KeyError:
-            return f.text('No such country code')
+        return _country(macro, countries, country)
 
     countries = countries.keys()
     countries = [(_get_iso_code(code), code) for code in countries]

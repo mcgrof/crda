@@ -47,3 +47,17 @@ Under certain circumstances it may be desirable to have the regulatory
 agent accept multiple keys, this can be achieved by compiling it when
 more than one key is present in the source directory (named *.pem). In
 this case, the agent will accept a signature of any of those keys.
+
+ MAGIC PATTERN
+===============
+
+Use the following magic(5) pattern to recognise CRDA binary regulatory
+database files:
+
+---- %< ----
+# CRDA Regulatory database file
+# http://git.kernel.org/?p=linux/kernel/git/mcgrof/crda.git;a=summary
+# (see regdb.h)
+0	belong		0x52474442	CRDA regulatory database file
+>4	belong		19		(Version 1)
+---- >% ----

@@ -1,7 +1,0 @@
-## magic(5) pattern for the regulatory database
-
-# CRDA Regulatory database file
-# http://git.kernel.org/?p=linux/kernel/git/mcgrof/crda.git;a=summary
-# (see regdb.h)
-0	belong		0x52474442	CRDA regulatory database file
->4	belong		19		(Version 1)

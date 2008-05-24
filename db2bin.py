@@ -32,7 +32,9 @@ class PTR(object):
 p = DBParser()
 bands, power, countries = p.parse(file('db.txt'))
 rules = create_rules(countries)
+rules.sort(cmp=lambda x, y: cmp(bands[x[0]], bands[y[0]]))
 collections = create_collections(countries)
+collections.sort(cmp=lambda x, y: cmp(bands[x[0][0]], bands[y[0][0]]))
 
 output = StringIO()
 
@@ -45,7 +47,9 @@ be32(output, len(countries))
 siglen = PTR(output)
 
 power_rules = {}
-for power_rule_id, pr in power.iteritems():
+pi = [(i, p) for i, p in power.iteritems()]
+pi.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+for power_rule_id, pr in pi:
     environ = pr[0]
     pr = [int(v * 100) for v in pr[1:]]
     power_rules[power_rule_id] = output.tell()
@@ -53,6 +57,8 @@ for power_rule_id, pr in power.iteritems():
     output.write(struct.pack('>cxxxIIIII', str(environ), *pr))
 
 freq_ranges = {}
+bi = [(f, i) for f, i in bands.iteritems()]
+bi.sort(cmp=lambda x, y: cmp(x[1], y[1]))
 for freq_range_id, fr in bands.iteritems():
     freq_ranges[freq_range_id] = output.tell()
     fl = fr[3]

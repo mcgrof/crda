@@ -32,14 +32,6 @@ def _country(macro, countries, code):
     except:
         result.append(f.text('No information available'))
         return ''.join(result)
-    
-
-    if country.comments:
-        result.extend([
-            f.preformatted(1),
-            f.text('\n'.join(country.comments)),
-            f.preformatted(0),
-        ])
 
     result.append(f.table(1))
     result.extend([
@@ -117,6 +109,13 @@ def _country(macro, countries, code):
         ])
     
     result.append(f.table(0))
+
+    if country.comments:
+        result.extend([
+            f.preformatted(1),
+            f.text('\n'.join(country.comments)),
+            f.preformatted(0),
+        ])
 
     result.append(f.linebreak(0))
     result.append(f.linebreak(0))

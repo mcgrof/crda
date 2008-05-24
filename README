@@ -38,11 +38,12 @@ The binary database file format is described in `regdb.h' (which has
 to be kept in sync with the compiler.
 
 The key file, key.priv.pem, has to be an RSA key, for example created
-with openssl using `openssl genrsa -out key.priv.pem 1024'. The file
-in this source distribution is not meant to be used, it serves as a
-placeholder.
+with openssl using `openssl genrsa -out key.priv.pem 1024'. Building
+without such a key file causes the test-key to be used to allow the
+build to succeed without generating a key first. This key is not meant
+to be used for deployments, however.
 
 Under certain circumstances it may be desirable to have the regulatory
-accept multiple keys, this can be achieved by compiling it when more
-than one key is present in the source directory (named *.pem). In this
-case, the agent will accept a signature of any of those keys.
+agent accept multiple keys, this can be achieved by compiling it when
+more than one key is present in the source directory (named *.pem). In
+this case, the agent will accept a signature of any of those keys.

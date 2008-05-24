@@ -9,8 +9,6 @@
 
 #include "regdb.h"
 
-#ifdef VERIFY_SIGNATURE
-
 #ifdef USE_OPENSSL
 #include <openssl/objects.h>
 #include <openssl/bn.h>
@@ -24,8 +22,6 @@
 #include <gcrypt.h>
 
 #include "keys-gcrypt.c"
-#endif
-
 #endif
 
 static void *get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr)

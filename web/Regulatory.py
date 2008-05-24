@@ -11,8 +11,8 @@ from dbparse import DBParser, band_flags
 
 Dependencies = ["time"]
 
-def _country(macro, bpc, code):
-    band, power, country = bpc
+def _country(macro, countries, code):
+    country = countries[code]
     result = []
 
     f = macro.formatter
@@ -56,27 +56,23 @@ def _country(macro, bpc, code):
         f.table_row(0),
     ])
 
-    l = list(country[code])
-    l.sort(cmp=lambda x,y: cmp(band[x[0]], band[y[0]]))
-    for b, p in l:
-        b = band[b]
-        p = power[p]
+    for b, p in country.restrictions:
         flags = []
         for flag, val in band_flags.iteritems():
-            if b[3] & val:
+            if b.flags & val:
                 flags.append(flag)
         e = {
             'O': 'Outdoor',
             'I': 'Indoor',
             ' ': 'Out- & Indoor'
-        }[p[0]]
+        }[p.environment]
         result.extend([
             f.table_row(1),
               f.table_cell(1),
-                f.text('%.3f - %.3f' % (b[0], b[1])),
+                f.text('%.3f - %.3f' % (b.start, b.end)),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % (b[2],)),
+                f.text('%.3f' % (b.maxbw,)),
               f.table_cell(0),
               f.table_cell(1),
                 f.text(', '.join(flags)),
@@ -85,19 +81,19 @@ def _country(macro, bpc, code):
                 f.text(e),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % p[1]),
+                f.text('%.3f' % p.max_ant_gain),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % p[2]),
+                f.text('%.3f' % p.max_ir_ptmp),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % p[3]),
+                f.text('%.3f' % p.max_ir_ptp),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % p[4]),
+                f.text('%.3f' % p.max_eirp_ptmp),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % p[5]),
+                f.text('%.3f' % p.max_eirp_ptp),
               f.table_cell(0),
             f.table_row(0),
         ])

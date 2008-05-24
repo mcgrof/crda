@@ -101,7 +101,10 @@ if not mode in modes:
 # load key
 idx = 0
 for f in files:
-    key = RSA.load_key(f)
+    try:
+        key = RSA.load_pub_key(f)
+    except RSA.RSAError:
+        key = RSA.load_key(f)
 
     modes[mode][0]('e_%d' % idx, key.e[4:])
     modes[mode][0]('n_%d' % idx, key.n[4:])

@@ -75,6 +75,8 @@ for coll in collections:
     reg_rules_collections[coll] = output.tell()
     # struct regdb_file_reg_rules_collection
     be32(output, len(coll))
+    coll = list(coll)
+    coll.sort(cmp=lambda x, y: cmp(bands[x[0]], bands[y[0]]))
     for regrule in coll:
         be32(output, reg_rules[regrule])
 

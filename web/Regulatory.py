@@ -124,8 +124,8 @@ def _get_iso_code(code):
     if not _iso_list:
         for line in codecs.open('/usr/share/iso-codes/iso_3166.tab', encoding='utf-8'):
             line = line.strip()
-            code, name = line.split('\t')
-            _iso_list[code] = name
+            c, name = line.split('\t')
+            _iso_list[c] = name
         _iso_list['00'] = 'Debug 1'
         _iso_list['01'] = 'Debug 2'
         _iso_list['02'] = 'Debug 3'

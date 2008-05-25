@@ -65,27 +65,27 @@ class PowerRestriction(object):
                      s.max_ir_ptp, s.max_eirp_ptmp, s.max_eirp_ptp))
 
 class Country(object):
-    def __init__(self, restrictions=None, comments=None):
+    def __init__(self, permissions=None, comments=None):
         # tuple of (freqband, powerrestriction)
-        self._restrictions = restrictions or []
+        self._permissions = permissions or []
         self.comments = comments or []
 
     def add(self, band, power):
         assert isinstance(band, FreqBand)
         assert isinstance(power, PowerRestriction)
-        self._restrictions.append((band, power))
-        self._restrictions.sort()
+        self._permissions.append((band, power))
+        self._permissions.sort()
 
     def __contains__(self, tup):
-        return tup in self._restrictions
+        return tup in self._permissions
 
     def __str__(self):
-        r = ['(%s, %s)' % (str(b), str(p)) for b, p in self._restrictions]
+        r = ['(%s, %s)' % (str(b), str(p)) for b, p in self._permissions]
         return '<Country (%s)>' % (', '.join(r))
 
-    def _get_restrictions_tuple(self):
-        return tuple(self._restrictions)
-    restrictions = property(_get_restrictions_tuple)
+    def _get_permissions_tuple(self):
+        return tuple(self._permissions)
+    permissions = property(_get_permissions_tuple)
 
 class SyntaxError(Exception):
     pass

@@ -11,14 +11,14 @@ VERSION = 19
 def create_rules(countries):
     result = {}
     for c in countries.itervalues():
-        for rule in c.restrictions:
+        for rule in c.permissions:
             result[rule] = 1
     return result.keys()
 
 def create_collections(countries):
     result = {}
     for c in countries.itervalues():
-        result[c.restrictions] = 1
+        result[c.permissions] = 1
     return result.keys()
 
 
@@ -48,7 +48,7 @@ countries = p.parse(file('db.txt'))
 power = {}
 bands = {}
 for c in countries.itervalues():
-    for b, p in c.restrictions:
+    for b, p in c.permissions:
         bands[b] = b
         power[p] = p
 rules = create_rules(countries)
@@ -115,7 +115,7 @@ countrynames.sort()
 for alpha2 in countrynames:
     coll = countries[alpha2]
     # struct regdb_file_reg_country
-    output.write(struct.pack('>ccxxI', str(alpha2[0]), str(alpha2[1]), reg_rules_collections[coll.restrictions]))
+    output.write(struct.pack('>ccxxI', str(alpha2[0]), str(alpha2[1]), reg_rules_collections[coll.permissions]))
 
 # Load RSA only now so people can use this script
 # without having those libraries installed to verify

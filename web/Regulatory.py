@@ -69,7 +69,7 @@ def _country(macro, countries, code):
         f.table_row(0),
     ])
 
-    for b, p in country.restrictions:
+    for b, p in country.permissions:
         flags = []
         for flag, val in band_flags.iteritems():
             if b.flags & val:

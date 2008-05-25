@@ -16,11 +16,6 @@ def _country(macro, countries, code):
 
     f = macro.formatter
 
-    try:
-        countryname = _get_iso_code(code, unknown=False)
-    except KeyError:
-        return f.text('No such country code')
-
     result.extend([
         f.heading(1, 1),
         f.text('Regulatory definition for %s' % _get_iso_code(code)),
@@ -125,7 +120,7 @@ def _country(macro, countries, code):
 
 _iso_list = {}
 
-def _get_iso_code(code, unknown=True):
+def _get_iso_code(code):
     if not _iso_list:
         for line in codecs.open('/usr/share/iso-codes/iso_3166.tab', encoding='utf-8'):
             line = line.strip()
@@ -135,10 +130,7 @@ def _get_iso_code(code, unknown=True):
         _iso_list['01'] = 'Debug 2'
         _iso_list['02'] = 'Debug 3'
         _iso_list['03'] = 'Debug 4'
-    if unknown:
-        return _iso_list.get(code, 'Unknown (%s)' % code)
-    else:
-        return _iso_list[code]
+    return _iso_list.get(code, 'Unknown (%s)' % code)
 
 def macro_Regulatory(macro):
     _ = macro.request.getText

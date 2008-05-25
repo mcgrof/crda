@@ -126,10 +126,6 @@ def _get_iso_code(code):
             line = line.strip()
             c, name = line.split('\t')
             _iso_list[c] = name
-        _iso_list['00'] = 'Debug 1'
-        _iso_list['01'] = 'Debug 2'
-        _iso_list['02'] = 'Debug 3'
-        _iso_list['03'] = 'Debug 4'
     return _iso_list.get(code, 'Unknown (%s)' % code)
 
 def macro_Regulatory(macro):

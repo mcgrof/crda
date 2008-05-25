@@ -156,8 +156,8 @@ country CY, DK, EE, ES, FI, GB, IE, IS, IT, LT, LU, LN, NO, PL, PT, SE, SI, UK, 
 	APL4-1, DEFAULT
 	WORLD, DEFAULT
 
-# Data from "Frequenznutzungsplan April 2008"
-# (http://www.bundesnetzagentur.de/media/archive/13358.pdf)
+# Data from "Frequenznutzungsplan" (as published in April 2008),
+# downloaded from http://www.bundesnetzagentur.de/media/archive/13358.pdf
 country DE:
 	# entries 279004 and 280006
 	# TODO: max EIRP: 100 mW

@@ -41,35 +41,39 @@ static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 	struct regdb_file_reg_rule *rule;
 	struct regdb_file_freq_range *freq;
 	struct regdb_file_power_rule *power;
-	char *ofdm = "", *cck = "", env[3] = { 'O', 'I', '\0' };
+	__u32 flags;
 
 	rule = get_file_ptr(db, dblen, sizeof(*rule), ruleptr);
 	freq = get_file_ptr(db, dblen, sizeof(*freq), rule->freq_range_ptr);
 	power = get_file_ptr(db, dblen, sizeof(*power), rule->power_rule_ptr);
 
-	if (ntohl(freq->modulation_cap) & 2)
-		ofdm = ", OFDM";
-	if (ntohl(freq->modulation_cap) & 1)
-		cck = ", CCK";
+	printf("\t(%.3f - %.3f @ %.3f), ",
+	       ((float)ntohl(freq->start_freq))/1000.0,
+	       ((float)ntohl(freq->end_freq))/1000.0,
+	       ((float)ntohl(freq->max_bandwidth))/1000.0);
 
-	printf("\t(%.3f - %.3f @ %.3f%s%s), ",
-	       (float)ntohl(freq->start_freq)/1000.0,
-	       (float)ntohl(freq->end_freq)/1000.0,
-	       (float)ntohl(freq->max_bandwidth)/1000.0,
-	       cck, ofdm);
+	printf("(%.3f, %.3f, %.3f)",
+	       ((float)ntohl(power->max_antenna_gain)/100.0),
+	       ((float)ntohl(power->max_ir)/100.0),
+	       ((float)ntohl(power->max_eirp)/100.0));
 
-	if (power->environment_cap != ' ') {
-		env[0] = power->environment_cap;
-		env[1] = '\0';
-	}
+	flags = ntohl(rule->flags);
+	if (flags & RRF_NO_OFDM)
+		printf(", NO-OFDM");
+	if (flags & RRF_NO_CCK)
+		printf(", NO-CCK");
+	if (flags & RRF_NO_INDOOR)
+		printf(", NO-INDOOR");
+	if (flags & RRF_NO_OUTDOOR)
+		printf(", NO-OUTDOOR");
+	if (flags & RRF_DFS)
+		printf(", DFS");
+	if (flags & RRF_PTP_ONLY)
+		printf(", PTP-ONLY");
+	if (flags & RRF_PTMP_ONLY)
+		printf(", PTMP-ONLY");
 
-	printf("(%s, %.3f, %.3f, %.3f, %.3f, %.3f)\n",
-	       env,
-	       (float)ntohl(power->max_antenna_gain/100.0),
-	       (float)ntohl(power->max_ir_ptmp/100.0),
-	       (float)ntohl(power->max_ir_ptp/100.0),
-	       (float)ntohl(power->max_eirp_ptmp/100.0),
-	       (float)ntohl(power->max_eirp_ptp)/100.0);
+	printf("\n");
 }
 
 int main(int argc, char **argv)

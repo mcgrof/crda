@@ -38,30 +38,35 @@ struct regdb_file_header {
 	__be32	signature_length;
 };
 
-struct regdb_file_reg_rule {
-	/* pointers (offsets) into the file */
-	__be32	freq_range_ptr;
-	__be32	power_rule_ptr;
-};
-
 struct regdb_file_freq_range {
 	__be32	start_freq,
 		end_freq,
-		max_bandwidth,
-		modulation_cap,
-		misc_restrictions;
+		max_bandwidth;
 };
 
 struct regdb_file_power_rule {
-	__u8	environment_cap;
-	__u8	PAD[3];
 	/* antenna gain is in mBi (100 * dBi) */
 	__be32	max_antenna_gain;
 	/* these are in mBm (100 * dBm) */
-	__be32	max_ir_ptmp,
-		max_ir_ptp,
-		max_eirp_ptmp,
-		max_eirp_ptp;
+	__be32	max_ir, max_eirp;
+};
+
+enum reg_rule_flags {
+	RRF_NO_OFDM	= 1<<0,
+	RRF_NO_CCK	= 1<<1,
+	RRF_NO_INDOOR	= 1<<2,
+	RRF_NO_OUTDOOR	= 1<<3,
+	RRF_DFS		= 1<<4,
+	RRF_PTP_ONLY	= 1<<5,
+	RRF_PTMP_ONLY	= 1<<6,
+};
+
+struct regdb_file_reg_rule {
+	/* pointers (offsets) into the file */
+	__be32	freq_range_ptr,
+		power_rule_ptr;
+	/* rule flags */
+	__be32 flags;
 };
 
 struct regdb_file_reg_rules_collection {

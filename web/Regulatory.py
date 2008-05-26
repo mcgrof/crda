@@ -7,7 +7,7 @@
 """
 
 import codecs
-from dbparse import DBParser, band_flags
+from dbparse import DBParser, flag_definitions
 
 Dependencies = ["time"]
 
@@ -49,64 +49,37 @@ def _country(macro, countries, code):
             f.text('Flags'),
           f.strong(0), f.table_cell(0),
           f.table_cell(1), f.strong(1),
-            f.text('Environment'),
-          f.strong(0), f.table_cell(0),
-          f.table_cell(1), f.strong(1),
             f.text('Max antenna gain (dBi)'),
           f.strong(0), f.table_cell(0),
           f.table_cell(1), f.strong(1),
-            f.text('Max IR PTMP (dBm)'),
+            f.text('Max IR (dBm)'),
           f.strong(0), f.table_cell(0),
           f.table_cell(1), f.strong(1),
-            f.text('Max IR PTP (dBm)'),
-          f.strong(0), f.table_cell(0),
-          f.table_cell(1), f.strong(1),
-            f.text('Max EIRP PTMP (dBm)'),
-          f.strong(0), f.table_cell(0),
-          f.table_cell(1), f.strong(1),
-            f.text('Max EIRP PTP (dBm)'),
+            f.text('Max EIRP (dBm)'),
           f.strong(0), f.table_cell(0),
         f.table_row(0),
     ])
 
-    for b, p in country.permissions:
-        flags = []
-        for flag, val in band_flags.iteritems():
-            if b.flags & val:
-                flags.append(flag)
-        e = {
-            'O': 'Outdoor',
-            'I': 'Indoor',
-            ' ': 'Out- & Indoor'
-        }[p.environment]
+    for perm in country.permissions:
         result.extend([
             f.table_row(1),
               f.table_cell(1),
-                f.text('%.3f - %.3f' % (b.start, b.end)),
+                f.text('%.3f - %.3f' % (perm.freqband.start, perm.freqband.end)),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % (b.maxbw,)),
+                f.text('%.3f' % (perm.freqband.maxbw,)),
               f.table_cell(0),
               f.table_cell(1),
-                f.text(', '.join(flags)),
+                f.text(', '.join(perm.textflags)),
               f.table_cell(0),
               f.table_cell(1),
-                f.text(e),
+                f.text('%.3f' % perm.power.max_ant_gain),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % p.max_ant_gain),
+                f.text('%.3f' % perm.power.max_ir),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % p.max_ir_ptmp),
-              f.table_cell(0),
-              f.table_cell(1),
-                f.text('%.3f' % p.max_ir_ptp),
-              f.table_cell(0),
-              f.table_cell(1),
-                f.text('%.3f' % p.max_eirp_ptmp),
-              f.table_cell(0),
-              f.table_cell(1),
-                f.text('%.3f' % p.max_eirp_ptp),
+                f.text('%.3f' % perm.power.max_eirp),
               f.table_cell(0),
             f.table_row(0),
         ])

@@ -1,18 +1,22 @@
 #!/usr/bin/env python
 
-import sys
+import sys, math
 
-band_flags = {
-    'CCK': 1,
-    'OFDM': 2,
+flag_definitions = {
+    'NO-CCK':		1<<0,
+    'NO-OFDM':		1<<1,
+    'NO-INDOOR':	1<<2,
+    'NO-OUTDOOR':	1<<3,
+    'DFS':		1<<4,
+    'PTP-ONLY':		1<<5,
+    'PTMP-ONLY':	1<<6,
 }
 
 class FreqBand(object):
-    def __init__(self, start, end, bw, flags, comments=None):
+    def __init__(self, start, end, bw, comments=None):
         self.start = start
         self.end = end
         self.maxbw = bw
-        self.flags = flags
         self.comments = comments or []
 
     def __cmp__(self, other):
@@ -20,30 +24,21 @@ class FreqBand(object):
         o = other
         if not isinstance(o, FreqBand):
             return False
-        return cmp((s.start, s.end, s.maxbw, s.flags), (o.start, o.end, o.maxbw, o.flags))
+        return cmp((s.start, s.end, s.maxbw), (o.start, o.end, o.maxbw))
 
     def __hash__(self):
         s = self
-        return hash((s.start, s.end, s.maxbw, s.flags))
+        return hash((s.start, s.end, s.maxbw))
 
     def __str__(self):
-        flags = []
-        for f, v in band_flags.iteritems():
-            if self.flags & v:
-                flags.append(f)
-        return '<FreqBand %.3f - %.3f @ %.3f%s>' % (
-                  self.start, self.end, self.maxbw, ', '.join(flags))
+        return '<FreqBand %.3f - %.3f @ %.3f>' % (
+                  self.start, self.end, self.maxbw)
 
 class PowerRestriction(object):
-    def __init__(self, environment, max_ant_gain, max_ir_ptmp,
-                 max_ir_ptp, max_eirp_ptmp, max_eirp_ptp,
-                 comments = None):
-        self.environment = environment
+    def __init__(self, max_ant_gain, max_ir, max_eirp, comments = None):
         self.max_ant_gain = max_ant_gain
-        self.max_ir_ptmp = max_ir_ptmp
-        self.max_ir_ptp = max_ir_ptp
-        self.max_eirp_ptmp = max_eirp_ptmp
-        self.max_eirp_ptp = max_eirp_ptp
+        self.max_ir = max_ir
+        self.max_eirp = max_eirp
         self.comments = comments or []
 
     def __cmp__(self, other):
@@ -51,33 +46,57 @@ class PowerRestriction(object):
         o = other
         if not isinstance(o, PowerRestriction):
             return False
-        return cmp((s.environment, s.max_ant_gain, s.max_ir_ptmp,
-                    s.max_ir_ptp, s.max_eirp_ptmp, s.max_eirp_ptp),
-                   (o.environment, o.max_ant_gain, o.max_ir_ptmp,
-                    o.max_ir_ptp, o.max_eirp_ptmp, o.max_eirp_ptp))
+        return cmp((s.max_ant_gain, s.max_ir, s.max_eirp),
+                   (o.max_ant_gain, o.max_ir, o.max_eirp))
 
     def __str__(self):
         return '<PowerRestriction ...>'
 
     def __hash__(self):
         s = self
-        return hash((s.environment, s.max_ant_gain, s.max_ir_ptmp,
-                     s.max_ir_ptp, s.max_eirp_ptmp, s.max_eirp_ptp))
+        return hash((s.max_ant_gain, s.max_ir, s.max_eirp))
+
+class FlagError(Exception):
+    def __init__(self, flag):
+        self.flag = flag
+
+class Permission(object):
+    def __init__(self, freqband, power, flags):
+        assert isinstance(freqband, FreqBand)
+        assert isinstance(power, PowerRestriction)
+        self.freqband = freqband
+        self.power = power
+        self.flags = 0
+        for flag in flags:
+            if not flag in flag_definitions:
+                raise FlagError(flag)
+            self.flags |= flag_definitions[flag]
+        self.textflags = flags
+
+    def _as_tuple(self):
+        return (self.freqband, self.power, self.flags)
+
+    def __cmp__(self, other):
+        if not isinstance(other, Permission):
+            return False
+        return cmp(self._as_tuple(), other._as_tuple())
+
+    def __hash__(self):
+        return hash(self._as_tuple())
 
 class Country(object):
     def __init__(self, permissions=None, comments=None):
-        # tuple of (freqband, powerrestriction)
         self._permissions = permissions or []
         self.comments = comments or []
 
-    def add(self, band, power):
-        assert isinstance(band, FreqBand)
-        assert isinstance(power, PowerRestriction)
-        self._permissions.append((band, power))
+    def add(self, perm):
+        assert isinstance(perm, Permission)
+        self._permissions.append(perm)
         self._permissions.sort()
 
-    def __contains__(self, tup):
-        return tup in self._permissions
+    def __contains__(self, perm):
+        assert isinstance(perm, Permission)
+        return perm in self._permissions
 
     def __str__(self):
         r = ['(%s, %s)' % (str(b), str(p)) for b, p in self._permissions]
@@ -102,17 +121,8 @@ class DBParser(object):
         sys.stderr.write("Warning (line %d): %s\n" % (self._lineno, txt))
 
     def _parse_band_def(self, bname, banddef, dupwarn=True):
-        line = banddef
         try:
-            freqs, line = line.split(',', 1)
-        except ValueError:
-            freqs = line
-            line = ''
-
-        flags = [f.upper() for f in line.split(',') if f]
-
-        try:
-            freqs, bw = freqs.split('@')
+            freqs, bw = banddef.split('@')
             bw = float(bw)
         except ValueError:
             bw = 20.0
@@ -124,13 +134,7 @@ class DBParser(object):
         except ValueError:
             self._syntax_error("band must have frequency range")
 
-        fl = 0
-        for f in flags:
-            if not f in band_flags:
-                self._syntax_error("Invalid band flag")
-            fl |= band_flags[f]
-
-        b = FreqBand(start, end, bw, fl, comments=self._comments)
+        b = FreqBand(start, end, bw, comments=self._comments)
         self._comments = []
         self._banddup[bname] = bname
         if b in self._bandrev:
@@ -150,6 +154,9 @@ class DBParser(object):
         except ValueError:
             self._syntax_error("band name must be followed by colon")
 
+        if bname in flag_definitions:
+            self._syntax_error("Invalid band name")
+
         self._parse_band_def(bname, line)
 
     def _parse_power(self, line):
@@ -160,31 +167,29 @@ class DBParser(object):
         except ValueError:
             self._syntax_error("power name must be followed by colon")
 
+        if pname in flag_definitions:
+            self._syntax_error("Invalid power name")
+
         self._parse_power_def(pname, line)
 
     def _parse_power_def(self, pname, line, dupwarn=True):
         try:
-            (environ,
-             max_ant_gain,
-             max_ir_ptmp,
-             max_ir_ptp,
-             max_eirp_ptmp,
-             max_eirp_ptp) = line.split(',')
+            (max_ant_gain,
+             max_ir,
+             max_eirp) = line.split(',')
             max_ant_gain = float(max_ant_gain)
-            max_ir_ptmp = float(max_ir_ptmp)
-            max_ir_ptp = float(max_ir_ptp)
-            max_eirp_ptmp = float(max_eirp_ptmp)
-            max_eirp_ptp = float(max_eirp_ptp)
+            def conv_pwr(pwr):
+                if pwr.endswith('mW'):
+                    pwr = float(pwr[:-2])
+                    return 10.0 * math.log10(pwr)
+                else:
+                    return float(pwr)
+            max_ir = conv_pwr(max_ir)
+            max_eirp = conv_pwr(max_eirp)
         except ValueError:
             self._syntax_error("invalid power data")
 
-        if environ == 'OI':
-            environ = ' '
-        if not environ in ('I', 'O', ' '):
-            self._syntax_error("Invalid environment specifier")
-
-        p = PowerRestriction(environ, max_ant_gain, max_ir_ptmp,
-                             max_ir_ptp, max_eirp_ptmp, max_eirp_ptp,
+        p = PowerRestriction(max_ant_gain, max_ir, max_eirp,
                              comments=self._comments)
         self._comments = []
         self._powerdup[pname] = pname
@@ -216,27 +221,40 @@ class DBParser(object):
     def _parse_country_item(self, line):
         if line[0] == '(':
             try:
-                band, pname = line[1:].split('),')
+                band, line = line[1:].split('),', 1)
                 bname = 'UNNAMED %d' % self._lineno
                 self._parse_band_def(bname, band, dupwarn=False)
             except:
                 self._syntax_error("Badly parenthesised band definition")
         else:
             try:
-                bname, pname = line.split(',', 1)
+                bname, line = line.split(',', 1)
                 if not bname:
                     self._syntax_error("country definition must have band")
-                if not pname:
+                if not line:
                     self._syntax_error("country definition must have power")
             except ValueError:
                 self._syntax_error("country definition must have band and power")
 
-        if pname[0] == '(':
-            if not pname[-1] == ')':
-                self._syntax_error("Badly parenthesised power definition")
-            power = pname[1:-1]
+        if line[0] == '(':
+            items = line.split('),', 1)
+            if len(items) == 1:
+                pname = items[0]
+                line = ''
+                if not pname[-1] == ')':
+                    self._syntax_error("Badly parenthesised power definition")
+                pname = pname[:-1]
+                flags = []
+            else:
+                pname = items[0]
+                flags = items[1].split(',')
+            power = pname[1:]
             pname = 'UNNAMED %d' % self._lineno
             self._parse_power_def(pname, power, dupwarn=False)
+        else:
+            line = line.split(',')
+            pname = line[0]
+            flags = line[1:]
 
         if not bname in self._bands:
             self._syntax_error("band does not exist")
@@ -249,11 +267,15 @@ class DBParser(object):
         pname = self._powerdup[pname]
         b = self._bands[bname]
         p = self._power[pname]
-        if (b, p) in self._current_country:
+        try:
+            perm = Permission(b, p, flags)
+        except FlagError, e:
+            self._syntax_error("Invalid flag '%s'" % e.flag)
+        if perm in self._current_country:
             self._warn('Rule "%s, %s" added to "%s" twice' % (
                           bname, pname, self._current_country_name))
         else:
-            self._current_country.add(b, p)
+            self._current_country.add(perm)
 
     def parse(self, f):
         self._current_country = None

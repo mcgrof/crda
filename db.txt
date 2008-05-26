@@ -15,85 +15,82 @@
 ############
 # First: band definitions
 
-band WORLD: 2432 - 2442 @ 20, OFDM, CCK
+band WORLD: 2432 - 2442 @ 20
 
-band FCCA-1: 2412 - 2462 @ 20, OFDM, CCK
-band FCCA-2: 2437 - 2437 @ 40, OFDM, CCK
-band FCCA-3: 2442 - 2462 @ 20, OFDM, CCK
+band FCCA-1: 2412 - 2462 @ 20
+band FCCA-2: 2437 - 2437 @ 40
+band FCCA-3: 2442 - 2462 @ 20
 
 # ETSIC also uses FCCA-1/-2
-band ETSIC: 2442 - 2472 @ 20, OFDM, CCK
+band ETSIC: 2442 - 2472 @ 20
 
-band MKKA-1: 2412 - 2472 @ 20, OFDM, CCK
-band MKKA-2: 2484 - 2484 @ 20, CCK
+band MKKA-1: 2412 - 2472 @ 20
+band MKKA-2: 2484 - 2484 @ 20
 
 # 5 GHz ranges follow
 
-band APL1: 5745 - 5825 @ 20, OFDM
-band APL2: 5745 - 5805 @ 20, OFDM
+band APL1: 5745 - 5825 @ 20
+band APL2: 5745 - 5805 @ 20
 
-band APL3-1: 5280 - 5320 @ 20, OFDM
-band APL3-2: 5745 - 5805 @ 20, OFDM
+band APL3-1: 5280 - 5320 @ 20
+band APL3-2: 5745 - 5805 @ 20
 
 # DMN_APL4 --- DMN_ETSI2 uses only the first frequency range
 # DMN_ETS5 uses the same freq range as DMN_ETSI2 so we can combine these two
-band APL4-1: 5180 - 5240 @ 20, OFDM
-band APL4-2: 5745 - 5825 @ 20, OFDM
+band APL4-1: 5180 - 5240 @ 20
+band APL4-2: 5745 - 5825 @ 20
 
 # DMN_ETSI1 -- DMN_ETSI3 and DMN_ETSI4 uses the first freq range of DMN_ETSI1
 # DMN_ETSI4 overlaps with ETSI3 so we deleted it
-band ETSI1: 5180 - 5320 @ 20, OFDM
-band ETSI2: 5500 - 5700 @ 20, OFDM
+band ETSI1: 5180 - 5320 @ 20
+band ETSI2: 5500 - 5700 @ 20
 
-band ETSI6-1: 5180 - 5280 @ 20, OFDM
-band ETSI6-2: 5500 - 5700 @ 20, OFDM
+band ETSI6-1: 5180 - 5280 @ 20
+band ETSI6-2: 5500 - 5700 @ 20
 
-band FCC1-1: 5180 - 5200 @ 20, OFDM
-band FCC1-2: 5210 - 5210 @ 40, OFDM
-band FCC1-3: 5220 - 5240 @ 20, OFDM
-band FCC1-4: 5250 - 5250 @ 40, OFDM
-band FCC1-5: 5260 - 5280 @ 20, OFDM
-band FCC1-6: 5290 - 5290 @ 40, OFDM
-band FCC1-7: 5300 - 5320 @ 20, OFDM
-band FCC1-8: 5745 - 5745 @ 20, OFDM
-band FCC1-9: 5760 - 5760 @ 40, OFDM
-band FCC1-10: 5765 - 5785 @ 20, OFDM
-band FCC1-11: 5800 - 5800 @ 40, OFDM
-band FCC1-12: 5805 - 5825 @ 20, OFDM
+band FCC1-1: 5180 - 5200 @ 20
+band FCC1-2: 5210 - 5210 @ 40
+band FCC1-3: 5220 - 5240 @ 20
+band FCC1-4: 5250 - 5250 @ 40
+band FCC1-5: 5260 - 5280 @ 20
+band FCC1-6: 5290 - 5290 @ 40
+band FCC1-7: 5300 - 5320 @ 20
+band FCC1-8: 5745 - 5745 @ 20
+band FCC1-9: 5760 - 5760 @ 40
+band FCC1-10: 5765 - 5785 @ 20
+band FCC1-11: 5800 - 5800 @ 40
+band FCC1-12: 5805 - 5825 @ 20
 
 # FCC3 is FCC1 + this
-band FCC3: 5500 - 5700 @ 20, OFDM
+band FCC3: 5500 - 5700 @ 20
 
 # MKK1
-band MKK1: 5170 - 5230 @ 20, OFDM
+band MKK1: 5170 - 5230 @ 20
 
 # MKK2 is MKK1 + this
-band MKK2: 5040 - 5080 @ 20, OFDM
+band MKK2: 5040 - 5080 @ 20
 
 
 ############
 # Second: power definitions
 
-# OI is the identifier we use for outdoor+indoor which is usually a space
-power DEFAULT: OI, 6, 30, 30, 36, 255
+power DEFAULT: 6, 30, 100 mW
 
 ############
 # Finally, country definitions
 
 country 00:
-	# power definition is the same as DEFAULT, just to
-	# illustrate inlining it...
-	WORLD, (OI, 6, 30, 30, 36, 255)
+	WORLD, DEFAULT
 
 country 01:
-	(2412 - 2732 @ 40, OFDM, CCK), DEFAULT
+	(2412 - 2732 @ 40), DEFAULT
 
 country 02:
-	(5005 - 6100 @ 40, OFDM, CCK), DEFAULT
+	(5005 - 6100 @ 40), DEFAULT
 
 country 03:
-	(2412 - 2732 @ 40, OFDM, CCK), DEFAULT
-	(5005 - 6100 @ 40, OFDM, CCK), DEFAULT
+	(2412 - 2732 @ 40), DEFAULT
+	(5005 - 6100 @ 40), DEFAULT
 
 country BR, BZ:
 	FCCA-1, DEFAULT
@@ -160,13 +157,9 @@ country CY, DK, EE, ES, FI, GB, IE, IS, IT, LT, LU, LN, NO, PL, PT, SE, SI, UK, 
 # downloaded from http://www.bundesnetzagentur.de/media/archive/13358.pdf
 country DE:
 	# entries 279004 and 280006
-	# TODO: max EIRP: 100 mW
-	(2400 - 2483.5 @ 40, OFDM, CCK), (OI, 0, 0, 0, 0, 0)
+	(2400 - 2483.5 @ 40), (0, 0, 100 mW)
 	# entry 303005
-	# TODO: max EIRP: 200 mW
-	# TODO: maximum power spectrum density: 0.25 mW/25 kHz
-	# TODO: DFS required
-	(5150 - 5250 @ 40, OFDM, CCK), (I, 0, 0, 0, 0, 0) 
+	(5150 - 5250 @ 40), (0, 0, 200 mW), NO-OUTDOOR, DFS
 
 country CH, HU, LI, AT:
 	ETSI1, DEFAULT
@@ -179,7 +172,7 @@ country CZ, F2, HR, SK, TN, TR, AM, AZ, BE, GE, MC, TT:
 
 country BG:
 	MKKA-1, DEFAULT
-	MKKA-2, DEFAULT
+	MKKA-2, DEFAULT, NO-OFDM
 	MKK1, DEFAULT
 
 country JP:
@@ -190,7 +183,7 @@ country JP:
 
 country J2:
 	MKKA-1, DEFAULT
-	MKKA-2, DEFAULT
+	MKKA-2, DEFAULT, NO-OFDM
 	MKK1, DEFAULT
 	MKK2, DEFAULT
 

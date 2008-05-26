@@ -45,16 +45,18 @@ class PTR(object):
 
 p = DBParser()
 countries = p.parse(file('db.txt'))
-power = {}
-bands = {}
+power = []
+bands = []
 for c in countries.itervalues():
-    for b, p in c.permissions:
-        bands[b] = b
-        power[p] = p
+    for perm in c.permissions:
+        if not perm.freqband in bands:
+            bands.append(perm.freqband)
+        if not perm.power in power:
+            power.append(perm.power)
 rules = create_rules(countries)
-rules.sort(cmp=lambda x, y: cmp(bands[x[0]], bands[y[0]]))
+rules.sort(cmp=lambda x, y: cmp(x.freqband, y.freqband))
 collections = create_collections(countries)
-collections.sort(cmp=lambda x, y: cmp(bands[x[0][0]], bands[y[0][0]]))
+collections.sort(cmp=lambda x, y: cmp(x[0].freqband, y[0].freqband))
 
 output = StringIO()
 
@@ -67,33 +69,27 @@ be32(output, len(countries))
 siglen = PTR(output)
 
 power_rules = {}
-pi = [(i, p) for i, p in power.iteritems()]
-pi.sort(cmp=lambda x, y: cmp(x[1], y[1]))
-for power_rule_id, pr in pi:
-    environ = pr.environment
-    pr = [int(v * 100) for v in (pr.max_ant_gain, pr.max_ir_ptmp, pr.max_ir_ptp,
-                                 pr.max_eirp_ptmp, pr.max_eirp_ptp)]
-    power_rules[power_rule_id] = output.tell()
+for pr in power:
+    power_rules[pr] = output.tell()
+    pr = [int(v * 100.0) for v in (pr.max_ant_gain, pr.max_ir, pr.max_eirp)]
     # struct regdb_file_power_rule
-    output.write(struct.pack('>cxxxIIIII', str(environ), *pr))
+    output.write(struct.pack('>III', *pr))
 
 freq_ranges = {}
-bi = [(f, i) for f, i in bands.iteritems()]
-bi.sort(cmp=lambda x, y: cmp(x[1], y[1]))
-for freq_range_id, fr in bands.iteritems():
-    freq_ranges[freq_range_id] = output.tell()
-    fl = fr.flags
-    fr = [int(f * 1000) for f in (fr.start, fr.end, fr.maxbw)]
+for fr in bands:
+    freq_ranges[fr] = output.tell()
+    fr = [int(f * 1000.0) for f in (fr.start, fr.end, fr.maxbw)]
     # struct regdb_file_freq_range
-    output.write(struct.pack('>IIIII', fr[0], fr[1], fr[2], fl, 0))
+    output.write(struct.pack('>III', *fr))
 
 
 reg_rules = {}
 for reg_rule in rules:
-    freq_range_id, power_rule_id = reg_rule
+    freq_range, power_rule = reg_rule.freqband, reg_rule.power
     reg_rules[reg_rule] = output.tell()
     # struct regdb_file_reg_rule
-    output.write(struct.pack('>II', freq_ranges[freq_range_id], power_rules[power_rule_id]))
+    output.write(struct.pack('>III', freq_ranges[freq_range], power_rules[power_rule],
+                             reg_rule.flags))
 
 
 reg_rules_collections = {}
@@ -103,7 +99,7 @@ for coll in collections:
     # struct regdb_file_reg_rules_collection
     coll = list(coll)
     be32(output, len(coll))
-    coll.sort(cmp=lambda x, y: cmp(bands[x[0]], bands[y[0]]))
+    coll.sort(cmp=lambda x, y: cmp(x.freqband, y.freqband))
     for regrule in coll:
         be32(output, reg_rules[regrule])
 

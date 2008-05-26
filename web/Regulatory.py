@@ -52,10 +52,10 @@ def _country(macro, countries, code):
             f.text('Max antenna gain (dBi)'),
           f.strong(0), f.table_cell(0),
           f.table_cell(1), f.strong(1),
-            f.text('Max IR (dBm)'),
+            f.text('Max IR (dBm (mW))'),
           f.strong(0), f.table_cell(0),
           f.table_cell(1), f.strong(1),
-            f.text('Max EIRP (dBm)'),
+            f.text('Max EIRP (dBm (mW))'),
           f.strong(0), f.table_cell(0),
         f.table_row(0),
     ])
@@ -65,7 +65,7 @@ def _country(macro, countries, code):
             if val and not dBm:
                 return '%.3f' % val
             elif val:
-                return '%.3f (%.2f mW)' % (val, math.pow(10, val/10.0))
+                return '%.3f (%.2f)' % (val, math.pow(10, val/10.0))
             return 'N/A'
         result.extend([
             f.table_row(1),

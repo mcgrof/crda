@@ -2,15 +2,13 @@
 #
 # Database format.
 
-# band definition: start - end @ bandwidth[, flags]
+# band definition: start - end @ bandwidth
 # (start, end, bandwidth in MHz, can be fractional,
 #  will be converted to kHz)
 #
-# power definition: environment, max_antenna_gain, max_ir_ptmp, max_ir_ptp, max_eirp_pmtp, max_eirp_ptp
-#  - environment is either I, O or OI
-#  - max_antenna_gain is in dBi (can be fractional, will be converted to mBi)
-#  - the remaining ones are in dBm (will be converted to mBm)
-#
+# power definition: max antenna gain, max IR, max EIRP
+#  - antenna gain is in dBi (can be fractional, will be converted to mBi)
+#  - IR/EIRP should be in dBm or given as "100 mW" (will be converted to mBm)
 
 ############
 # First: band definitions

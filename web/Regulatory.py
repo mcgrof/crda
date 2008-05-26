@@ -67,9 +67,9 @@ def _country(macro, countries, code):
     for perm in country.permissions:
         def str_or_na(val, dBm=False):
             if val and not dBm:
-                return '%.3f' % val
+                return '%.2f' % val
             elif val:
-                return '%.3f (%.2f)' % (val, math.pow(10, val/10.0))
+                return '%.2f (%.2f)' % (val, math.pow(10, val/10.0))
             return 'N/A'
         result.extend([
             f.table_row(1),

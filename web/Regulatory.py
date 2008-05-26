@@ -115,7 +115,23 @@ def macro_Regulatory(macro):
     dbpath = '/tmp/db.txt'
     if hasattr(request.cfg, 'regdb_path'):
         dbpath = request.cfg.regdb_path
-    countries = DBParser().parse(open(dbpath))
+
+    result = []
+
+    if request.form.get('raw', [None])[0]:
+        result.append(f.code_area(1, 'db-raw', show=1, start=1, step=1))
+        for line in open(dbpath):
+            result.extend([
+                f.code_line(1),
+                f.text(line.rstrip()),
+                f.code_line(0),
+            ])
+        result.append(f.code_area(0, 'db-raw'))
+        result.append(macro.request.page.link_to(macro.request, 'return to country list'))
+        return ''.join(result)
+
+    warnings = []
+    countries = DBParser(warn=lambda x: warnings.append(x)).parse(open(dbpath))
 
     if country:
         return _country(macro, countries, country)
@@ -123,8 +139,6 @@ def macro_Regulatory(macro):
     countries = countries.keys()
     countries = [(_get_iso_code(code), code) for code in countries]
     countries.sort()
-
-    result = []
 
     result.extend([
         f.heading(1, 1),
@@ -141,5 +155,14 @@ def macro_Regulatory(macro):
         ])
     result.append(f.bullet_list(0))
 
-    return ''.join(result)
+    if warnings:
+        result.append(f.heading(1, 2))
+        result.append(f.text("Warnings"))
+        result.append(f.heading(0, 2))
+        result.append(f.preformatted(1))
+        result.extend(warnings)
+        result.append(f.preformatted(0))
 
+    result.append(request.page.link_to(request, 'view raw database', querystr={'raw': 1}))
+
+    return ''.join(result)

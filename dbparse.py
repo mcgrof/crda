@@ -110,15 +110,15 @@ class SyntaxError(Exception):
     pass
 
 class DBParser(object):
-    def __init__(self):
-        pass
+    def __init__(self, warn=None):
+        self._warn_callout = warn or sys.stderr.write
 
     def _syntax_error(self, txt=None):
         txt = txt and ' (%s)' % txt or ''
         raise SyntaxError("Syntax error in line %d%s" % (self._lineno, txt))
 
     def _warn(self, txt):
-        sys.stderr.write("Warning (line %d): %s\n" % (self._lineno, txt))
+        self._warn_callout("Warning (line %d): %s\n" % (self._lineno, txt))
 
     def _parse_band_def(self, bname, banddef, dupwarn=True):
         try:

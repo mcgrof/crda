@@ -177,6 +177,12 @@ class DBParser(object):
             (max_ant_gain,
              max_ir,
              max_eirp) = line.split(',')
+            if max_ant_gain == 'N/A':
+                max_ant_gain = '0'
+            if max_ir == 'N/A':
+                max_ir = '0'
+            if max_eirp == 'N/A':
+                max_eirp = '0'
             max_ant_gain = float(max_ant_gain)
             def conv_pwr(pwr):
                 if pwr.endswith('mW'):

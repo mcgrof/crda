@@ -44,6 +44,10 @@ struct regdb_file_freq_range {
 		max_bandwidth;
 };
 
+/*
+ * Values of zero mean "not applicable", i.e. the regulatory
+ * does not limit a certain value.
+ */
 struct regdb_file_power_rule {
 	/* antenna gain is in mBi (100 * dBi) */
 	__be32	max_antenna_gain;

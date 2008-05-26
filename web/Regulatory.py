@@ -61,6 +61,10 @@ def _country(macro, countries, code):
     ])
 
     for perm in country.permissions:
+        def str_or_na(val):
+            if val:
+                return '%.3f' % val
+            return 'N/A'
         result.extend([
             f.table_row(1),
               f.table_cell(1),
@@ -73,13 +77,13 @@ def _country(macro, countries, code):
                 f.text(', '.join(perm.textflags)),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % perm.power.max_ant_gain),
+                f.text(str_or_na(perm.power.max_ant_gain)),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % perm.power.max_ir),
+                f.text(str_or_na(perm.power.max_ir)),
               f.table_cell(0),
               f.table_cell(1),
-                f.text('%.3f' % perm.power.max_eirp),
+                f.text(str_or_na(perm.power.max_eirp)),
               f.table_cell(0),
             f.table_row(0),
         ])

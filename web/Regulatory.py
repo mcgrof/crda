@@ -52,12 +52,12 @@ def _country(macro, countries, code):
             f.text('Max antenna gain (dBi)'),
           f.strong(0), f.table_cell(0),
           f.table_cell(1), f.strong(1),
-            f.text('Max IR (dBm')
+            f.text('Max IR (dBm'),
             f.hardspace,
             f.text('(mW))'),
           f.strong(0), f.table_cell(0),
           f.table_cell(1), f.strong(1),
-            f.text('Max EIRP (dBm')
+            f.text('Max EIRP (dBm'),
             f.hardspace,
             f.text('(mW))'),
           f.strong(0), f.table_cell(0),

@@ -6,7 +6,7 @@
     @license: GNU GPL, see COPYING for details.
 """
 
-import codecs
+import codecs, math
 from dbparse import DBParser, flag_definitions
 
 Dependencies = ["time"]
@@ -61,9 +61,11 @@ def _country(macro, countries, code):
     ])
 
     for perm in country.permissions:
-        def str_or_na(val):
-            if val:
+        def str_or_na(val, dBm=False):
+            if val and not dBm:
                 return '%.3f' % val
+            elif val:
+                return '%.3f (%.2f mW)' % (val, math.pow(10, val/10.0))
             return 'N/A'
         result.extend([
             f.table_row(1),
@@ -80,10 +82,10 @@ def _country(macro, countries, code):
                 f.text(str_or_na(perm.power.max_ant_gain)),
               f.table_cell(0),
               f.table_cell(1),
-                f.text(str_or_na(perm.power.max_ir)),
+                f.text(str_or_na(perm.power.max_ir, dBm=True)),
               f.table_cell(0),
               f.table_cell(1),
-                f.text(str_or_na(perm.power.max_eirp)),
+                f.text(str_or_na(perm.power.max_eirp, dBm=True)),
               f.table_cell(0),
             f.table_row(0),
         ])

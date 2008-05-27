@@ -14,6 +14,9 @@ flag_definitions = {
     'NO-IBSS':		1<<8,
     'NO-HT20':		1<<9,
     'NO-HT40':		1<<10,
+    'EDGE-POWER-1':	1<<11,
+    'EDGE-POWER-2':	2<<11,
+    'EDGE-POWER-3':	3<<11,
 }
 
 class FreqBand(object):
@@ -63,6 +66,9 @@ class FlagError(Exception):
     def __init__(self, flag):
         self.flag = flag
 
+class DuplicateEdgePowerError(Exception):
+    pass
+
 class Permission(object):
     def __init__(self, freqband, power, flags):
         assert isinstance(freqband, FreqBand)
@@ -70,6 +76,9 @@ class Permission(object):
         self.freqband = freqband
         self.power = power
         self.flags = 0
+        f = [e for e in flags if e.startswith('EDGE-POWER-')]
+        if len(f) > 1:
+            raise DuplicateEdgePowerError()
         for flag in flags:
             if not flag in flag_definitions:
                 raise FlagError(flag)
@@ -276,6 +285,8 @@ class DBParser(object):
             perm = Permission(b, p, flags)
         except FlagError, e:
             self._syntax_error("Invalid flag '%s'" % e.flag)
+        except DuplicateEdgePowerError:
+            self._syntax_error("More than one edge power value given!")
         if perm in self._current_country:
             self._warn('Rule "%s, %s" added to "%s" twice' % (
                           bname, pname, self._current_country_name))

@@ -156,8 +156,10 @@ country CY, DK, EE, ES, FI, GB, IE, IS, IT, LT, LU, LN, NO, PL, PT, SE, SI, UK, 
 country DE:
 	# entries 279004 and 280006
 	(2400 - 2483.5 @ 40), (N/A, N/A, 100 mW)
-	# entry 303005
-	(5150 - 5250 @ 40), (N/A, N/A, 200 mW), NO-OUTDOOR, DFS
+	# entries 303005 and 304002
+	(5150 - 5255 @ 40), (N/A, N/A, 200 mW), NO-OUTDOOR, DFS
+	# entries 308002 and 309001
+	(5470 - 5650 @ 40), (N/A, N/A, 1000 mW), NO-OUTDOOR, DFS
 
 country CH, HU, LI, AT:
 	ETSI1, DEFAULT

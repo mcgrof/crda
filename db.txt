@@ -159,7 +159,7 @@ country DE:
 	# entries 303005 and 304002
 	(5150 - 5255 @ 40), (N/A, N/A, 200 mW), NO-OUTDOOR, DFS
 	# entries 308002 and 309001
-	(5470 - 5650 @ 40), (N/A, N/A, 1000 mW), NO-OUTDOOR, DFS
+	(5470 - 5650 @ 40), (N/A, N/A, 1000 mW), DFS
 
 country CH, HU, LI, AT:
 	ETSI1, DEFAULT

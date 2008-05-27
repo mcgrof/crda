@@ -51,8 +51,8 @@ struct regdb_file_freq_range {
 struct regdb_file_power_rule {
 	/* antenna gain is in mBi (100 * dBi) */
 	__be32	max_antenna_gain;
-	/* these are in mBm (100 * dBm) */
-	__be32	max_ir, max_eirp;
+	/* this is in mBm (100 * dBm) */
+	__be32	max_eirp;
 };
 
 enum reg_rule_flags {

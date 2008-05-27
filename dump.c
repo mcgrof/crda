@@ -59,11 +59,6 @@ static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 	else
 		printf("N/A, ");
 
-	if (power->max_ir)
-		printf("%.2f, ", ((float)ntohl(power->max_ir)/100.0));
-	else
-		printf("N/A, ");
-
 	if (power->max_eirp)
 		printf("%.2f)", ((float)ntohl(power->max_eirp)/100.0));
 	else

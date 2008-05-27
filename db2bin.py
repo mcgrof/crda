@@ -71,9 +71,9 @@ siglen = PTR(output)
 power_rules = {}
 for pr in power:
     power_rules[pr] = output.tell()
-    pr = [int(v * 100.0) for v in (pr.max_ant_gain, pr.max_ir, pr.max_eirp)]
+    pr = [int(v * 100.0) for v in (pr.max_ant_gain, pr.max_eirp)]
     # struct regdb_file_power_rule
-    output.write(struct.pack('>III', *pr))
+    output.write(struct.pack('>II', *pr))
 
 freq_ranges = {}
 for fr in bands:

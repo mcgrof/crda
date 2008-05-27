@@ -72,7 +72,7 @@ band MKK2: 5040 - 5080 @ 20
 ############
 # Second: power definitions
 
-power DEFAULT: 6, 30, 100 mW
+power DEFAULT: 6, 100 mW
 
 ############
 # Finally, country definitions
@@ -155,11 +155,11 @@ country CY, DK, EE, ES, FI, GB, IE, IS, IT, LT, LU, LN, NO, PL, PT, SE, SI, UK, 
 # downloaded from http://www.bundesnetzagentur.de/media/archive/13358.pdf
 country DE:
 	# entries 279004 and 280006
-	(2400 - 2483.5 @ 40), (N/A, N/A, 100 mW)
+	(2400 - 2483.5 @ 40), (N/A, 100 mW)
 	# entries 303005 and 304002
-	(5150 - 5255 @ 40), (N/A, N/A, 200 mW), NO-OUTDOOR, DFS
+	(5150 - 5255 @ 40), (N/A, 200 mW), NO-OUTDOOR, DFS
 	# entries 308002 and 309001
-	(5470 - 5650 @ 40), (N/A, N/A, 1000 mW), DFS
+	(5470 - 5650 @ 40), (N/A, 1000 mW), DFS
 
 country CH, HU, LI, AT:
 	ETSI1, DEFAULT

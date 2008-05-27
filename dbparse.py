@@ -37,9 +37,8 @@ class FreqBand(object):
                   self.start, self.end, self.maxbw)
 
 class PowerRestriction(object):
-    def __init__(self, max_ant_gain, max_ir, max_eirp, comments = None):
+    def __init__(self, max_ant_gain, max_eirp, comments = None):
         self.max_ant_gain = max_ant_gain
-        self.max_ir = max_ir
         self.max_eirp = max_eirp
         self.comments = comments or []
 
@@ -48,15 +47,15 @@ class PowerRestriction(object):
         o = other
         if not isinstance(o, PowerRestriction):
             return False
-        return cmp((s.max_ant_gain, s.max_ir, s.max_eirp),
-                   (o.max_ant_gain, o.max_ir, o.max_eirp))
+        return cmp((s.max_ant_gain, s.max_eirp),
+                   (o.max_ant_gain, o.max_eirp))
 
     def __str__(self):
         return '<PowerRestriction ...>'
 
     def __hash__(self):
         s = self
-        return hash((s.max_ant_gain, s.max_ir, s.max_eirp))
+        return hash((s.max_ant_gain, s.max_eirp))
 
 class FlagError(Exception):
     def __init__(self, flag):
@@ -177,12 +176,9 @@ class DBParser(object):
     def _parse_power_def(self, pname, line, dupwarn=True):
         try:
             (max_ant_gain,
-             max_ir,
              max_eirp) = line.split(',')
             if max_ant_gain == 'N/A':
                 max_ant_gain = '0'
-            if max_ir == 'N/A':
-                max_ir = '0'
             if max_eirp == 'N/A':
                 max_eirp = '0'
             max_ant_gain = float(max_ant_gain)
@@ -192,12 +188,11 @@ class DBParser(object):
                     return 10.0 * math.log10(pwr)
                 else:
                     return float(pwr)
-            max_ir = conv_pwr(max_ir)
             max_eirp = conv_pwr(max_eirp)
         except ValueError:
             self._syntax_error("invalid power data")
 
-        p = PowerRestriction(max_ant_gain, max_ir, max_eirp,
+        p = PowerRestriction(max_ant_gain, max_eirp,
                              comments=self._comments)
         self._comments = []
         self._powerdup[pname] = pname

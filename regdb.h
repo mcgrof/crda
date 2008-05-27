@@ -63,6 +63,8 @@ enum reg_rule_flags {
 	RRF_DFS		= 1<<4,
 	RRF_PTP_ONLY	= 1<<5,
 	RRF_PTMP_ONLY	= 1<<6,
+	RRF_PASSIVE_SCAN= 1<<7,
+	RRF_NO_IBSS	= 1<<8,
 };
 
 struct regdb_file_reg_rule {

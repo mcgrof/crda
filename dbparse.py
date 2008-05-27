@@ -10,6 +10,8 @@ flag_definitions = {
     'DFS':		1<<4,
     'PTP-ONLY':		1<<5,
     'PTMP-ONLY':	1<<6,
+    'PASSIVE-SCAN':	1<<7,
+    'NO-IBSS':		1<<8,
 }
 
 class FreqBand(object):

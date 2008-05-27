@@ -84,6 +84,10 @@ static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 		printf(", PTP-ONLY");
 	if (flags & RRF_PTMP_ONLY)
 		printf(", PTMP-ONLY");
+	if (flags & RRF_PASSIVE_SCAN)
+		printf(", PASSIVE-SCAN");
+	if (flags & RRF_NO_IBSS)
+		printf(", NO-IBSS");
 
 	printf("\n");
 }

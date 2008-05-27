@@ -4,9 +4,14 @@ from cStringIO import StringIO
 import struct
 import sha
 from dbparse import DBParser
+import sys
 
 MAGIC = 0x52474442
 VERSION = 19
+
+if len(sys.argv) < 3:
+    print 'Usage: %s output-file input-file [key-file]' % sys.argv[0]
+    sys.exit(2)
 
 def create_rules(countries):
     result = {}
@@ -44,7 +49,7 @@ class PTR(object):
         return self._offset
 
 p = DBParser()
-countries = p.parse(file('db.txt'))
+countries = p.parse(file(sys.argv[2]))
 power = []
 bands = []
 for c in countries.itervalues():
@@ -113,24 +118,28 @@ for alpha2 in countrynames:
     # struct regdb_file_reg_country
     output.write(struct.pack('>ccxxI', str(alpha2[0]), str(alpha2[1]), reg_rules_collections[coll.permissions]))
 
-# Load RSA only now so people can use this script
-# without having those libraries installed to verify
-# their SQL changes
-from M2Crypto import RSA
 
-# determine signature length
-key = RSA.load_key('key.priv.pem')
-hash = sha.new()
-hash.update(output.getvalue())
-sig = key.sign(hash.digest())
-# write it to file
-siglen.set(len(sig))
-# sign again
-hash = sha.new()
-hash.update(output.getvalue())
-sig = key.sign(hash.digest())
+if len(sys.argv) > 3:
+    # Load RSA only now so people can use this script
+    # without having those libraries installed to verify
+    # their SQL changes
+    from M2Crypto import RSA
 
-output.write(sig)
+    # determine signature length
+    key = RSA.load_key(sys.argv[3])
+    hash = sha.new()
+    hash.update(output.getvalue())
+    sig = key.sign(hash.digest())
+    # write it to file
+    siglen.set(len(sig))
+    # sign again
+    hash = sha.new()
+    hash.update(output.getvalue())
+    sig = key.sign(hash.digest())
 
-outfile = open('regulatory.bin', 'w')
+    output.write(sig)
+else:
+    siglen.set(0)
+
+outfile = open(sys.argv[1], 'w')
 outfile.write(output.getvalue())

@@ -8,7 +8,7 @@ all:	regulatory.bin warn
 	@$(MAKE) --no-print-directory -f Makefile verify
 
 regulatory.bin:	db2bin.py key.priv.pem db.txt dbparse.py
-	@./db2bin.py
+	@./db2bin.py regulatory.bin db.txt key.priv.pem
 
 clean:
 	@rm -f regulatory.bin dump *~ *.pyc keys-*.c

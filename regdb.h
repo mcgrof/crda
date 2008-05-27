@@ -87,3 +87,25 @@ struct regdb_file_reg_country {
 	/* pointer (offset) into the file */
 	__be32	reg_collection_ptr;
 };
+
+
+/*
+ * Verify that no unexpected padding is added to structures
+ * for some reason.
+ */
+
+#define ERROR_ON(cond) \
+	((void)sizeof(char[1 - 2*!!(cond)]))
+
+#define CHECK_STRUCT(name, size) \
+	ERROR_ON(sizeof(struct name) != size)
+
+static inline void check_db_binary_structs(void)
+{
+	CHECK_STRUCT(regdb_file_header, 20);
+	CHECK_STRUCT(regdb_file_freq_range, 12);
+	CHECK_STRUCT(regdb_file_power_rule, 8);
+	CHECK_STRUCT(regdb_file_reg_rule, 12);
+	CHECK_STRUCT(regdb_file_reg_rules_collection, 4);
+	CHECK_STRUCT(regdb_file_reg_country, 8);
+}

@@ -84,8 +84,6 @@ static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 		printf(", PASSIVE-SCAN");
 	if (flags & RRF_NO_IBSS)
 		printf(", NO-IBSS");
-	if (flags & RRF_NO_HT20)
-		printf(", NO-HT20");
 	if (flags & RRF_NO_HT40)
 		printf(", NO-HT40");
 

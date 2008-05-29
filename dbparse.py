@@ -12,7 +12,7 @@ flag_definitions = {
     'PTMP-ONLY':	1<<6,
     'PASSIVE-SCAN':	1<<7,
     'NO-IBSS':		1<<8,
-    'NO-HT20':		1<<9,
+    # hole at bit 9
     'NO-HT40':		1<<10,
     'EDGE-POWER-1':	1<<11,
     'EDGE-POWER-2':	2<<11,

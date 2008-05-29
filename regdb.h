@@ -67,7 +67,7 @@ enum reg_rule_flags {
 	RRF_PTMP_ONLY		= 1<<6,
 	RRF_PASSIVE_SCAN	= 1<<7,
 	RRF_NO_IBSS		= 1<<8,
-	RRF_NO_HT20		= 1<<9,
+	/* hole at 9 */
 	RRF_NO_HT40		= 1<<10,
 	RRF_EDGE_POWER_MASK	= 3<<EDGE_POWER_SHIFT,
 };

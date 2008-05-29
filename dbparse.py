@@ -226,11 +226,18 @@ class DBParser(object):
         except ValueError:
             self._syntax_error("country name must be followed by colon")
 
-        if not cname in self._countries:
-            self._countries[cname] = Country(comments=self._comments)
+        cnames = cname.split(',')
+        c = Country(comments=self._comments)
+
+        for cname in cnames:
+            if len(cname) != 2:
+                self._warn("country '%s' not alpha2" % cname)
+            if not cname in self._countries:
+                self._countries[cname] = c
         self._comments = []
-        self._current_country = self._countries[cname]
-        self._current_country_name = cname
+        self._current_country = c
+        # only prints first..
+        self._current_country_name = cnames[0]
 
     def _parse_country_item(self, line):
         if line[0] == '(':
@@ -338,10 +345,7 @@ class DBParser(object):
             else:
                 self._syntax_error("Expected band, power or country definition")
 
-        countries = {}
-        for k, v in self._countries.iteritems():
-            for k in k.split(','):
-                countries[k] = v
+        countries = self._countries
         bands = {}
         for k, v in self._bands.iteritems():
             if k in self._bands_used:

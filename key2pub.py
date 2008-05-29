@@ -4,8 +4,6 @@ import sys
 from M2Crypto import RSA
 
 def print_ssl(name, val):
-    sys.stdout.write('static BN_ULONG %s[] = {\n' % name)
-    idx = 0
     while val[0] == '\0':
         val = val[1:]
     while len(val) % 4:
@@ -15,6 +13,8 @@ def print_ssl(name, val):
         vnew.append((val[0], val[1], val[2], val[3], ))
         val = val[4:]
     vnew.reverse()
+    sys.stdout.write('static BN_ULONG %s[%d] = {\n' % (name, len(vnew)))
+    idx = 0
     for v1, v2, v3, v4 in vnew:
         if not idx:
             sys.stdout.write('\t')
@@ -48,10 +48,10 @@ static struct pubkey keys[] = {
     pass
 
 def print_gcrypt(name, val):
-    sys.stdout.write('static __u8 %s[] = {\n' % name)
-    idx = 0
     while val[0] == '\0':
         val = val[1:]
+    sys.stdout.write('static __u8 %s[%d] = {\n' % (name, len(val)))
+    idx = 0
     for v in val:
         if not idx:
             sys.stdout.write('\t')

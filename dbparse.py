@@ -227,17 +227,15 @@ class DBParser(object):
             self._syntax_error("country name must be followed by colon")
 
         cnames = cname.split(',')
-        c = Country(comments=self._comments)
 
+        self._current_countries = {}
         for cname in cnames:
             if len(cname) != 2:
                 self._warn("country '%s' not alpha2" % cname)
             if not cname in self._countries:
-                self._countries[cname] = c
+                self._countries[cname] = Country(comments=self._comments)
+            self._current_countries[cname] = self._countries[cname]
         self._comments = []
-        self._current_country = c
-        # only prints first..
-        self._current_country_name = cnames[0]
 
     def _parse_country_item(self, line):
         if line[0] == '(':
@@ -294,14 +292,15 @@ class DBParser(object):
             self._syntax_error("Invalid flag '%s'" % e.flag)
         except DuplicateEdgePowerError:
             self._syntax_error("More than one edge power value given!")
-        if perm in self._current_country:
-            self._warn('Rule "%s, %s" added to "%s" twice' % (
-                          bname, pname, self._current_country_name))
-        else:
-            self._current_country.add(perm)
+        for cname, c in self._current_countries.iteritems():
+            if perm in c:
+                self._warn('Rule "%s, %s" added to "%s" twice' % (
+                              bname, pname, cname))
+            else:
+                c.add(perm)
 
     def parse(self, f):
-        self._current_country = None
+        self._current_countries = None
         self._bands = {}
         self._power = {}
         self._countries = {}
@@ -330,16 +329,16 @@ class DBParser(object):
                 continue
             if line[0:4] == 'band':
                 self._parse_band(line[4:])
-                self._current_country = None
+                self._current_countries = None
                 self._comments = []
             elif line[0:5] == 'power':
                 self._parse_power(line[5:])
-                self._current_country = None
+                self._current_countries = None
                 self._comments = []
             elif line[0:7] == 'country':
                 self._parse_country(line[7:])
                 self._comments = []
-            elif self._current_country is not None:
+            elif self._current_countries is not None:
                 self._parse_country_item(line)
                 self._comments = []
             else:

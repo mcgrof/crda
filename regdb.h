@@ -55,8 +55,6 @@ struct regdb_file_power_rule {
 	__be32	max_eirp;
 };
 
-#define EDGE_POWER_SHIFT	11
-
 enum reg_rule_flags {
 	RRF_NO_OFDM		= 1<<0,
 	RRF_NO_CCK		= 1<<1,
@@ -69,14 +67,7 @@ enum reg_rule_flags {
 	RRF_NO_IBSS		= 1<<8,
 	/* hole at 9 */
 	RRF_NO_HT40		= 1<<10,
-	RRF_EDGE_POWER_MASK	= 3<<EDGE_POWER_SHIFT,
 };
-
-/* TODO: flesh out what these mean! */
-#define EDGE_POWER_NO	0
-#define EDGE_POWER_1	1
-#define EDGE_POWER_2	2
-#define EDGE_POWER_3	3
 
 struct regdb_file_reg_rule {
 	/* pointers (offsets) into the file */

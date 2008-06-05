@@ -42,7 +42,6 @@ static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 	struct regdb_file_freq_range *freq;
 	struct regdb_file_power_rule *power;
 	__u32 flags;
-	int ep;
 
 	rule = get_file_ptr(db, dblen, sizeof(*rule), ruleptr);
 	freq = get_file_ptr(db, dblen, sizeof(*freq), rule->freq_range_ptr);
@@ -86,10 +85,6 @@ static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 		printf(", NO-IBSS");
 	if (flags & RRF_NO_HT40)
 		printf(", NO-HT40");
-
-	ep = (flags & RRF_EDGE_POWER_MASK) >> EDGE_POWER_SHIFT;
-	if (ep)
-		printf(", EDGE-POWER-%d", ep);
 
 	printf("\n");
 }

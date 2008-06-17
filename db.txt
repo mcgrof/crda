@@ -143,11 +143,15 @@ country CZ:
 	(5170 - 5250 @ 40), (N/A, 20)
 	(5250 - 5330 @ 40), (N/A, 20), DFS
 
+# Data from "Frequenznutzungsplan" (as published in April 2008),
+# downloaded from http://www.bundesnetzagentur.de/media/archive/13358.pdf
 country DE:
-	(2402 - 2482 @ 40), (N/A, 20)
-	(5170 - 5250 @ 40), (N/A, 20)
-	(5250 - 5330 @ 40), (N/A, 20), DFS
-	(5490 - 5710 @ 40), (N/A, 27), DFS
+	# entries 279004 and 280006
+	(2400 - 2483.5 @ 40), (N/A, 100 mW)
+	# entries 303005 and 304002
+	(5150 - 5255 @ 40), (N/A, 200 mW), NO-OUTDOOR, DFS
+	# entries 308002 and 309001
+	(5470 - 5650 @ 40), (N/A, 1000 mW), DFS
 
 country DK:
 	(2402 - 2482 @ 40), (N/A, 20)

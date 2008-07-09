@@ -186,36 +186,38 @@ int main(int argc, char **argv)
 
 	if (argc != 3) {
 		fprintf(stderr, "Usage: %s <ISO-3166 alpha2 country code> <UUID>\n", argv[0]);
-		return 2;
+		return -EINVAL;
 	}
 	
 	if (!is_alpha2(argv[1])) {
 		fprintf(stderr, "Invalid alpha2\n");
-		return 2;
+		return -EINVAL;
 	}
 
 	memcpy(alpha2, argv[1], 2);
 
 	if (!uuid_ok(argv[2])) {
 		fprintf(stderr, "Invalid UUID\n");
-		return 2;
+		return -EINVAL;
 	}
 
 	memcpy(uuid, argv[2], 16);
 
 	r = nl80211_init(&nlstate);
 	if (r)
-		return 2;
+		return -EIO;
 
 	fd = open(regdb, O_RDONLY);
 	if (fd < 0) {
 		perror("failed to open db file");
-		return 2;
+		r = -ENOENT;
+		goto out;
 	}
 
 	if (fstat(fd, &stat)) {
 		perror("failed to fstat db file");
-		return 2;
+		r = -EIO;
+		goto out;
 	}
 
 	dblen = stat.st_size;
@@ -223,19 +225,22 @@ int main(int argc, char **argv)
 	db = mmap(NULL, dblen, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (db == MAP_FAILED) {
 		perror("failed to mmap db file");
-		return 2;
+		r = -EIO;
+		goto out;
 	}
 
 	header = get_file_ptr(db, dblen, sizeof(*header), 0);
 
 	if (ntohl(header->magic) != REGDB_MAGIC) {
 		fprintf(stderr, "Invalid database magic\n");
-		return 2;
+		r = -EINVAL;
+		goto out;
 	}
 
 	if (ntohl(header->version) != REGDB_VERSION) {
 		fprintf(stderr, "Invalid database version\n");
-		return 2;
+		r = -EINVAL;
+		goto out;
 	}
 
 	siglen = ntohl(header->signature_length);
@@ -244,7 +249,8 @@ int main(int argc, char **argv)
 
 	if (dblen <= sizeof(*header)) {
 		fprintf(stderr, "Invalid signature length %d\n", siglen);
-		return 2;
+		r = -EINVAL;
+		goto out;
 	}
 
 	/* verify signature */
@@ -252,12 +258,14 @@ int main(int argc, char **argv)
 	rsa = RSA_new();
 	if (!rsa) {
 		fprintf(stderr, "Failed to create RSA key\n");
-		return 2;
+		r = -EINVAL;
+		goto out;
 	}
 
 	if (SHA1(db, dblen, hash) != hash) {
 		fprintf(stderr, "Failed to calculate SHA sum\n");
-		return 2;
+		r = -EINVAL;
+		goto out;
 	}
 
 	for (i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
@@ -275,7 +283,8 @@ int main(int argc, char **argv)
 
 	if (!ok) {
 		fprintf(stderr, "Database signature wrong\n");
-		return 2;
+		r = -EINVAL;
+		goto out;
 	}
 
 	rsa->e = NULL;
@@ -284,7 +293,6 @@ int main(int argc, char **argv)
 
 	BN_print_fp(stdout, &keys[0].n);
 
-	return 0;
 #endif
 
 #ifdef USE_GCRYPT
@@ -340,10 +348,7 @@ int main(int argc, char **argv)
 	for (i = 0; i < num_countries; i++) {
 		struct regdb_file_reg_rules_collection *rcoll;
 		struct regdb_file_reg_country *country = countries + i;
-		struct nlattr *nl_reg_rules, *nl_reg_rule;
-		struct nlattr *nl_freq_ranges, *nl_freq_range;
-		struct nlattr *nl_power_rules, *nl_power_rule;
-		void *hdr;
+		struct nlattr *nl_reg_rules;
 		int num_rules;
 
 		if (strncmp(country->alpha2, alpha2, 2) != 0)

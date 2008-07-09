@@ -19,7 +19,7 @@ crda: keys-gcrypt.c crda.c regdb.h
 	$(CC) $(CFLAGS) $(LDFLAGS) -lnl -o $@ crda.c
 
 clean:
-	@rm -f regulatory.bin dump *~ *.pyc keys-*.c
+	@rm -f regulatory.bin dump *~ *.pyc keys-*.c crda
 
 warn:
 	@if test !  -f key.priv.pem || diff -qNs test-key key.priv.pem >/dev/null ; then \

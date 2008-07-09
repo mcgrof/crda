@@ -351,7 +351,7 @@ int main(int argc, char **argv)
 		struct nlattr *nl_reg_rules;
 		int num_rules;
 
-		if (strncmp(country->alpha2, alpha2, 2) != 0)
+		if (memcmp(country->alpha2, alpha2, 2) != 0)
 			continue;
 
 		msg = nlmsg_alloc();
@@ -363,8 +363,8 @@ int main(int argc, char **argv)
 		genlmsg_put(msg, 0, 0, genl_family_get_id(nlstate.nl80211), 0,
 			0, NL80211_CMD_SET_REG, 0);
 
-		NLA_PUT_STRING(msg, NL80211_ATTR_REG_UUID,	uuid);
-		NLA_PUT_STRING(msg, NL80211_ATTR_REG_ALPHA2,	country->alpha2);
+		NLA_PUT_STRING(msg, NL80211_ATTR_REG_UUID, (char *) uuid);
+		NLA_PUT_STRING(msg, NL80211_ATTR_REG_ALPHA2, (char *) country->alpha2);
 
 		rcoll = get_file_ptr(db, dblen, sizeof(*rcoll), country->reg_collection_ptr);
 		num_rules = ntohl(rcoll->reg_rule_num);

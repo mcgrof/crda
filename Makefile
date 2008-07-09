@@ -1,14 +1,22 @@
 CFLAGS += -Wall -g3
 #CFLAGS += -DUSE_OPENSSL
 #LDFLAGS += -lssl
+ifneq ($(COMPAT_TREE),)
+CFLAGS += -I$(COMPAT_TREE)/include/
+endif
 CFLAGS += -DUSE_GCRYPT
 LDFLAGS += -lgcrypt
 
-all:	regulatory.bin warn
+CRDA_LIB="/usr/lib//crda/"
+
+all:	regulatory.bin warn crda
 	@$(MAKE) --no-print-directory -f Makefile verify
 
 regulatory.bin:	db2bin.py key.priv.pem db.txt dbparse.py
 	@./db2bin.py regulatory.bin db.txt key.priv.pem
+
+crda: keys-gcrypt.c crda.c regdb.h
+	$(CC) $(CFLAGS) $(LDFLAGS) -lnl -o $@ crda.c
 
 clean:
 	@rm -f regulatory.bin dump *~ *.pyc keys-*.c
@@ -38,3 +46,8 @@ keys-gcrypt.c: key2pub.py *.pem
 
 verify: dump
 	@./dump regulatory.bin >/dev/null
+
+install: regulatory.bin crda
+	mkdir -p $(CRDA_LIB)
+	install regulatory.bin $(CRDA_LIB)
+	install crda /sbin/

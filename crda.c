@@ -92,8 +92,25 @@ static void nl80211_cleanup(struct nl80211_state *state)
 	nl_handle_destroy(state->nl_handle);
 }
 
+static int reg_handler(struct nl_msg *msg, void *arg)
+{
+	printf("=== reg_handler() called\n");
+	return NL_SKIP;
+}
+
+static int wait_handler(struct nl_msg *msg, void *arg)
+{
+	int *finished = arg;
+	printf("=== wait_handler() called\n");
+
+	*finished = 1;
+	return NL_STOP;
+}
+
+
 static int error_handler(struct sockaddr_nl *nla, struct nlmsgerr *err, void *arg)
 {
+	printf("=== error_handler() called\n");
 	fprintf(stderr, "nl80211 error %d\n", err->error);
 	exit(err->error);
 }
@@ -264,6 +281,14 @@ int main(int argc, char **argv)
 	struct nl80211_state nlstate;
 	struct nl_cb *cb = NULL;
 	struct nl_msg *msg;
+	int found_country = 0;
+	int finished = 0;
+
+	struct regdb_file_reg_rules_collection *rcoll;
+	struct regdb_file_reg_country *country;
+	struct nlattr *nl_reg_rules;
+	int num_rules;
+
 #ifdef USE_OPENSSL
 	RSA *rsa;
 	__u8 hash[SHA_DIGEST_LENGTH];
@@ -444,48 +469,60 @@ int main(int argc, char **argv)
 				 header->reg_country_ptr);
 
 	for (i = 0; i < num_countries; i++) {
-		struct regdb_file_reg_rules_collection *rcoll;
-		struct regdb_file_reg_country *country = countries + i;
-		struct nlattr *nl_reg_rules;
-		int num_rules;
-
-		if (memcmp(country->alpha2, alpha2, 2) != 0)
-			continue;
-
-		msg = nlmsg_alloc();
-		if (!msg) {
-			fprintf(stderr, "failed to allocate netlink msg\n");
-			return -1;
-		}
-
-		genlmsg_put(msg, 0, 0, genl_family_get_id(nlstate.nl80211), 0,
-			0, NL80211_CMD_SET_REG, 0);
-
-		NLA_PUT_STRING(msg, NL80211_ATTR_REG_UUID, (char *) uuid);
-		NLA_PUT_STRING(msg, NL80211_ATTR_REG_ALPHA2, (char *) country->alpha2);
-
-		rcoll = get_file_ptr(db, dblen, sizeof(*rcoll), country->reg_collection_ptr);
-		num_rules = ntohl(rcoll->reg_rule_num);
-		/* re-get pointer with sanity checking for num_rules */
-		rcoll = get_file_ptr(db, dblen,
-				     sizeof(*rcoll) + num_rules * sizeof(__be32),
-				     country->reg_collection_ptr);
-
-		NLA_PUT_U32(msg, NL80211_ATTR_NUM_REG_RULES, num_rules);
-
-		nl_reg_rules = nla_nest_start(msg, NL80211_ATTR_REG_RULES);
-		if (!nl_reg_rules) {
-			r = -1;
-			goto nla_put_failure;
-		}
-
-
-		for (j = 0; j < num_rules; j++) {
-			r = put_reg_rule(db, dblen, rcoll->reg_rule_ptrs[j], msg);
-			if (r)
-				goto nla_put_failure;
+		country = countries + i;
+		if (memcmp(country->alpha2, alpha2, 2) == 0) {
+			found_country = 1;
+			break;
 		}
 	}
+
+	if (!found_country) {
+		fprintf(stderr, "failed to find a country match in regulatory database\n");
+		return -1;
+	}
+
+	msg = nlmsg_alloc();
+	if (!msg) {
+		fprintf(stderr, "failed to allocate netlink msg\n");
+		return -1;
+	}
+
+	genlmsg_put(msg, 0, 0, genl_family_get_id(nlstate.nl80211), 0,
+		0, NL80211_CMD_SET_REG, 0);
+
+
+	rcoll = get_file_ptr(db, dblen, sizeof(*rcoll), country->reg_collection_ptr);
+	num_rules = ntohl(rcoll->reg_rule_num);
+	/* re-get pointer with sanity checking for num_rules */
+	rcoll = get_file_ptr(db, dblen,
+			     sizeof(*rcoll) + num_rules * sizeof(__be32),
+			     country->reg_collection_ptr);
+
+	/* XXX: Move 16 to nl80211.h */
+	NLA_PUT(msg, NL80211_ATTR_REG_UUID, 16, (char *) uuid);
+	NLA_PUT_STRING(msg, NL80211_ATTR_REG_ALPHA2, (char *) country->alpha2);
+	NLA_PUT_U32(msg, NL80211_ATTR_NUM_REG_RULES, num_rules);
+
+	nl_reg_rules = nla_nest_start(msg, NL80211_ATTR_REG_RULES);
+	if (!nl_reg_rules) {
+		r = -1;
+		goto nla_put_failure;
+	}
+
+	for (j = 0; j < num_rules; j++) {
+		struct nlattr *nl_reg_rule;
+		nl_reg_rule = nla_nest_start(msg, i);
+		if (!nl_reg_rule)
+			goto nla_put_failure;
+
+		r = put_reg_rule(db, dblen, rcoll->reg_rule_ptrs[j], msg);
+		if (r)
+			goto nla_put_failure;
+
+		nla_nest_end(msg, nl_reg_rule);
+	}
+
+	nla_nest_end(msg, nl_reg_rules);
 
 	cb = nl_cb_alloc(NL_CB_CUSTOM);
 	if (!cb)
@@ -498,13 +535,16 @@ int main(int argc, char **argv)
 		goto cb_out;
 	}
 
+	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, reg_handler, NULL);
+	nl_cb_set(cb, NL_CB_ACK, NL_CB_CUSTOM, wait_handler, &finished);
 	nl_cb_err(cb, NL_CB_CUSTOM, error_handler, NULL);
 
-	r = nl_wait_for_ack(nlstate.nl_handle);
-
-	if (r < 0) {
-		fprintf(stderr, "failed to set regulatory domain: %d\n", r);
-		goto cb_out;
+	if (!finished) {
+		r = nl_wait_for_ack(nlstate.nl_handle);
+		if (r < 0) {
+			fprintf(stderr, "failed to set regulatory domain: %d\n", r);
+			goto cb_out;
+		}
 	}
 
 cb_out:

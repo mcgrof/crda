@@ -101,8 +101,6 @@ static int reg_handler(struct nl_msg *msg, void *arg)
 static int wait_handler(struct nl_msg *msg, void *arg)
 {
 	int *finished = arg;
-	printf("=== wait_handler() called\n");
-
 	*finished = 1;
 	return NL_STOP;
 }
@@ -110,7 +108,6 @@ static int wait_handler(struct nl_msg *msg, void *arg)
 
 static int error_handler(struct sockaddr_nl *nla, struct nlmsgerr *err, void *arg)
 {
-	printf("=== error_handler() called\n");
 	fprintf(stderr, "nl80211 error %d\n", err->error);
 	exit(err->error);
 }
@@ -135,102 +132,6 @@ static int is_world_regdom(char *alpha2)
 	if (alpha2[0] == 48 && alpha2[1] == 48)
 		return 1;
 	return 0;
-}
-
-static int is_hex_alpha_upper(char hex)
-{
-	if (hex >= 65 && hex <= 90)
-		return 1;
-	return 0;
-}
-
-static int is_hex_alpha_lower(char hex)
-{
-	if (hex >= 97 && hex <= 122)
-		return 1;
-	return 0;
-}
-
-static int is_hex_alpha(char hex)
-{
-	if (is_hex_alpha_upper(hex) || is_hex_alpha_lower(hex))
-		return 1;
-	return 0;
-}
-
-static int is_hex_digit(char hex)
-{
-	if (hex >= 48 && hex <= 57)
-		return 1;
-	return 0;
-}
-
-static int is_hex(char hex)
-{
-	if (is_hex_alpha(hex) || is_hex_digit(hex))
-		return 1;
-	return 0;
-}
-
-static unsigned char hex2char(char hex0)
-{
-	if (is_hex_alpha(hex0)) {
-		if (is_hex_alpha_upper(hex0))
-			return (hex0 - 65 + 10); /* A-F */
-		return (hex0 - 97 + 10); /* a-f */
-	}
-	return (hex0 - 48); /* 0-9 */
-}
-
-static unsigned char hexstring2char(char hex0, char hex1)
-{
-	return (hex2char(hex0) + (hex2char(hex1) * 16));
-}
-
-int parse_uuid(char *hexstring, unsigned char *uuid)
-{
-	int i;
-	char check_uuid[32];
-	if (strlen(hexstring) != 32)
-		return 1;
-	for (i=0; i<16; i++) {
-		uuid[i] = hexstring2char(hexstring[(i*2)+1], hexstring[i*2]);
-#ifdef DEBUG
-		printf("0x%c%c = 0x%02x\n",
-			hexstring[i*2],
-			hexstring[(i*2)+1],
-			hexstring2char(hexstring[(i*2)+1], hexstring[i*2]));
-#endif
-	}
-	sprintf(check_uuid,
-		"%02x%02x%02x%02x"
-		"%02x%02x%02x%02x"
-		"%02x%02x%02x%02x"
-		"%02x%02x%02x%02x",
-		uuid[0], uuid[1], uuid[2], uuid[3],
-		uuid[4], uuid[5], uuid[6], uuid[7],
-		uuid[8], uuid[9], uuid[10], uuid[11],
-		uuid[12], uuid[13], uuid[14], uuid[15]);
-#ifdef DEBUG
-	printf("UUID check: %s\n", check_uuid);
-#endif
-	/* For now we use support the kernel asking us in lower case only */
-	if (memcmp(check_uuid, hexstring, 32) != 0) {
-		fprintf(stderr, "Could not covert UUID string correctly\n");
-		return 1;
-	}
-	return 0;
-}
-
-static int uuid_ok(char *uuid_string)
-{
-	int i;
-	if (strlen(uuid_string) != 32)
-		return 0;
-	for (i=0; i<32; i++)
-		if(!is_hex(uuid_string[i]))
-			return 0;
-	return 1;
 }
 
 static void *get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr)
@@ -276,7 +177,6 @@ int main(int argc, char **argv)
 	struct regdb_file_header *header;
 	struct regdb_file_reg_country *countries;
 	int dblen, siglen, num_countries, i, j, r;
-	unsigned char uuid[16];
 	char alpha2[2];
 	struct nl80211_state nlstate;
 	struct nl_cb *cb = NULL;
@@ -302,8 +202,8 @@ int main(int argc, char **argv)
 #endif
 	char *regdb = "/usr/lib/crda/regulatory.bin";
 
-	if (argc != 3) {
-		fprintf(stderr, "Usage: %s <ISO-3166 alpha2 country code> <UUID>\n", argv[0]);
+	if (argc != 2) {
+		fprintf(stderr, "Usage: %s <ISO-3166 alpha2 country code>\n", argv[0]);
 		return -EINVAL;
 	}
 	
@@ -313,18 +213,6 @@ int main(int argc, char **argv)
 	}
 
 	memcpy(alpha2, argv[1], 2);
-
-	if (!uuid_ok(argv[2])) {
-		fprintf(stderr, "Invalid UUID\n");
-		return -EINVAL;
-	}
-
-	r = parse_uuid(argv[2], uuid);
-	if (r) {
-		fprintf(stderr, "Length of UUID hex string must be 32 characters\n");
-		fprintf(stderr, "Usage: %s <ISO-3166 alpha2 country code> <UUID>\n", argv[0]);
-		return r;
-	}
 
 	r = nl80211_init(&nlstate);
 	if (r)
@@ -498,8 +386,6 @@ int main(int argc, char **argv)
 			     sizeof(*rcoll) + num_rules * sizeof(__be32),
 			     country->reg_collection_ptr);
 
-	/* XXX: Move 16 to nl80211.h */
-	NLA_PUT(msg, NL80211_ATTR_REG_UUID, 16, (char *) uuid);
 	NLA_PUT_STRING(msg, NL80211_ATTR_REG_ALPHA2, (char *) country->alpha2);
 	NLA_PUT_U32(msg, NL80211_ATTR_NUM_REG_RULES, num_rules);
 

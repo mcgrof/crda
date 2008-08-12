@@ -1,10 +1,15 @@
+ifeq ($(origin $(KLIB)), undefined)
+KLIB:=          /lib/modules/$(shell uname -r)
+endif
+KLIB_BUILD ?=   $(KLIB)/build
+
 CFLAGS += -Wall -g3
 #CFLAGS += -DUSE_OPENSSL
 #LDFLAGS += -lssl
 ifneq ($(COMPAT_TREE),)
 CFLAGS += -I$(COMPAT_TREE)/include/
 endif
-CFLAGS += -DUSE_GCRYPT
+CFLAGS += -I$(KLIB_BUILD)/include -DUSE_GCRYPT
 LDFLAGS += -lgcrypt
 
 CRDA_LIB="/usr/lib//crda/"

@@ -6,6 +6,7 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -173,6 +174,7 @@ int main(int argc, char **argv)
 	struct regdb_file_reg_country *countries;
 	int dblen, siglen, num_countries, i, j, r;
 	char alpha2[2];
+	char *env_country;
 	struct nl80211_state nlstate;
 	struct nl_cb *cb = NULL;
 	struct nl_msg *msg;
@@ -197,17 +199,24 @@ int main(int argc, char **argv)
 #endif
 	char *regdb = "/usr/lib/crda/regulatory.bin";
 
-	if (argc != 2) {
-		fprintf(stderr, "Usage: %s <ISO-3166 alpha2 country code>\n", argv[0]);
-		return -EINVAL;
-	}
-	
-	if (!is_alpha2(argv[1]) && !is_world_regdom(argv[1])) {
-		fprintf(stderr, "Invalid alpha2\n");
+	if (argc != 1) {
+		fprintf(stderr, "Usage: %s\n", argv[0]);
 		return -EINVAL;
 	}
 
-	memcpy(alpha2, argv[1], 2);
+	env_country = getenv("COUNTRY");
+	if (!env_country) {
+		fprintf(stderr, "COUNTRY environment variable not set.\n");
+		return -EINVAL;
+	}
+
+	
+	if (!is_alpha2(env_country) && !is_world_regdom(env_country)) {
+		fprintf(stderr, "Invalid alpha2 set in COUNTRY\n");
+		return -EINVAL;
+	}
+
+	memcpy(alpha2, env_country, 2);
 
 	r = nl80211_init(&nlstate);
 	if (r)

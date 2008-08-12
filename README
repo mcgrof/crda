@@ -5,13 +5,27 @@ This is the Central Regulatory Domain Agent for Linux. It serves two
 purposes: keep a database of world-wide regulatory information and
 tell the Linux kernel what to enforce.
 
- REQUIREMENTS
-==============
+ HOST REQUIREMENTS
+===================
 
-The package requirements currently are:
+CRDA is provided as a binary file so all the host needs is libc/uclibc.
+
+ BUILD REQUIREMENTS
+====================
+
+The package build requirements currently are:
+
  * python and the m2crypto package (python-m2crypto)
  * libgcrypt or libssl (openssl) header files
  * MoinMoin (http://moinmo.in) for the web viewer
+
+ CALLING CRDA -- UDEV
+======================
+
+Distributions can set up a udev rule to allow the kernel's regulatory
+domain change request to be reviewed by CRDA so CRDA can pass an
+appropriate regulatory domain. An example regulatory rule is provided
+with this package as regulatory.rules
 
  OVERVIEW
 ==========

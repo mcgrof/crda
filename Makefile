@@ -56,3 +56,4 @@ install: regulatory.bin crda
 	mkdir -p $(CRDA_LIB)
 	install regulatory.bin $(CRDA_LIB)
 	install crda /sbin/
+	install regulatory.rules /etc/udev/rules.d/

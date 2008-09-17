@@ -192,6 +192,9 @@ int main(int argc, char **argv)
 	int ok = 0;
 #endif
 #ifdef USE_GCRYPT
+	/* initialise */
+	gcry_check_version(NULL);
+
 	gcry_mpi_t mpi_e, mpi_n;
 	gcry_sexp_t rsa, signature, data;
 	__u8 hash[20];
@@ -311,6 +314,9 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef USE_GCRYPT
+	/* initialise */
+	gcry_check_version(NULL);
+
 	/* hash the db */
 	gcry_md_hash_buffer(GCRY_MD_SHA1, hash, db, dblen);
 

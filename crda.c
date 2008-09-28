@@ -110,7 +110,7 @@ static int error_handler(struct sockaddr_nl *nla, struct nlmsgerr *err, void *ar
 
 int isalpha_upper(char letter)
 {
-	if (letter >= 65 && letter <= 90)
+	if (letter >= 'A' && letter <= 'Z')
 		return 1;
 	return 0;
 }
@@ -124,8 +124,7 @@ static int is_alpha2(char *alpha2)
 
 static int is_world_regdom(char *alpha2)
 {
-	/* ASCII 0 */
-	if (alpha2[0] == 48 && alpha2[1] == 48)
+	if (alpha2[0] == '0' && alpha2[1] == '0')
 		return 1;
 	return 0;
 }

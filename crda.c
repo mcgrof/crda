@@ -14,7 +14,7 @@
 
 #include <netlink/genl/genl.h>
 #include <netlink/genl/family.h>
-#include <netlink/genl/ctrl.h>  
+#include <netlink/genl/ctrl.h>
 #include <netlink/msg.h>
 #include <netlink/attr.h>
 #include <linux/nl80211.h>
@@ -192,14 +192,12 @@ int main(int argc, char **argv)
 	int ok = 0;
 #endif
 #ifdef USE_GCRYPT
-	/* initialise */
-	gcry_check_version(NULL);
-
 	gcry_mpi_t mpi_e, mpi_n;
 	gcry_sexp_t rsa, signature, data;
 	__u8 hash[20];
 	int ok = 0;
 #endif
+
 	char *regdb = "/usr/lib/crda/regulatory.bin";
 
 	if (argc != 1) {
@@ -213,7 +211,7 @@ int main(int argc, char **argv)
 		return -EINVAL;
 	}
 
-	
+
 	if (!is_alpha2(env_country) && !is_world_regdom(env_country)) {
 		fprintf(stderr, "Invalid alpha2 set in COUNTRY\n");
 		return -EINVAL;

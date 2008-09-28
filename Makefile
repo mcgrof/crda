@@ -1,7 +1,7 @@
 ifeq ($(origin $(KLIB)), undefined)
-KLIB:=          /lib/modules/$(shell uname -r)
+KLIB := /lib/modules/$(shell uname -r)
 endif
-KLIB_BUILD ?=   $(KLIB)/build
+KLIB_BUILD ?= $(KLIB)/build
 
 CFLAGS += -Wall -g3
 #CFLAGS += -DUSE_OPENSSL
@@ -12,7 +12,10 @@ endif
 CFLAGS += -I$(KLIB_BUILD)/include -DUSE_GCRYPT
 LDFLAGS += -lgcrypt
 
-CRDA_LIB="/usr/lib//crda/"
+MKDIR ?= mkdir -p
+INSTALL ?= install
+
+CRDA_LIB = "/usr/lib/crda/"
 
 all:	regulatory.bin warn crda
 	@$(MAKE) --no-print-directory -f Makefile verify
@@ -20,7 +23,7 @@ all:	regulatory.bin warn crda
 regulatory.bin:	db2bin.py key.priv.pem db.txt dbparse.py
 	@./db2bin.py regulatory.bin db.txt key.priv.pem
 
-crda: keys-gcrypt.c crda.c regdb.h
+crda: keys-gcrypt.c keys-ssl.c crda.c regdb.h
 	$(CC) $(CFLAGS) $(LDFLAGS) -lnl -o $@ crda.c
 
 clean:
@@ -53,7 +56,7 @@ verify: dump
 	@./dump regulatory.bin >/dev/null
 
 install: regulatory.bin crda
-	mkdir -p $(CRDA_LIB)
-	install regulatory.bin $(CRDA_LIB)
-	install crda /sbin/
-	install regulatory.rules /etc/udev/rules.d/
+	$(MKDIR) $(DESTDIR)$(CRDA_LIB)
+	$(INSTALL) -m 644 -t $(DESTDIR)$(CRDA_LIB) regulatory.bin
+	$(INSTALL) -m 755 -t $(DESTDIR)/sbin/ crda
+	$(INSTALL) -m 644 -t $(DESTDIR)/etc/udev/rules.d/ regulatory.rules

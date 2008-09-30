@@ -90,7 +90,6 @@ static void nl80211_cleanup(struct nl80211_state *state)
 
 static int reg_handler(struct nl_msg *msg, void *arg)
 {
-	printf("=== reg_handler() called\n");
 	return NL_SKIP;
 }
 

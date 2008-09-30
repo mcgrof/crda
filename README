@@ -17,6 +17,9 @@ The package build requirements currently are:
 
  * python and the m2crypto package (python-m2crypto)
  * libgcrypt or libssl (openssl) header files
+
+If you want to put up a web site with a database viewer using MoinMoin:
+
  * MoinMoin (http://moinmo.in) for the web viewer
 
  CALLING CRDA -- UDEV
@@ -42,7 +45,7 @@ table.
 The regulatory information in `db.txt' is stored in a human-readable
 format which can be read using the `dbparse.py' python module. This
 python module is used by the web viewer (web/Regulatory.py) which is
-implemented as a MoinMoin macro (and used on http://linuxwireless.org)
+implemented as a MoinMoin macro (and used on http://wireless.kernel.org)
 to allow viewing the database for verification.
 
 The dbparse module is also used by db2bin.py, the `compiler', which

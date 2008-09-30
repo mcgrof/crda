@@ -193,6 +193,9 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef USE_GCRYPT
+	/* initialise */
+	gcry_check_version(NULL);
+
 	/* hash the db */
 	gcry_md_hash_buffer(GCRY_MD_SHA1, hash, db, dblen);
 

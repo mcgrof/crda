@@ -17,6 +17,8 @@ The package build requirements currently are:
 
  * python and the m2crypto package (python-m2crypto)
  * libgcrypt or libssl (openssl) header files
+ * nl library and header files (libnl1 and libnl-dev)
+   available at git://git.kernel.org/pub/scm/libs/netlink/libnl.git
 
 If you want to put up a web site with a database viewer using MoinMoin:
 

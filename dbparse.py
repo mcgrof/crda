@@ -2,9 +2,11 @@
 
 import sys, math
 
+# must match <linux/nl80211.h> enum nl80211_reg_rule_flags
+
 flag_definitions = {
-    'NO-CCK':		1<<0,
-    'NO-OFDM':		1<<1,
+    'NO-OFDM':		1<<0,
+    'NO-CCK':		1<<1,
     'NO-INDOOR':	1<<2,
     'NO-OUTDOOR':	1<<3,
     'DFS':		1<<4,
@@ -12,7 +14,7 @@ flag_definitions = {
     'PTMP-ONLY':	1<<6,
     'PASSIVE-SCAN':	1<<7,
     'NO-IBSS':		1<<8,
-    # hole at bit 9
+    # hole at bit 9. FIXME: Where is NO-HT40 defined?
     'NO-HT40':		1<<10,
 }
 

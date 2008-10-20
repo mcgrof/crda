@@ -28,6 +28,9 @@ crda: keys-gcrypt.c keys-ssl.c crda.c regdb.h
 
 clean:
 	@rm -f regulatory.bin dump *~ *.pyc keys-*.c crda
+	@if test -f key.priv.pem && diff -qNs test-key key.priv.pem >/dev/null ; then \
+	rm -f key.priv.pem;\
+	fi
 
 warn:
 	@if test !  -f key.priv.pem || diff -qNs test-key key.priv.pem >/dev/null ; then \
@@ -49,7 +52,7 @@ dump:	dump.c regdb.h keys-ssl.c keys-gcrypt.c
 keys-ssl.c: key2pub.py $(wildcard *.pem)
 	@./key2pub.py --ssl *.pem > keys-ssl.c
 
-keys-gcrypt.c: key2pub.py *.pem
+keys-gcrypt.c: key2pub.py $(wildcard *.pem)
 	@./key2pub.py --gcrypt *.pem > keys-gcrypt.c
 
 verify: dump

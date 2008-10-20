@@ -114,19 +114,34 @@ int isalpha_upper(char letter)
 	return 0;
 }
 
-static int is_alpha2(char *alpha2)
+static int is_alpha2(const char *alpha2)
 {
 	if (isalpha_upper(alpha2[0]) && isalpha_upper(alpha2[1]))
 		return 1;
 	return 0;
 }
 
-static int is_world_regdom(char *alpha2)
+static int is_world_regdom(const char *alpha2)
 {
 	if (alpha2[0] == '0' && alpha2[1] == '0')
 		return 1;
 	return 0;
 }
+
+static int is_valid_regdom(const char * alpha2)
+{
+	if (strlen(alpha2) != 2)
+		return 0;
+
+	if (!is_alpha2(alpha2) && !is_world_regdom(alpha2)) {
+		return 0;
+	}
+
+	return 1;
+}
+
+/* ptr is 32 big endian. You don't need to convert it before passing to this
+ * function */
 
 static void *get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr)
 {
@@ -196,7 +211,7 @@ int main(int argc, char **argv)
 	int ok = 0;
 #endif
 
-	char *regdb = "/usr/lib/crda/regulatory.bin";
+	const char regdb[] = "/usr/lib/crda/regulatory.bin";
 
 	if (argc != 1) {
 		fprintf(stderr, "Usage: %s\n", argv[0]);
@@ -209,9 +224,9 @@ int main(int argc, char **argv)
 		return -EINVAL;
 	}
 
-
-	if (!is_alpha2(env_country) && !is_world_regdom(env_country)) {
-		fprintf(stderr, "Invalid alpha2 set in COUNTRY\n");
+	if (!is_valid_regdom(env_country)) {
+		fprintf(stderr, "COUNTRY environment variable must be an "
+			"ISO ISO 3166-1-alpha-2 (uppercase) or 00\n");
 		return -EINVAL;
 	}
 
@@ -236,6 +251,7 @@ int main(int argc, char **argv)
 		return -EIO;
 	}
 
+	/* db file starts with a struct regdb_file_header */
 	header = get_file_ptr(db, dblen, sizeof(*header), 0);
 
 	if (ntohl(header->magic) != REGDB_MAGIC) {

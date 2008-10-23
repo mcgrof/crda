@@ -102,9 +102,9 @@ int crda_verify_db_signature(__u8 *db, int dblen, int siglen)
 
 	for (i = 0; (i < sizeof(keys)/sizeof(keys[0])) && (!ok); i++) {
 		if (gcry_mpi_scan(&mpi_e, GCRYMPI_FMT_USG,
-				keys[0].e, keys[0].len_e, NULL) ||
+				keys[i].e, keys[i].len_e, NULL) ||
 		    gcry_mpi_scan(&mpi_n, GCRYMPI_FMT_USG,
-				keys[0].n, keys[0].len_n, NULL)) {
+				keys[i].n, keys[i].len_n, NULL)) {
 			fprintf(stderr, "Failed to convert numbers.\n");
 			goto out;
 		}

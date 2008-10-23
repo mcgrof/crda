@@ -100,6 +100,10 @@ struct regdb_file_reg_country {
 };
 
 
+/* functions */
+int crda_verify_db_signature(__u8 *db, int dblen, int siglen);
+
+
 /*
  * Verify that no unexpected padding is added to structures
  * for some reason.

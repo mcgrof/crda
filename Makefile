@@ -17,23 +17,23 @@ INSTALL ?= install
 
 CRDA_LIB = "/usr/lib/crda/"
 
-all:	regulatory.bin warn crda
+all: regulatory.bin warn crda
 	@$(MAKE) --no-print-directory -f Makefile verify
 
 regulatory.bin:	db2bin.py key.priv.pem db.txt dbparse.py
 	@./db2bin.py regulatory.bin db.txt key.priv.pem
 
-crda: keys-gcrypt.c keys-ssl.c crda.c regdb.h
-	$(CC) $(CFLAGS) $(LDFLAGS) -lnl -o $@ crda.c
+crda: keys-ssl.c keys-gcrypt.c regdb.h regdb.o crda.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -lnl -o $@ regdb.o crda.o
 
 clean:
-	@rm -f regulatory.bin dump *~ *.pyc keys-*.c crda
+	@rm -f regulatory.bin crda dump *.o *~ *.pyc keys-*.c
 	@if test -f key.priv.pem && diff -qNs test-key key.priv.pem >/dev/null ; then \
 	rm -f key.priv.pem;\
 	fi
 
 warn:
-	@if test !  -f key.priv.pem || diff -qNs test-key key.priv.pem >/dev/null ; then \
+	@if test ! -f key.priv.pem || diff -qNs test-key key.priv.pem >/dev/null ; then \
 	echo '**************************************';\
 	echo '**  WARNING!                        **';\
 	echo '**  No key found, using TEST key!   **';\
@@ -46,8 +46,8 @@ key.priv.pem:
 generate_key:
 	openssl genrsa -out key.priv.pem 2048
 
-dump:	dump.c regdb.h keys-ssl.c keys-gcrypt.c
-	$(CC) $(CFLAGS) $(LDFLAGS) dump.c -o dump
+dump: keys-ssl.c keys-gcrypt.c regdb.h regdb.o dump.o
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ regdb.o dump.o
 
 keys-ssl.c: key2pub.py $(wildcard *.pem)
 	@./key2pub.py --ssl *.pem > keys-ssl.c

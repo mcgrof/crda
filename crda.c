@@ -21,21 +21,6 @@
 
 #include "regdb.h"
 
-#ifdef USE_OPENSSL
-#include <openssl/objects.h>
-#include <openssl/bn.h>
-#include <openssl/rsa.h>
-#include <openssl/sha.h>
-
-#include "keys-ssl.c"
-#endif
-
-#ifdef USE_GCRYPT
-#include <gcrypt.h>
-
-#include "keys-gcrypt.c"
-#endif
-
 struct nl80211_state {
 	struct nl_handle *nl_handle;
 	struct nl_cache *nl_cache;
@@ -199,18 +184,6 @@ int main(int argc, char **argv)
 	struct nlattr *nl_reg_rules;
 	int num_rules;
 
-#ifdef USE_OPENSSL
-	RSA *rsa;
-	__u8 hash[SHA_DIGEST_LENGTH];
-	int ok = 0;
-#endif
-#ifdef USE_GCRYPT
-	gcry_mpi_t mpi_e, mpi_n;
-	gcry_sexp_t rsa, signature, data;
-	__u8 hash[20];
-	int ok = 0;
-#endif
-
 	const char regdb[] = "/usr/lib/crda/regulatory.bin";
 
 	if (argc != 1) {
@@ -274,90 +247,8 @@ int main(int argc, char **argv)
 	}
 
 	/* verify signature */
-#ifdef USE_OPENSSL
-	rsa = RSA_new();
-	if (!rsa) {
-		fprintf(stderr, "Failed to create RSA key\n");
+	if (!crda_verify_db_signature(db, dblen, siglen))
 		return -EINVAL;
-	}
-
-	if (SHA1(db, dblen, hash) != hash) {
-		fprintf(stderr, "Failed to calculate SHA sum\n");
-		RSA_free(rsa);
-		return -EINVAL;
-	}
-
-	for (i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
-		rsa->e = &keys[i].e;
-		rsa->n = &keys[i].n;
-
-		if (RSA_size(rsa) != siglen)
-			continue;
-
-		ok = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH,
-				db + dblen, siglen, rsa) == 1;
-		if (ok)
-			break;
-	}
-
-	rsa->e = NULL;
-	rsa->n = NULL;
-	RSA_free(rsa);
-
-	if (!ok) {
-		fprintf(stderr, "Database signature wrong\n");
-		return -EINVAL;
-	}
-
-	BN_print_fp(stdout, &keys[0].n);
-#endif
-
-#ifdef USE_GCRYPT
-	/* initialise */
-	gcry_check_version(NULL);
-
-	/* hash the db */
-	gcry_md_hash_buffer(GCRY_MD_SHA1, hash, db, dblen);
-
-	if (gcry_sexp_build(&data, NULL, "(data (flags pkcs1) (hash sha1 %b))",
-			    20, hash)) {
-		fprintf(stderr, "failed to build data expression\n");
-		return 2;
-	}
-
-	if (gcry_sexp_build(&signature, NULL, "(sig-val (rsa (s %b)))",
-			    siglen, db + dblen)) {
-		fprintf(stderr, "failed to build signature expression\n");
-		return 2;
-	}
-
-	for (i = 0; i < sizeof(keys)/sizeof(keys[0]); i++) {
-		if (gcry_mpi_scan(&mpi_e, GCRYMPI_FMT_USG,
-				  keys[0].e, keys[0].len_e, NULL) ||
-		    gcry_mpi_scan(&mpi_n, GCRYMPI_FMT_USG,
-		    		  keys[0].n, keys[0].len_n, NULL)) {
-			fprintf(stderr, "failed to convert numbers\n");
-			return 2;
-		}
-
-		if (gcry_sexp_build(&rsa, NULL,
-				    "(public-key (rsa (n %m) (e %m)))",
-				    mpi_n, mpi_e)) {
-			fprintf(stderr, "failed to build rsa key\n");
-			return 2;
-		}
-
-		if (!gcry_pk_verify(signature, data, rsa)) {
-			ok = 1;
-			break;
-		}
-	}
-
-	if (!ok) {
-		fprintf(stderr, "Database signature wrong\n");
-		return 2;
-	}
-#endif
 
 	num_countries = ntohl(header->reg_country_num);
 	countries = get_file_ptr(db, dblen,

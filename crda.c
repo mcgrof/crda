@@ -73,20 +73,22 @@ static void nl80211_cleanup(struct nl80211_state *state)
 	nl_handle_destroy(state->nl_handle);
 }
 
-static int reg_handler(struct nl_msg *msg, void *arg)
+static int reg_handler(struct nl_msg __attribute__((unused)) *msg,
+			void __attribute__((unused)) *arg)
 {
 	return NL_SKIP;
 }
 
-static int wait_handler(struct nl_msg *msg, void *arg)
+static int wait_handler(struct nl_msg __attribute__((unused)) *msg, void *arg)
 {
 	int *finished = arg;
 	*finished = 1;
 	return NL_STOP;
 }
 
-
-static int error_handler(struct sockaddr_nl *nla, struct nlmsgerr *err, void *arg)
+static int error_handler(struct sockaddr_nl __attribute__((unused)) *nla,
+			    struct nlmsgerr *err,
+			    void __attribute__((unused)) *arg)
 {
 	fprintf(stderr, "nl80211 error %d\n", err->error);
 	exit(err->error);
@@ -113,14 +115,13 @@ static int is_world_regdom(const char *alpha2)
 	return 0;
 }
 
-static int is_valid_regdom(const char * alpha2)
+static int is_valid_regdom(const char *alpha2)
 {
 	if (strlen(alpha2) != 2)
 		return 0;
 
-	if (!is_alpha2(alpha2) && !is_world_regdom(alpha2)) {
+	if (!is_alpha2(alpha2) && !is_world_regdom(alpha2))
 		return 0;
-	}
 
 	return 1;
 }
@@ -226,7 +227,7 @@ int main(int argc, char **argv)
 	/* adjust dblen so later sanity checks don't run into the signature */
 	dblen -= siglen;
 
-	if (dblen <= sizeof(*header)) {
+	if (dblen <= (int)sizeof(*header)) {
 		fprintf(stderr, "Invalid signature length %d\n", siglen);
 		return -EINVAL;
 	}
@@ -237,8 +238,8 @@ int main(int argc, char **argv)
 
 	num_countries = ntohl(header->reg_country_num);
 	countries = crda_get_file_ptr(db, dblen,
-				 sizeof(struct regdb_file_reg_country) * num_countries,
-				 header->reg_country_ptr);
+			sizeof(struct regdb_file_reg_country) * num_countries,
+			header->reg_country_ptr);
 
 	for (i = 0; i < num_countries; i++) {
 		country = countries + i;
@@ -249,7 +250,7 @@ int main(int argc, char **argv)
 	}
 
 	if (!found_country) {
-		fprintf(stderr, "failed to find a country match in regulatory database\n");
+		fprintf(stderr, "No country match in regulatory database.\n");
 		return -1;
 	}
 
@@ -305,7 +306,7 @@ int main(int argc, char **argv)
 	r = nl_send_auto_complete(nlstate.nl_handle, msg);
 
 	if (r < 0) {
-		fprintf(stderr, "failed to send regulatory request: %d\n", r);
+		fprintf(stderr, "Failed to send regulatory request: %d\n", r);
 		goto cb_out;
 	}
 
@@ -316,7 +317,8 @@ int main(int argc, char **argv)
 	if (!finished) {
 		r = nl_wait_for_ack(nlstate.nl_handle);
 		if (r < 0) {
-			fprintf(stderr, "failed to set regulatory domain: %d\n", r);
+			fprintf(stderr, "Failed to set regulatory domain: "
+				"%d\n", r);
 			goto cb_out;
 		}
 	}

@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 	/* adjust dblen so later sanity checks don't run into the signature */
 	dblen -= siglen;
 
-	if (dblen <= sizeof(*header)) {
+	if (dblen <= (int)sizeof(*header)) {
 		fprintf(stderr, "Invalid signature length %d\n", siglen);
 		return 2;
 	}
@@ -119,8 +119,8 @@ int main(int argc, char **argv)
 
 	num_countries = ntohl(header->reg_country_num);
 	countries = crda_get_file_ptr(db, dblen,
-				 sizeof(struct regdb_file_reg_country) * num_countries,
-				 header->reg_country_ptr);
+			sizeof(struct regdb_file_reg_country) * num_countries,
+			header->reg_country_ptr);
 
 	for (i = 0; i < num_countries; i++) {
 		struct regdb_file_reg_rules_collection *rcoll;

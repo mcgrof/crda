@@ -1,7 +1,9 @@
 *~
 regulatory.sqlite
 regulatory.bin
+crda
 dump
+*.o
 *.pyc
 keys-*.c
 key.priv.pem

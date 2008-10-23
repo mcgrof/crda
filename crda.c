@@ -125,30 +125,15 @@ static int is_valid_regdom(const char * alpha2)
 	return 1;
 }
 
-/* ptr is 32 big endian. You don't need to convert it before passing to this
- * function */
-
-static void *get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr)
-{
-	__u32 p = ntohl(ptr);
-
-	if (p > dblen - structlen) {
-		fprintf(stderr, "Invalid database file, bad pointer!\n");
-		exit(3);
-	}
-
-	return (void *)(db + p);
-}
-
 static int put_reg_rule(__u8 *db, int dblen, __be32 ruleptr, struct nl_msg *msg)
 {
 	struct regdb_file_reg_rule *rule;
 	struct regdb_file_freq_range *freq;
 	struct regdb_file_power_rule *power;
 
-	rule	= get_file_ptr(db, dblen, sizeof(*rule), ruleptr);
-	freq	= get_file_ptr(db, dblen, sizeof(*freq), rule->freq_range_ptr);
-	power	= get_file_ptr(db, dblen, sizeof(*power), rule->power_rule_ptr);
+	rule  = crda_get_file_ptr(db, dblen, sizeof(*rule), ruleptr);
+	freq  = crda_get_file_ptr(db, dblen, sizeof(*freq), rule->freq_range_ptr);
+	power = crda_get_file_ptr(db, dblen, sizeof(*power), rule->power_rule_ptr);
 
 	NLA_PUT_U32(msg, NL80211_ATTR_REG_RULE_FLAGS,		ntohl(rule->flags));
 	NLA_PUT_U32(msg, NL80211_ATTR_FREQ_RANGE_START,		ntohl(freq->start_freq));
@@ -225,7 +210,7 @@ int main(int argc, char **argv)
 	}
 
 	/* db file starts with a struct regdb_file_header */
-	header = get_file_ptr(db, dblen, sizeof(*header), 0);
+	header = crda_get_file_ptr(db, dblen, sizeof(*header), 0);
 
 	if (ntohl(header->magic) != REGDB_MAGIC) {
 		fprintf(stderr, "Invalid database magic\n");
@@ -251,7 +236,7 @@ int main(int argc, char **argv)
 		return -EINVAL;
 
 	num_countries = ntohl(header->reg_country_num);
-	countries = get_file_ptr(db, dblen,
+	countries = crda_get_file_ptr(db, dblen,
 				 sizeof(struct regdb_file_reg_country) * num_countries,
 				 header->reg_country_ptr);
 
@@ -282,12 +267,13 @@ int main(int argc, char **argv)
 	genlmsg_put(msg, 0, 0, genl_family_get_id(nlstate.nl80211), 0,
 		0, NL80211_CMD_SET_REG, 0);
 
-	rcoll = get_file_ptr(db, dblen, sizeof(*rcoll), country->reg_collection_ptr);
+	rcoll = crda_get_file_ptr(db, dblen, sizeof(*rcoll),
+				country->reg_collection_ptr);
 	num_rules = ntohl(rcoll->reg_rule_num);
 	/* re-get pointer with sanity checking for num_rules */
-	rcoll = get_file_ptr(db, dblen,
-			     sizeof(*rcoll) + num_rules * sizeof(__be32),
-			     country->reg_collection_ptr);
+	rcoll = crda_get_file_ptr(db, dblen,
+				sizeof(*rcoll) + num_rules * sizeof(__be32),
+				country->reg_collection_ptr);
 
 	NLA_PUT_STRING(msg, NL80211_ATTR_REG_ALPHA2, (char *) country->alpha2);
 

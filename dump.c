@@ -8,18 +8,6 @@
 
 #include "regdb.h"
 
-static void *get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr)
-{
-	__u32 p = ntohl(ptr);
-
-	if (p > dblen - structlen) {
-		fprintf(stderr, "Invalid database file, bad pointer!\n");
-		exit(3);
-	}
-
-	return (void *)(db + p);
-}
-
 static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 {
 	struct regdb_file_reg_rule *rule;
@@ -27,9 +15,9 @@ static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 	struct regdb_file_power_rule *power;
 	__u32 flags;
 
-	rule = get_file_ptr(db, dblen, sizeof(*rule), ruleptr);
-	freq = get_file_ptr(db, dblen, sizeof(*freq), rule->freq_range_ptr);
-	power = get_file_ptr(db, dblen, sizeof(*power), rule->power_rule_ptr);
+	rule  = crda_get_file_ptr(db, dblen, sizeof(*rule), ruleptr);
+	freq  = crda_get_file_ptr(db, dblen, sizeof(*freq), rule->freq_range_ptr);
+	power = crda_get_file_ptr(db, dblen, sizeof(*power), rule->power_rule_ptr);
 
 	printf("\t(%.3f - %.3f @ %.3f), ",
 	       ((float)ntohl(freq->start_freq))/1000.0,
@@ -104,7 +92,7 @@ int main(int argc, char **argv)
 		return 2;
 	}
 
-	header = get_file_ptr(db, dblen, sizeof(*header), 0);
+	header = crda_get_file_ptr(db, dblen, sizeof(*header), 0);
 
 	if (ntohl(header->magic) != REGDB_MAGIC) {
 		fprintf(stderr, "Invalid database magic\n");
@@ -130,7 +118,7 @@ int main(int argc, char **argv)
 		return -EINVAL;
 
 	num_countries = ntohl(header->reg_country_num);
-	countries = get_file_ptr(db, dblen,
+	countries = crda_get_file_ptr(db, dblen,
 				 sizeof(struct regdb_file_reg_country) * num_countries,
 				 header->reg_country_ptr);
 
@@ -140,12 +128,13 @@ int main(int argc, char **argv)
 		int num_rules;
 
 		printf("country %.2s:\n", country->alpha2);
-		rcoll = get_file_ptr(db, dblen, sizeof(*rcoll), country->reg_collection_ptr);
+		rcoll = crda_get_file_ptr(db, dblen, sizeof(*rcoll),
+					country->reg_collection_ptr);
 		num_rules = ntohl(rcoll->reg_rule_num);
 		/* re-get pointer with sanity checking for num_rules */
-		rcoll = get_file_ptr(db, dblen,
-				     sizeof(*rcoll) + num_rules * sizeof(__be32),
-				     country->reg_collection_ptr);
+		rcoll = crda_get_file_ptr(db, dblen,
+				sizeof(*rcoll) + num_rules * sizeof(__be32),
+				country->reg_collection_ptr);
 		for (j = 0; j < num_rules; j++)
 			print_reg_rule(db, dblen, rcoll->reg_rule_ptrs[j]);
 		printf("\n");

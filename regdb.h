@@ -101,6 +101,7 @@ struct regdb_file_reg_country {
 
 
 /* functions */
+void *crda_get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr);
 int crda_verify_db_signature(__u8 *db, int dblen, int siglen);
 
 

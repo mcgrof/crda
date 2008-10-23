@@ -1,12 +1,13 @@
-#ifdef USE_OPENSSL
 #include <stdio.h>
+#include <arpa/inet.h>
+
+#ifdef USE_OPENSSL
 #include <openssl/objects.h>
 #include <openssl/rsa.h>
 #include <openssl/sha.h>
 #endif
 
 #ifdef USE_GCRYPT
-#include <stdio.h>
 #include <gcrypt.h>
 #endif
 
@@ -19,6 +20,18 @@
 #ifdef USE_GCRYPT
 #include "keys-gcrypt.c"
 #endif
+
+void *crda_get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr)
+{
+	__u32 p = ntohl(ptr);
+
+	if (p > dblen - structlen) {
+		fprintf(stderr, "Invalid database file, bad pointer!\n");
+		exit(3);
+	}
+
+	return (void *)(db + p);
+}
 
 /*
  * Checks the validity of the signature found on the regulatory

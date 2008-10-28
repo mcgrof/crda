@@ -94,28 +94,6 @@ static int error_handler(struct sockaddr_nl __attribute__((unused)) *nla,
 	exit(err->error);
 }
 
-/* Avoid stdlib */
-static int is_len_2(const char *alpha2)
-{
-        if (alpha2[0] == '\0' || (alpha2[1] == '\0'))
-                return 0;
-        if (alpha2[2] == '\0')
-                return 1;
-        return 0;
-}
-
-static int is_valid_regdom(const char *alpha2)
-{
-	if (!is_len_2(alpha2))
-		return 0;
-
-	if (!is_alpha2(alpha2) && !is_world_regdom(alpha2))
-		return 0;
-
-	return 1;
-}
-
-
 static int put_reg_rule(__u8 *db, int dblen, __be32 ruleptr, struct nl_msg *msg)
 {
 	struct regdb_file_reg_rule *rule;

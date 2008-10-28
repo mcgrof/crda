@@ -1,3 +1,6 @@
+#ifndef REG_DB_H
+#define REG_DB_H
+
 #include <linux/types.h>
 
 /*
@@ -120,3 +123,5 @@ static inline void check_db_binary_structs(void)
 	CHECK_STRUCT(regdb_file_reg_rules_collection, 4);
 	CHECK_STRUCT(regdb_file_reg_country, 8);
 }
+
+#endif

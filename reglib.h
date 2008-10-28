@@ -1,10 +1,36 @@
+#ifndef REG_LIB_H
+#define REG_LIB_H
+
 #include <stdlib.h>
 #include <linux/types.h>
 
-/* Common regulatory functions and helpers */
+#include "regdb.h"
 
-void *crda_get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr);
-int crda_verify_db_signature(__u8 *db, int dblen, int siglen);
+/* Common regulatory structures, functions and helpers */
+
+/* This matches the kernel's data structures */
+struct ieee80211_freq_range {
+	__u32 start_freq_khz;
+	__u32 end_freq_khz;
+	__u32 max_bandwidth_khz;
+};
+
+struct ieee80211_power_rule {
+	__u32 max_antenna_gain;
+	__u32 max_eirp;
+};
+
+struct ieee80211_reg_rule {
+	struct ieee80211_freq_range freq_range;
+	struct ieee80211_power_rule power_rule;
+	__u32 flags;
+};
+
+struct ieee80211_regdomain {
+	__u32 n_reg_rules;
+	char alpha2[2];
+	struct ieee80211_reg_rule reg_rules[];
+};
 
 static inline int is_world_regdom(const char *alpha2)
 {
@@ -47,3 +73,30 @@ static inline int is_valid_regdom(const char *alpha2)
 
 	return 1;
 }
+
+static inline __u32 max(__u32 a, __u32 b)
+{
+	return (a > b) ? a : b;
+}
+
+static inline __u32 min(__u32 a, __u32 b)
+{
+	return (a > b) ? b : a;
+}
+
+void *crda_get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr);
+int crda_verify_db_signature(__u8 *db, int dblen, int siglen);
+
+/* File reg db entry -> rd converstion utilities */
+void reg_rule2rd(__u8 *db, int dblen,
+	__be32 ruleptr, struct ieee80211_reg_rule *rd_reg_rule);
+int country2rd(__u8 *db, int dblen,
+	struct regdb_file_reg_country *country,
+	struct ieee80211_regdomain **rdp);
+
+/* reg helpers */
+int is_valid_reg_rule(const struct ieee80211_reg_rule *rule);
+void print_reg_rule(struct ieee80211_reg_rule *rule);
+void print_regdom(struct ieee80211_regdomain *rd);
+
+#endif

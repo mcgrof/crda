@@ -7,7 +7,7 @@
 #include <arpa/inet.h> /* ntohl */
 
 #include "regdb.h"
-#include "crda.h"
+#include "reglib.h"
 
 static void print_reg_rule(__u8 *db, int dblen, __be32 ruleptr)
 {

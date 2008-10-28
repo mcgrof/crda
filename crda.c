@@ -19,7 +19,7 @@
 #include <linux/nl80211.h>
 
 #include "regdb.h"
-#include "crda.h"
+#include "reglib.h"
 
 struct nl80211_state {
 	struct nl_handle *nl_handle;

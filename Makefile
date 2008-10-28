@@ -41,9 +41,9 @@ keys-%.c: key2pub.py $(wildcard *.pem)
 	$(NQ) '  CC  ' $@
 	$(Q)$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
 
-crda: keys-ssl.c keys-gcrypt.c regdb.o crda.o
+crda: keys-ssl.c keys-gcrypt.c reglib.o crda.o
 	$(NQ) '  LD  ' $@
-	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) `pkg-config --libs libnl-1` -o $@ regdb.o crda.o
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) `pkg-config --libs libnl-1` -o $@ reglib.o crda.o
 
 warn:
 	@if test ! -f key.priv.pem || diff -qNs test-key key.priv.pem >/dev/null ; then \
@@ -59,9 +59,9 @@ key.priv.pem:
 generate_key:
 	$(Q)openssl genrsa -out key.priv.pem 2048
 
-dump: keys-ssl.c keys-gcrypt.c regdb.o dump.o
+dump: keys-ssl.c keys-gcrypt.c reglib.o dump.o
 	$(NQ) '  LD  ' $@
-	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ regdb.o dump.o
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o dump.o
 
 verify: regulatory.bin dump
 	$(NQ) '  CHK  regulatory.bin'

@@ -20,6 +20,7 @@
 #include <linux/nl80211.h>
 
 #include "regdb.h"
+#include "crda.h"
 
 struct nl80211_state {
 	struct nl_handle *nl_handle;
@@ -94,27 +95,6 @@ static int error_handler(struct sockaddr_nl __attribute__((unused)) *nla,
 	exit(err->error);
 }
 
-int isalpha_upper(char letter)
-{
-	if (letter >= 'A' && letter <= 'Z')
-		return 1;
-	return 0;
-}
-
-static int is_alpha2(const char *alpha2)
-{
-	if (isalpha_upper(alpha2[0]) && isalpha_upper(alpha2[1]))
-		return 1;
-	return 0;
-}
-
-static int is_world_regdom(const char *alpha2)
-{
-	if (alpha2[0] == '0' && alpha2[1] == '0')
-		return 1;
-	return 0;
-}
-
 static int is_valid_regdom(const char *alpha2)
 {
 	if (strlen(alpha2) != 2)
@@ -125,6 +105,7 @@ static int is_valid_regdom(const char *alpha2)
 
 	return 1;
 }
+
 
 static int put_reg_rule(__u8 *db, int dblen, __be32 ruleptr, struct nl_msg *msg)
 {

@@ -236,23 +236,6 @@ int main(int argc, char **argv)
 		if (is_world_regdom((const char *) country->alpha2))
 			continue;
 
-		/* this is the previous country's rd, we don't care about it, we
-		 * only care about the resulting intersected world rd, which
-		 * should now be stored in prev_world, so we update that here */
-		if (rd) {
-			printf("Address of rd 2: %p -- about to free\n", (void *) rd);
-			free(rd);
-			printf("Address of rd 3: %p -- freed!\n", (void *) rd);
-			rd = NULL;
-
-			BUG_ON(!world);
-
-			prev_world = world;
-			world = NULL;
-		} /* else prev_world is set correctly, first run,
-		   * it was set to the first valid rd which is not
-		   * the world regdomain, no need to update it */
-
 		/* Gets the rd for the current country */
 		rd = country2rd(db, dblen, country);
 		if (!rd) {
@@ -262,16 +245,31 @@ int main(int argc, char **argv)
 			goto out;
 		}
 
-		printf("Address of rd 1: %p -- new allocation\n", (void *) rd);
+		if (num_countries == 1) {
+			world = rd;
+			rd = NULL;
+			break;
+		}
 
 		/* On our first iteration on the first valid rd for a country
 		 * we take that rd as the first world regdomain.
 		 * We only hit this on our first iteration of a valid rd */
 		if (!prev_world) {
 			prev_world = rd;
-			rd = NULL;
 			continue;
 		}
+
+
+		/* this is the previous country's rd, we don't care about it, we
+		 * only care about the resulting intersected world rd, which
+		 * should now be stored in prev_world, so we update that here */
+		if (world) {
+			free(prev_world);
+			prev_world = world;
+		} /* else prev_world is set correctly, first run,
+		   * it was set to the first valid rd which is not
+		   * the world regdomain, no need to update it */
+
 
 		/* If this is our first time around prev_world is
 		 * the first regdomain, and rd is the second. If
@@ -317,19 +315,21 @@ int main(int argc, char **argv)
 	if (intersected > 1)
 		printf("%d regulatory domains intersected\n", intersected);
 	else
-		printf("Only one regulatory domain found\n");
+		printf("Only one intersection completed\n");
 
 	/* Tada! */
 	printf("== World regulatory domain: ==\n");
 	print_regdom(world);
 
 out:
-	if (world)
+	if (!intersected) {
 		free(world);
-	if (rd)
+		return r;
+	}
+	if (intersected > 1) {
 		free(rd);
-	if (prev_world)
 		free(prev_world);
-
+	}
+	free(world);
 	return r;
 }

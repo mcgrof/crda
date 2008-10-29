@@ -121,7 +121,7 @@ struct ieee80211_regdomain *regdom_intersect(
 	}
 
 	size_of_regd = sizeof(struct ieee80211_regdomain) +
-		(num_rules * sizeof(struct ieee80211_reg_rule));
+		((num_rules + 1) * sizeof(struct ieee80211_reg_rule));
 
 	rd = malloc(size_of_regd);
 	if (!rd) {

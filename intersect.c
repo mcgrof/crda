@@ -251,31 +251,17 @@ int main(int argc, char **argv)
 			break;
 		}
 
-		/* On our first iteration on the first valid rd for a country
-		 * we take that rd as the first world regdomain.
-		 * We only hit this on our first iteration of a valid rd */
 		if (!prev_world) {
 			prev_world = rd;
 			continue;
 		}
 
 
-		/* this is the previous country's rd, we don't care about it, we
-		 * only care about the resulting intersected world rd, which
-		 * should now be stored in prev_world, so we update that here */
 		if (world) {
 			free(prev_world);
 			prev_world = world;
-		} /* else prev_world is set correctly, first run,
-		   * it was set to the first valid rd which is not
-		   * the world regdomain, no need to update it */
+		}
 
-
-		/* If this is our first time around prev_world is
-		 * the first regdomain, and rd is the second. If
-		 * this is our third time around prev_world is the
-		 * previous intersected world regdom of the first
-		 * two rds */
 		world = regdom_intersect(prev_world, rd);
 		if (!world) {
 			/* Could be something else but we'll live with this */

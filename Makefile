@@ -26,7 +26,7 @@ Q=@
 NQ=@echo
 endif
 
-all: regulatory.bin warn crda
+all: regulatory.bin warn crda intersect
 	$(Q)$(MAKE) --no-print-directory -f Makefile verify
 
 regulatory.bin: dbparse.py db2bin.py key.priv.pem db.txt

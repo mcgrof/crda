@@ -76,8 +76,9 @@ int main(int argc, char **argv)
 	for (i = 0; i < num_countries; i++) {
 		struct regdb_file_reg_country *country = countries + i;
 
-		r = country2rd(db, dblen, country, &rd);
-		if (r) {
+		rd = country2rd(db, dblen, country);
+		if (!rd) {
+			r = -ENOMEM;
 			fprintf(stderr, "Could not covert country "
 			"(%.2s) to rd\n", country->alpha2);
 			goto out;

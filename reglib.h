@@ -90,9 +90,8 @@ int crda_verify_db_signature(__u8 *db, int dblen, int siglen);
 /* File reg db entry -> rd converstion utilities */
 void reg_rule2rd(__u8 *db, int dblen,
 	__be32 ruleptr, struct ieee80211_reg_rule *rd_reg_rule);
-int country2rd(__u8 *db, int dblen,
-	struct regdb_file_reg_country *country,
-	struct ieee80211_regdomain **rdp);
+struct ieee80211_regdomain *country2rd(__u8 *db, int dblen,
+	struct regdb_file_reg_country *country);
 
 /* reg helpers */
 int is_valid_reg_rule(const struct ieee80211_reg_rule *rule);

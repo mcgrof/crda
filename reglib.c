@@ -158,9 +158,8 @@ void reg_rule2rd(__u8 *db, int dblen,
 }
 
 /* Converts a file regdomain to ieee80211_regdomain, easier to manage */
-int country2rd(__u8 *db, int dblen,
-	struct regdb_file_reg_country *country,
-	struct ieee80211_regdomain **rdp)
+struct ieee80211_regdomain *country2rd(__u8 *db, int dblen,
+	struct regdb_file_reg_country *country)
 {
 	struct regdb_file_reg_rules_collection *rcoll;
 	struct ieee80211_regdomain *rd;
@@ -177,11 +176,9 @@ int country2rd(__u8 *db, int dblen,
 	size_of_rd = sizeof(struct ieee80211_regdomain) +
 		num_rules * sizeof(struct ieee80211_reg_rule);
 
-	*rdp = malloc(size_of_rd);
-	if (!*rdp)
-		return -ENOMEM;
-
-	rd = *rdp;
+	rd = malloc(size_of_rd);
+	if (!rd)
+		return NULL;
 
 	memset(rd, 0, size_of_rd);
 
@@ -194,7 +191,7 @@ int country2rd(__u8 *db, int dblen,
 			&rd->reg_rules[i]);
 	}
 
-	return 0;
+	return rd;
 }
 
 /* Sanity check on a regulatory rule */

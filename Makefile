@@ -63,6 +63,10 @@ dump: keys-ssl.c keys-gcrypt.c reglib.o dump.o
 	$(NQ) '  LD  ' $@
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o dump.o
 
+intersect: regulatory.bin keys-ssl.c keys-gcrypt.c reglib.o intersect.o
+	$(NQ) '  LD  ' $@
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o intersect.o
+
 verify: regulatory.bin dump
 	$(NQ) '  CHK  regulatory.bin'
 	$(Q)./dump regulatory.bin >/dev/null
@@ -79,7 +83,7 @@ install: regulatory.bin crda
 	$(Q)$(INSTALL) -m 644 -t $(DESTDIR)/etc/udev/rules.d/ regulatory.rules
 
 clean:
-	$(Q)rm -f regulatory.bin crda dump *.o *~ *.pyc keys-*.c
+	$(Q)rm -f regulatory.bin crda dump intersect *.o *~ *.pyc keys-*.c
 	$(Q)if test -f key.priv.pem && diff -qNs test-key key.priv.pem >/dev/null ; then \
 		rm -f key.priv.pem;\
 	fi

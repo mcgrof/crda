@@ -1,19 +1,11 @@
-ifeq ($(origin $(KLIB)), undefined)
-KLIB := /lib/modules/$(shell uname -r)
-endif
-KLIB_BUILD ?= $(KLIB)/build
-
-ifneq ($(COMPAT_TREE),)
-CFLAGS += -I$(COMPAT_TREE)/include/
-endif
-
-# Modify as you see fit, note this is built into crda.
+# Modify as you see fit, note this is built into crda,
+# so if you change it here you will have to change crda.c
 REG_BIN?=/usr/lib/crda/regulatory.bin
 
 # Used locally to retrieve all pubkeys during build time
 PUBKEY_DIR=pubkeys
 
-CFLAGS += -Wall -g -I$(KLIB_BUILD)/include
+CFLAGS += -Wall -g
 #CFLAGS += -DUSE_OPENSSL `pkg-config --cflags openssl`
 #LDFLAGS += `pkg-config --libs openssl`
 CFLAGS += -DUSE_GCRYPT

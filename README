@@ -8,21 +8,25 @@ purpose: tell Linux kernel what to enforce.
 ===================
 
 CRDA is provided as a binary file so all the host needs is libc/uclibc.
+You will also need udev.
 
  BUILD REQUIREMENTS
 ====================
 
 The package build requirements currently are:
 
- * wget to be able to download the public key and regulatory.bin file
  * python and the m2crypto package (python-m2crypto)
  * libgcrypt or libssl (openssl) header files
  * nl library and header files (libnl1 and libnl-dev)
    available at git://git.kernel.org/pub/scm/libs/netlink/libnl.git
+ * regulatory database, clone this tree:
 
-If you want to put up a web site with a database viewer using MoinMoin:
+   git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
 
- * MoinMoin (http://moinmo.in) for the web viewer
+  and then stuff regulatory.bin (no need to build) provided there in
+  REG_BIN location specified in this Makefile. This regulatory.bin file
+  is only required to build CRDA here to verify it was built using
+  the RSA private key the public key agrees to.
 
  CALLING CRDA -- UDEV
 ======================
@@ -35,42 +39,28 @@ with this package as regulatory.rules
  OVERVIEW
 ==========
 
-The regulatory information is collected in a text file, `db.txt'. This
-text file is then compiled into a binary database `regulatory.bin' and
-digitally signed with the key in `key.priv.pem'. The binary database
-is then used by the regulatory agent to update the in-kernel enforcement
-table.
+The database is maintained on the wireless-regdb.git tree. This git
+tree maintains a binary regulatory database file which is produced
+using its own ASCII db.txt into binary form for size efficiency. The
+contents of the binary database are then signed using the private key.
 
- TECHNICAL INFORMATION
-=======================
+CRDA will use regulatory.bin if its signature checks out with the public
+key provided. This will prevent us from using corrupted data (in case
+of hard drive failure) in the running kernel. This separation between
+CRDA and the regulatory database also allows us to provide regulatory
+updates on distributions without having to require an update on CRDA.
 
-The regulatory information in `db.txt' is stored in a human-readable
-format which can be read using the `dbparse.py' python module. This
-python module is used by the web viewer (web/Regulatory.py) which is
-implemented as a MoinMoin macro (and used on http://wireless.kernel.org)
-to allow viewing the database for verification.
-
-The dbparse module is also used by db2bin.py, the `compiler', which
-compiles and signs the binary database.
-
-The binary database file format is described in `regdb.h' (which has
-to be kept in sync with the compiler.
-
-The key file, key.priv.pem, has to be an RSA key, for example created
-with openssl using `openssl genrsa -out key.priv.pem 1024'. Building
-without such a key file causes the test-key to be used to allow the
-build to succeed without generating a key first. This key is not meant
-to be used for deployments, however.
+Note that upon updating the regulatory database it is advised the
+user reboots or all the wireless modules get unloaded and reloaded.
 
 Under certain circumstances it may be desirable to have the regulatory
-agent accept multiple keys, this can be achieved by compiling it when
-more than one key is present in the source directory (named *.pem). In
-this case, the agent will accept a signature of any of those keys.
+agent accept multiple keys, this can be achieved by stuffing all the keys
+desired into pubkeys. Right now we only use John Linville's public key.
 
  REGDB AUTHORS
 ===============
 
-Authors of regulatory.bin first need a private key, which can
+Authors of regulatory.bin (John Linville) first need a private key, which can
 be generated with something like this:
 
 	openssl genrsa -out your.key.priv.pem 2048
@@ -83,13 +73,6 @@ can generate it as follows:
 Then with this key you can generate regulatory.bin files like this:
 
 	./utils/db2bin.py regulatory.bin db.txt your.key.priv.pem
-
-You can find the source of the regulatory.bin used at:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
-
-We pull John's RSA key form that tree into this tree. If it changes
-we will update it here.
 
  MAGIC PATTERN
 ===============

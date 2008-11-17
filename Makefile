@@ -98,9 +98,9 @@ install: regulatory.bin crda
 	$(NQ) '  INSTALL  regulatory.bin'
 	$(Q)$(MKDIR) $(DESTDIR)$(CRDA_LIB)
 	$(Q)$(INSTALL) -m 644 -t $(DESTDIR)$(CRDA_LIB) regulatory.bin
-	$(NQ) '  INSTALL  regulatory.rules'
+	$(NQ) '  INSTALL  udev/regulatory.rules'
 	$(Q)$(MKDIR) $(DESTDIR)/etc/udev/rules.d
-	$(Q)$(INSTALL) -m 644 -t $(DESTDIR)/etc/udev/rules.d/ regulatory.rules
+	$(Q)$(INSTALL) -m 644 -t $(DESTDIR)/etc/udev/rules.d/ udev/regulatory.rules
 
 clean:
 	$(Q)rm -f db.txt regulatory.bin crda dump intersect *.o *~ *.pyc keys-*.c

@@ -1,9 +1,8 @@
  Central Regulatory Domain Agent (CRDA)
 ========================================
 
-This is the Central Regulatory Domain Agent for Linux. It serves two
-purposes: keep a database of world-wide regulatory information and
-tell the Linux kernel what to enforce.
+This is the Central Regulatory Domain Agent for Linux. It serves one
+purpose: tell Linux kernel what to enforce.
 
  HOST REQUIREMENTS
 ===================
@@ -15,6 +14,7 @@ CRDA is provided as a binary file so all the host needs is libc/uclibc.
 
 The package build requirements currently are:
 
+ * wget to be able to download the public key and regulatory.bin file
  * python and the m2crypto package (python-m2crypto)
  * libgcrypt or libssl (openssl) header files
  * nl library and header files (libnl1 and libnl-dev)
@@ -67,46 +67,29 @@ agent accept multiple keys, this can be achieved by compiling it when
 more than one key is present in the source directory (named *.pem). In
 this case, the agent will accept a signature of any of those keys.
 
- REGULATORY COMPLIANCE
-=======================
+ REGDB AUTHORS
+===============
 
-It is important to note that the current provided regulatory information
-should be used as a guide. With the help of the community we are sure
-to keep this database more up to date but even then some vendors tend
-to have calibrated power limits embedded in their wireless card's EEPROMs
-and these must be read by firmware or host software for proper compliance.
+Authors of regulatory.bin first need a private key, which can
+be generated with something like this:
 
-EEPROMs tend to have embedded on them what might usually be called
-"compliance limits". Careful consideration must be made to ensure
-they are used properly. These compliance limits provide calibrated
-power values for *all* frequency ranges, not only for band edges.
-These compliance limits should be taken into consideration and used
-for proper compliance.
+	openssl genrsa -out your.key.priv.pem 2048
 
-We might be able to provide a framework in the future for drivers to
-use generic non-vendor specific data to help with compliance limits
-but a general audit must first be made upon how these compliance
-limits are handled by each vendor.
+You'll then need to generate the public key and publish it. You
+can generate it as follows:
 
- DFS SUPPORT AND ADDITIONAL FLAGS
-==================================
+	openssl rsa -in your.key.priv.pem -out your.key.pub.pem -pubout -outform PEM
 
-DFS support must be provided to be able to use many 5 GHz frequency
-channels. We can rely statically on the 5260 MHz - 5700 MHz frequency
-range to demand globally DFS support. If complete DFS is not supported
-as part of a WLAN stack then effort must be made to ensure that the
-following restrictions be made:
+Then with this key you can generate regulatory.bin files like this:
 
-  * If a STA does not have DFS, disable active scanning (probe requests)
-    for the DFS frequency range.
+	./utils/db2bin.py regulatory.bin db.txt your.key.priv.pem
 
-  * If an Ad-hoc station does not have DFS support, disable Ad-hoc
-    and active scanning for the DFS frequency range.
+You can find the source of the regulatory.bin used at:
 
-  * If an AP does not have DFS support disable AP support for the
-    DFS frequency range.
+git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
 
-These rules should be taken as basic guidelines.
+We pull John's RSA key form that tree into this tree. If it changes
+we will update it here.
 
  MAGIC PATTERN
 ===============

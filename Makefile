@@ -53,6 +53,9 @@ install: crda
 	$(NQ) '  INSTALL  crda'
 	$(Q)$(MKDIR) $(DESTDIR)/sbin
 	$(Q)$(INSTALL) -m 755 -t $(DESTDIR)/sbin/ crda
+	$(NQ) '  INSTALL  regdbdump'
+	$(Q)$(INSTALL) -m 755 -t $(DESTDIR)/sbin/ regdbdump
+	$(NQ) '  INSTALL  regulatory.rules'
 	$(Q)$(MKDIR) $(DESTDIR)/etc/udev/rules.d
 	$(Q)$(INSTALL) -m 644 -t $(DESTDIR)/etc/udev/rules.d/ udev/regulatory.rules
 

@@ -2,7 +2,11 @@
 ========================================
 
 This is the Central Regulatory Domain Agent for Linux. It serves one
-purpose: tell Linux kernel what to enforce.
+purpose: tell Linux kernel what to enforce. In essence it is a udev
+helper for communication between the kernel and userspace. You only
+need to run this manually for debugging purposes. For manual changing
+of regulatory domains use iw (iw reg set) or wpa_supplicant (feature
+yet to be added).
 
  HOST REQUIREMENTS
 ===================
@@ -19,14 +23,17 @@ The package build requirements currently are:
  * libgcrypt or libssl (openssl) header files
  * nl library and header files (libnl1 and libnl-dev)
    available at git://git.kernel.org/pub/scm/libs/netlink/libnl.git
+ * RSA public key of John Linville, we include this as part of this package
+   so you do not need to install it. This RSA public key comes
+   from the wireless-regdb.git tree and we keep it up to date here.
  * regulatory database, clone this tree:
 
    git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
 
-  and then stuff regulatory.bin (no need to build) provided there in
-  REG_BIN location specified in this Makefile. This regulatory.bin file
-  is only required to build CRDA here to verify it was built using
-  the RSA private key the public key agrees to.
+   and then stuff regulatory.bin (no need to build) provided there in
+   REG_BIN location specified in this Makefile. This regulatory.bin file
+   is only required to verify the CRDA built here can read its database file
+   which has been signed with the RSA private key.
 
  CALLING CRDA -- UDEV
 ======================

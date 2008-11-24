@@ -37,17 +37,17 @@ crda: keys-ssl.c keys-gcrypt.c reglib.o crda.o
 	$(NQ) '  LD  ' $@
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) `pkg-config --libs libnl-1` -o $@ reglib.o crda.o
 
-dump: keys-ssl.c keys-gcrypt.c reglib.o dump.o
+regdbdump: keys-ssl.c keys-gcrypt.c reglib.o regdbdump.o
 	$(NQ) '  LD  ' $@
-	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o dump.o
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o regdbdump.o
 
 intersect: keys-ssl.c keys-gcrypt.c reglib.o intersect.o
 	$(NQ) '  LD  ' $@
 	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o intersect.o
 
-verify: $(REG_BIN) dump
+verify: $(REG_BIN) regdbdump
 	$(NQ) '  CHK  $(REG_BIN)'
-	$(Q)./dump $(REG_BIN) >/dev/null
+	$(Q)./regdbdump $(REG_BIN) >/dev/null
 
 install: crda
 	$(NQ) '  INSTALL  crda'
@@ -57,4 +57,4 @@ install: crda
 	$(Q)$(INSTALL) -m 644 -t $(DESTDIR)/etc/udev/rules.d/ udev/regulatory.rules
 
 clean:
-	$(Q)rm -f crda dump intersect *.o *~ *.pyc keys-*.c
+	$(Q)rm -f crda regdbdump intersect *.o *~ *.pyc keys-*.c

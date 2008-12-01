@@ -7,8 +7,7 @@ PUBKEY_DIR=pubkeys
 
 CFLAGS += -Wall -g
 
-all: crda intersect
-	$(Q)$(MAKE) --no-print-directory -f Makefile verify
+all: crda intersect verify
 
 ifeq ($(USE_OPENSSL),1)
 CFLAGS += -DUSE_OPENSSL `pkg-config --cflags openssl`

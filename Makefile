@@ -6,11 +6,23 @@ REG_BIN?=/usr/lib/crda/regulatory.bin
 PUBKEY_DIR=pubkeys
 
 CFLAGS += -Wall -g
-#CFLAGS += -DUSE_OPENSSL `pkg-config --cflags openssl`
-#LDLIBS += `pkg-config --libs openssl`
+
+all: crda intersect
+	$(Q)$(MAKE) --no-print-directory -f Makefile verify
+
+ifeq ($(USE_OPENSSL),1)
+CFLAGS += -DUSE_OPENSSL `pkg-config --cflags openssl`
+LDLIBS += `pkg-config --libs openssl`
+
+reglib.o: keys-ssl.c
+
+else
 CFLAGS += -DUSE_GCRYPT
 LDLIBS += -lgcrypt
 
+reglib.o: keys-gcrypt.c
+
+endif
 MKDIR ?= mkdir -p
 INSTALL ?= install
 
@@ -22,9 +34,6 @@ Q=@
 NQ=@echo
 endif
 
-all: crda intersect
-	$(Q)$(MAKE) --no-print-directory -f Makefile verify
-
 keys-%.c: utils/key2pub.py $(PUBKEY_DIR)/$(wildcard *.pem)
 	$(NQ) '  GEN ' $@
 	$(Q)./utils/key2pub.py --$* $(PUBKEY_DIR)/*.pem > $@
@@ -32,8 +41,6 @@ keys-%.c: utils/key2pub.py $(PUBKEY_DIR)/$(wildcard *.pem)
 %.o: %.c regdb.h
 	$(NQ) '  CC  ' $@
 	$(Q)$(CC) -c $(CPPFLAGS) $(CFLAGS) -o $@ $<
-
-reglib.o: keys-ssl.c keys-gcrypt.c
 
 crda: reglib.o crda.o
 	$(NQ) '  LD  ' $@

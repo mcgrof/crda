@@ -19,6 +19,26 @@
 	} \
 	} while (0)
 
+/* Sanity check on a regulatory rule */
+static int is_valid_reg_rule(const struct ieee80211_reg_rule *rule)
+{
+	const struct ieee80211_freq_range *freq_range = &rule->freq_range;
+	__u32 freq_diff;
+
+	if (freq_range->start_freq_khz == 0 || freq_range->end_freq_khz == 0)
+		return 0;
+
+	if (freq_range->start_freq_khz > freq_range->end_freq_khz)
+		return 0;
+
+	freq_diff = freq_range->end_freq_khz - freq_range->start_freq_khz;
+
+	if (freq_diff == 0 || freq_range->max_bandwidth_khz > freq_diff)
+		return 0;
+
+	return 1;
+}
+
 /* Helper for regdom_intersect(), this does the real
  * mathematical intersection fun */
 static int reg_rules_intersect(

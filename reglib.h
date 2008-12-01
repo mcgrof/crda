@@ -92,7 +92,6 @@ struct ieee80211_regdomain *country2rd(__u8 *db, int dblen,
 	struct regdb_file_reg_country *country);
 
 /* reg helpers */
-int is_valid_reg_rule(const struct ieee80211_reg_rule *rule);
 void print_regdom(struct ieee80211_regdomain *rd);
 
 #endif

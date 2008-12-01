@@ -7,9 +7,9 @@ PUBKEY_DIR=pubkeys
 
 CFLAGS += -Wall -g
 #CFLAGS += -DUSE_OPENSSL `pkg-config --cflags openssl`
-#LDFLAGS += `pkg-config --libs openssl`
+#LDLIBS += `pkg-config --libs openssl`
 CFLAGS += -DUSE_GCRYPT
-LDFLAGS += -lgcrypt
+LDLIBS += -lgcrypt
 
 MKDIR ?= mkdir -p
 INSTALL ?= install
@@ -35,15 +35,15 @@ keys-%.c: utils/key2pub.py $(PUBKEY_DIR)/$(wildcard *.pem)
 
 crda: keys-ssl.c keys-gcrypt.c reglib.o crda.o
 	$(NQ) '  LD  ' $@
-	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) `pkg-config --libs libnl-1` -o $@ reglib.o crda.o
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o crda.o `pkg-config --libs libnl-1` $(LDLIBS)
 
 regdbdump: keys-ssl.c keys-gcrypt.c reglib.o regdbdump.o
 	$(NQ) '  LD  ' $@
-	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o regdbdump.o
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o regdbdump.o $(LDLIBS)
 
 intersect: keys-ssl.c keys-gcrypt.c reglib.o intersect.o
 	$(NQ) '  LD  ' $@
-	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o intersect.o
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ reglib.o intersect.o $(LDLIBS)
 
 verify: $(REG_BIN) regdbdump
 	$(NQ) '  CHK  $(REG_BIN)'

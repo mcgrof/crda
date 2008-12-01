@@ -88,14 +88,11 @@ void *crda_get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr);
 int crda_verify_db_signature(__u8 *db, int dblen, int siglen);
 
 /* File reg db entry -> rd converstion utilities */
-void reg_rule2rd(__u8 *db, int dblen,
-	__be32 ruleptr, struct ieee80211_reg_rule *rd_reg_rule);
 struct ieee80211_regdomain *country2rd(__u8 *db, int dblen,
 	struct regdb_file_reg_country *country);
 
 /* reg helpers */
 int is_valid_reg_rule(const struct ieee80211_reg_rule *rule);
-void print_reg_rule(struct ieee80211_reg_rule *rule);
 void print_regdom(struct ieee80211_regdomain *rd);
 
 #endif

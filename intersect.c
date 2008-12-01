@@ -75,7 +75,7 @@ static int reg_rules_intersect(
  * resulting intersection of rules between rd1 and rd2. We will
  * malloc() this structure for you.
  */
-struct ieee80211_regdomain *regdom_intersect(
+static struct ieee80211_regdomain *regdom_intersect(
 	struct ieee80211_regdomain *rd1,
 	struct ieee80211_regdomain *rd2)
 {

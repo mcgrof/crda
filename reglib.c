@@ -133,7 +133,7 @@ out:
 #endif
 }
 
-void reg_rule2rd(__u8 *db, int dblen,
+static void reg_rule2rd(__u8 *db, int dblen,
 	__be32 ruleptr, struct ieee80211_reg_rule *rd_reg_rule)
 {
 	struct regdb_file_reg_rule *rule;
@@ -214,7 +214,7 @@ int is_valid_reg_rule(const struct ieee80211_reg_rule *rule)
 	return 1;
 }
 
-void print_reg_rule(struct ieee80211_reg_rule *rule)
+static void print_reg_rule(struct ieee80211_reg_rule *rule)
 {
 	struct ieee80211_freq_range *freq;
 	struct ieee80211_power_rule *power;

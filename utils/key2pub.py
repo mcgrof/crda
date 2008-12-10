@@ -108,5 +108,6 @@ for f in files:
 
     modes[mode][0]('e_%d' % idx, key.e[4:])
     modes[mode][0]('n_%d' % idx, key.n[4:])
+    idx += 1
 
-modes[mode][1](idx)
+modes[mode][1](idx - 1)

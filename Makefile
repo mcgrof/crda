@@ -33,9 +33,9 @@ Q=@
 NQ=@echo
 endif
 
-keys-%.c: utils/key2pub.py $(PUBKEY_DIR)/$(wildcard *.pem)
+keys-%.c: utils/key2pub.py $(wildcard $(PUBKEY_DIR)/*.pem)
 	$(NQ) '  GEN ' $@
-	$(Q)./utils/key2pub.py --$* $(PUBKEY_DIR)/*.pem > $@
+	$(Q)./utils/key2pub.py --$* $(wildcard $(PUBKEY_DIR)/*.pem) > $@
 
 %.o: %.c regdb.h
 	$(NQ) '  CC  ' $@

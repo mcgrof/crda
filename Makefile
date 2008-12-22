@@ -25,6 +25,22 @@ endif
 MKDIR ?= mkdir -p
 INSTALL ?= install
 
+NL1FOUND := $(shell pkg-config --atleast-version=1 libnl-1 && echo Y)
+NL2FOUND := $(shell pkg-config --atleast-version=2 libnl-2.0 && echo Y)
+
+ifeq ($(NL1FOUND),Y)
+NLLIBNAME = libnl-1
+endif
+
+ifeq ($(NL2FOUND),Y)
+CFLAGS += -DCONFIG_LIBNL20
+LIBS += -lnl-genl
+NLLIBNAME = libnl-2.0
+endif
+
+LIBS += `pkg-config --libs $(NLLIBNAME)`
+CFLAGS += `pkg-config --cflags $(NLLIBNAME)`
+
 ifeq ($(V),1)
 Q=
 NQ=@true
@@ -43,7 +59,7 @@ keys-%.c: utils/key2pub.py $(wildcard $(PUBKEY_DIR)/*.pem)
 
 crda: reglib.o crda.o
 	$(NQ) '  LD  ' $@
-	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ `pkg-config --libs libnl-1` $(LDLIBS)
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -o $@ $^ $(LDLIBS)
 
 regdbdump: reglib.o regdbdump.o print-regdom.o
 	$(NQ) '  LD  ' $@

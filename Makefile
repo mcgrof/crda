@@ -1,13 +1,14 @@
 # Modify as you see fit, note this is built into crda,
 # so if you change it here you will have to change crda.c
 REG_BIN?=/usr/lib/crda/regulatory.bin
+REG_GIT?=git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
 
 # Used locally to retrieve all pubkeys during build time
 PUBKEY_DIR=pubkeys
 
 CFLAGS += -Wall -g
 
-all: crda intersect verify
+all: $(REG_BIN) crda intersect verify
 
 ifeq ($(USE_OPENSSL),1)
 CFLAGS += -DUSE_OPENSSL `pkg-config --cflags openssl`
@@ -48,6 +49,18 @@ else
 Q=@
 NQ=@echo
 endif
+
+$(REG_BIN):
+	$(NQ) '  EXIST ' $(REG_BIN)
+	$(NQ)
+	$(NQ) ERROR: The file: $(REG_BIN) is missing. You need this in place in order
+	$(NQ) to build CRDA. You can get it from:
+	$(NQ)
+	$(NQ) $(REG_GIT)
+	$(NQ)
+	$(NQ) "Once cloned (no need to build) cp regulatory.bin to $(REG_BIN)"
+	$(NQ)
+	$(Q) exit 1
 
 keys-%.c: utils/key2pub.py $(wildcard $(PUBKEY_DIR)/*.pem)
 	$(NQ) '  GEN ' $@

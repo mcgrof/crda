@@ -12,7 +12,7 @@ yet to be added).
 ===================
 
 CRDA is provided as a binary file so all the host needs is libc/uclibc.
-You will also need udev.
+You will also need udev and at least libnl1.
 
  BUILD REQUIREMENTS
 ====================

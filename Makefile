@@ -64,7 +64,7 @@ $(REG_BIN):
 
 keys-%.c: utils/key2pub.py $(wildcard $(PUBKEY_DIR)/*.pem)
 	$(NQ) '  GEN ' $@
-	$(Q)./utils/key2pub.py --$* $(wildcard $(PUBKEY_DIR)/*.pem) > $@
+	$(Q)./utils/key2pub.py --$* $(wildcard $(PUBKEY_DIR)/*.pem) $@
 
 %.o: %.c regdb.h
 	$(NQ) '  CC  ' $@

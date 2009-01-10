@@ -3,7 +3,7 @@
 import sys
 from M2Crypto import RSA
 
-def print_ssl(name, val):
+def print_ssl(output, name, val):
     while val[0] == '\0':
         val = val[1:]
     while len(val) % 4:
@@ -13,22 +13,22 @@ def print_ssl(name, val):
         vnew.append((val[0], val[1], val[2], val[3], ))
         val = val[4:]
     vnew.reverse()
-    sys.stdout.write('static BN_ULONG %s[%d] = {\n' % (name, len(vnew)))
+    output.write('static BN_ULONG %s[%d] = {\n' % (name, len(vnew)))
     idx = 0
     for v1, v2, v3, v4 in vnew:
         if not idx:
-            sys.stdout.write('\t')
-        sys.stdout.write('0x%.2x%.2x%.2x%.2x, ' % (ord(v1), ord(v2), ord(v3), ord(v4)))
+            output.write('\t')
+        output.write('0x%.2x%.2x%.2x%.2x, ' % (ord(v1), ord(v2), ord(v3), ord(v4)))
         idx += 1
         if idx == 4:
             idx = 0
-            sys.stdout.write('\n')
+            output.write('\n')
     if idx:
-        sys.stdout.write('\n')
-    sys.stdout.write('};\n\n')
+        output.write('\n')
+    output.write('};\n\n')
 
-def print_ssl_keys(n):
-    sys.stdout.write(r'''
+def print_ssl_keys(output, n):
+    output.write(r'''
 struct pubkey {
 	struct bignum_st e, n;
 };
@@ -43,29 +43,29 @@ struct pubkey {
 static struct pubkey keys[] = {
 ''')
     for n in xrange(n + 1):
-        sys.stdout.write('	KEYS(e_%d, n_%d),\n' % (n, n))
-    sys.stdout.write('};\n')
+        output.write('	KEYS(e_%d, n_%d),\n' % (n, n))
+    output.write('};\n')
     pass
 
-def print_gcrypt(name, val):
+def print_gcrypt(output, name, val):
     while val[0] == '\0':
         val = val[1:]
-    sys.stdout.write('static const __u8 %s[%d] = {\n' % (name, len(val)))
+    output.write('static const __u8 %s[%d] = {\n' % (name, len(val)))
     idx = 0
     for v in val:
         if not idx:
-            sys.stdout.write('\t')
-        sys.stdout.write('0x%.2x, ' % ord(v))
+            output.write('\t')
+        output.write('0x%.2x, ' % ord(v))
         idx += 1
         if idx == 8:
             idx = 0
-            sys.stdout.write('\n')
+            output.write('\n')
     if idx:
-        sys.stdout.write('\n')
-    sys.stdout.write('};\n\n')
+        output.write('\n')
+    output.write('};\n\n')
 
-def print_gcrypt_keys(n):
-    sys.stdout.write(r'''
+def print_gcrypt_keys(output, n):
+    output.write(r'''
 struct key_params {
 	const __u8 *e, *n;
 	__u32 len_e, len_n; 
@@ -79,8 +79,8 @@ struct key_params {
 static const struct key_params keys[] = {
 ''')
     for n in xrange(n + 1):
-        sys.stdout.write('	KEYS(e_%d, n_%d),\n' % (n, n))
-    sys.stdout.write('};\n')
+        output.write('	KEYS(e_%d, n_%d),\n' % (n, n))
+    output.write('};\n')
     
 
 modes = {
@@ -90,13 +90,16 @@ modes = {
 
 try:
     mode = sys.argv[1]
-    files = sys.argv[2:]
+    files = sys.argv[2:-1]
+    outfile = sys.argv[-1]
 except IndexError:
     mode = None
 
 if not mode in modes:
-    print 'Usage: %s [%s] files' % (sys.argv[0], '|'.join(modes.keys()))
+    print 'Usage: %s [%s] input-file... output-file' % (sys.argv[0], '|'.join(modes.keys()))
     sys.exit(2)
+
+output = open(outfile, 'w')
 
 # load key
 idx = 0
@@ -106,8 +109,8 @@ for f in files:
     except RSA.RSAError:
         key = RSA.load_key(f)
 
-    modes[mode][0]('e_%d' % idx, key.e[4:])
-    modes[mode][0]('n_%d' % idx, key.n[4:])
+    modes[mode][0](output, 'e_%d' % idx, key.e[4:])
+    modes[mode][0](output, 'n_%d' % idx, key.n[4:])
     idx += 1
 
-modes[mode][1](idx - 1)
+modes[mode][1](output, idx - 1)

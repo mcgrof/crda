@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 
 import sys
-from M2Crypto import RSA
+try:
+       from M2Crypto import RSA
+except ImportError, e:
+       sys.stderr.write('ERROR: Failed to import the "M2Crypto" module: %s\n' % e.message)
+       sys.stderr.write('Please install the "M2Crypto" Python module.\n')
+       sys.stderr.write('On Debian GNU/Linux the package is called "python-m2crypto".\n')
+       sys.exit(1)
 
 def print_ssl(output, name, val):
     while val[0] == '\0':

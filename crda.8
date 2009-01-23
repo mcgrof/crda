@@ -58,7 +58,7 @@ A udev regulatory rule must be put in place
 in order to receive and parse udev events from the kernel in order to get
 udev to call crda with the passed ISO / IEC 3166 alpha2 country code.
 An example udev rule which can be used (usually in
-.B /etc/udev/rules.d/regulatory.bin
+.B /lib/udev/rules.d/85-regulatory.rules
 ):
 
 .I KERNEL=="regulatory*", ACTION=="change", SUBSYSTEM=="platform", RUN+="/sbin/crda"

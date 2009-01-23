@@ -3,8 +3,10 @@
 REG_BIN?=/usr/lib/crda/regulatory.bin
 REG_GIT?=git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
 
-SBINDIR ?= /sbin
-MANDIR ?= /usr/share/man/
+PREFIX ?= /usr/
+MANDIR ?= $(PREFIX)/share/man/
+
+SBINDIR ?= /sbin/
 
 # Use a custom CRDA_UDEV_LEVEL when callling make install to
 # change your desired level for the udev regulatory.rules

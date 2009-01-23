@@ -3,6 +3,14 @@
 REG_BIN?=/usr/lib/crda/regulatory.bin
 REG_GIT?=git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
 
+# Use a custom CRDA_UDEV_LEVEL when callling make install to
+# change your desired level for the udev regulatory.rules
+CRDA_UDEV_LEVEL?=85
+UDEV_LEVEL=$(CRDA_UDEV_LEVEL)-
+# You can customize this if your distributions uses
+# a different location.
+UDEV_RULE_DIR?=/lib/udev/rules.d/
+
 # Used locally to retrieve all pubkeys during build time
 PUBKEY_DIR=pubkeys
 
@@ -94,7 +102,12 @@ install: crda
 	$(Q)$(INSTALL) -m 755 -t $(DESTDIR)/sbin/ regdbdump
 	$(NQ) '  INSTALL  regulatory.rules'
 	$(Q)$(MKDIR) $(DESTDIR)/etc/udev/rules.d
-	$(Q)$(INSTALL) -m 644 -t $(DESTDIR)/etc/udev/rules.d/ udev/regulatory.rules
+	@# This removes the old rule you may have, we were not
+	@# putting it in the right place.
+	$(Q)rm -f $(DESTDIR)/etc/udev/rules.d/regulatory.rules
+	$(Q)$(INSTALL) -m 644 -t \
+		$(DESTDIR)/$(UDEV_RULE_DIR)/$(UDEV_LEVEL)regulatory.rules  \
+		udev/regulatory.rules
 
 clean:
 	$(Q)rm -f crda regdbdump intersect *.o *~ *.pyc keys-*.c

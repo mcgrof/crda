@@ -6,9 +6,14 @@ crda \- send to the kernel a wireless regulatory domain for a given ISO / IEC 31
 .ad l
 .in +8
 .ti -8
+.B crda
+
+.ad l
+.in +8
+.ti -8
 
 .SS
-.I SUMMARY
+.SH Description
 .B crda
 is the Linux wireless central regulatory domain agent.
 .B crda
@@ -32,7 +37,7 @@ from the
 file.
 
 .SS
-.I RSA Digital Signature
+.SH RSA Digital Signature
 If built with openssl or gcrypt support
 .B crda
 will have embedded
@@ -53,7 +58,7 @@ files signed by him. For further information see the
 man page.
 
 .SS
-.I UDEV RULE
+.SH UDEV RULE
 A udev regulatory rule must be put in place
 in order to receive and parse udev events from the kernel in order to get
 udev to call crda with the passed ISO / IEC 3166 alpha2 country code.
@@ -64,7 +69,7 @@ An example udev rule which can be used (usually in
 .I KERNEL=="regulatory*", ACTION=="change", SUBSYSTEM=="platform", RUN+="/sbin/crda"
 
 .SS
-.I COMMAND
+.SH Environment variable
 Set the
 .B COUNTRY
 environment variable with a specific ISO / IEC 3166 alpha2 country code

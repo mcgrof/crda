@@ -3,6 +3,9 @@
 REG_BIN?=/usr/lib/crda/regulatory.bin
 REG_GIT?=git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
 
+SBINDIR ?= /sbin
+MANDIR ?= /usr/share/man/
+
 # Use a custom CRDA_UDEV_LEVEL when callling make install to
 # change your desired level for the udev regulatory.rules
 CRDA_UDEV_LEVEL?=85
@@ -94,20 +97,31 @@ verify: $(REG_BIN) regdbdump
 	$(NQ) '  CHK  $(REG_BIN)'
 	$(Q)./regdbdump $(REG_BIN) >/dev/null
 
-install: crda
+%.gz: %
+	@$(NQ) ' GZIP' $<
+	$(Q)gzip < $< > $@
+
+install: crda crda.8.gz regdbdump.8.gz
 	$(NQ) '  INSTALL  crda'
 	$(Q)$(MKDIR) $(DESTDIR)/sbin
-	$(Q)$(INSTALL) -m 755 -t $(DESTDIR)/sbin/ crda
+	$(Q)$(INSTALL) -m 755 -t $(DESTDIR)/$(SBINDIR) crda
 	$(NQ) '  INSTALL  regdbdump'
-	$(Q)$(INSTALL) -m 755 -t $(DESTDIR)/sbin/ regdbdump
-	$(NQ) '  INSTALL  regulatory.rules'
-	$(Q)$(MKDIR) $(DESTDIR)/etc/udev/rules.d
+	$(Q)$(INSTALL) -m 755 -t $(DESTDIR)/$(SBINDIR) regdbdump
+	$(NQ) '  INSTALL  $(UDEV_LEVEL)regulatory.rules'
+	$(Q)$(MKDIR) $(DESTDIR)/$(UDEV_RULE_DIR)/
 	@# This removes the old rule you may have, we were not
 	@# putting it in the right place.
 	$(Q)rm -f $(DESTDIR)/etc/udev/rules.d/regulatory.rules
+	$(Q)ln -sf regulatory.rules udev/$(UDEV_LEVEL)regulatory.rules
 	$(Q)$(INSTALL) -m 644 -t \
-		$(DESTDIR)/$(UDEV_RULE_DIR)/$(UDEV_LEVEL)regulatory.rules  \
-		udev/regulatory.rules
+		$(DESTDIR)/$(UDEV_RULE_DIR)/ \
+		udev/$(UDEV_LEVEL)regulatory.rules
+	$(NQ) '  INSTALL  crda.8.gz'
+	$(Q)$(MKDIR) $(DESTDIR)$(MANDIR)/man8/
+	$(Q)$(INSTALL) -m 644 -t $(DESTDIR)/$(MANDIR)/man8/ crda.8.gz
+	$(NQ) '  INSTALL  regdbdump.8.gz'
+	$(Q)$(INSTALL) -m 644 -t $(DESTDIR)/$(MANDIR)/man8/ regdbdump.8.gz
 
 clean:
-	$(Q)rm -f crda regdbdump intersect *.o *~ *.pyc keys-*.c
+	$(Q)rm -f crda regdbdump intersect *.o *~ *.pyc keys-*.c *.gz \
+	udev/$(UDEV_LEVEL)regulatory.rules

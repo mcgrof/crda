@@ -48,11 +48,11 @@ endif
 
 ifeq ($(NL2FOUND),Y)
 CFLAGS += -DCONFIG_LIBNL20
-LIBS += -lnl-genl
+NLLIBS += -lnl-genl
 NLLIBNAME = libnl-2.0
 endif
 
-LIBS += `pkg-config --libs $(NLLIBNAME)`
+NLLIBS += `pkg-config --libs $(NLLIBNAME)`
 CFLAGS += `pkg-config --cflags $(NLLIBNAME)`
 
 ifeq ($(V),1)
@@ -85,7 +85,7 @@ keys-%.c: utils/key2pub.py $(wildcard $(PUBKEY_DIR)/*.pem)
 
 crda: reglib.o crda.o
 	$(NQ) '  LD  ' $@
-	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) $(LIBS) -o $@ $^ $(LDLIBS)
+	$(Q)$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS) $(NLLIBS)
 
 regdbdump: reglib.o regdbdump.o print-regdom.o
 	$(NQ) '  LD  ' $@

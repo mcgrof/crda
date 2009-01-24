@@ -1,6 +1,6 @@
 Summary: Linux central regulatory domain agent
 Name: crda
-Version: 1.0.0
+Version: 1.0.1
 Release: 1
 License: ISC
 Group: System Enviroment/Base

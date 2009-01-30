@@ -52,6 +52,10 @@ NLLIBS += -lnl-genl
 NLLIBNAME = libnl-2.0
 endif
 
+ifeq ($(NLLIBNAME),)
+$(error Cannot find development files for any supported version of libnl)
+endif
+
 NLLIBS += `pkg-config --libs $(NLLIBNAME)`
 CFLAGS += `pkg-config --cflags $(NLLIBNAME)`
 

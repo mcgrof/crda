@@ -43,10 +43,11 @@ static inline int __genl_ctrl_alloc_cache(struct nl_handle *h, struct nl_cache *
 }
 
 #define genl_ctrl_alloc_cache __genl_ctrl_alloc_cache
+#define nl_sock nl_handle
 #endif /* CONFIG_LIBNL20 */
 
 struct nl80211_state {
-	struct nl_handle *nl_handle;
+	struct nl_sock *nl_sock;
 	struct nl_cache *nl_cache;
 	struct genl_family *nl80211;
 };
@@ -55,22 +56,22 @@ static int nl80211_init(struct nl80211_state *state)
 {
 	int err;
 
-	state->nl_handle = nl_socket_alloc();
-	if (!state->nl_handle) {
-		fprintf(stderr, "Failed to allocate netlink handle.\n");
+	state->nl_sock = nl_socket_alloc();
+	if (!state->nl_sock) {
+		fprintf(stderr, "Failed to allocate netlink sock.\n");
 		return -ENOMEM;
 	}
 
-	if (genl_connect(state->nl_handle)) {
+	if (genl_connect(state->nl_sock)) {
 		fprintf(stderr, "Failed to connect to generic netlink.\n");
 		err = -ENOLINK;
-		goto out_handle_destroy;
+		goto out_sock_destroy;
 	}
 
-	if (genl_ctrl_alloc_cache(state->nl_handle, &state->nl_cache)) {
+	if (genl_ctrl_alloc_cache(state->nl_sock, &state->nl_cache)) {
 		fprintf(stderr, "Failed to allocate generic netlink cache.\n");
 		err = -ENOMEM;
-		goto out_handle_destroy;
+		goto out_sock_destroy;
 	}
 
 	state->nl80211 = genl_ctrl_search_by_name(state->nl_cache, "nl80211");
@@ -84,8 +85,8 @@ static int nl80211_init(struct nl80211_state *state)
 
  out_cache_free:
 	nl_cache_free(state->nl_cache);
- out_handle_destroy:
-	nl_socket_free(state->nl_handle);
+ out_sock_destroy:
+	nl_socket_free(state->nl_sock);
 	return err;
 }
 
@@ -93,7 +94,7 @@ static void nl80211_cleanup(struct nl80211_state *state)
 {
 	genl_family_put(state->nl80211);
 	nl_cache_free(state->nl_cache);
-	nl_socket_free(state->nl_handle);
+	nl_socket_free(state->nl_sock);
 }
 
 static int reg_handler(struct nl_msg __attribute__((unused)) *msg,
@@ -294,7 +295,7 @@ int main(int argc, char **argv)
 	if (!cb)
 		goto cb_out;
 
-	r = nl_send_auto_complete(nlstate.nl_handle, msg);
+	r = nl_send_auto_complete(nlstate.nl_sock, msg);
 
 	if (r < 0) {
 		fprintf(stderr, "Failed to send regulatory request: %d\n", r);
@@ -306,7 +307,7 @@ int main(int argc, char **argv)
 	nl_cb_err(cb, NL_CB_CUSTOM, error_handler, NULL);
 
 	if (!finished) {
-		r = nl_wait_for_ack(nlstate.nl_handle);
+		r = nl_wait_for_ack(nlstate.nl_sock);
 		if (r < 0) {
 			fprintf(stderr, "Failed to set regulatory domain: "
 				"%d\n", r);

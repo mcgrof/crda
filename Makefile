@@ -109,7 +109,7 @@ verify: $(REG_BIN) regdbdump
 
 install: crda crda.8.gz regdbdump.8.gz
 	$(NQ) '  INSTALL  crda'
-	$(Q)$(MKDIR) $(DESTDIR)/sbin
+	$(Q)$(MKDIR) $(DESTDIR)/$(SBINDIR)
 	$(Q)$(INSTALL) -m 755 -t $(DESTDIR)/$(SBINDIR) crda
 	$(NQ) '  INSTALL  regdbdump'
 	$(Q)$(INSTALL) -m 755 -t $(DESTDIR)/$(SBINDIR) regdbdump

@@ -119,6 +119,7 @@ install: crda crda.8.gz regdbdump.8.gz
 	@# putting it in the right place.
 	$(Q)rm -f $(DESTDIR)/etc/udev/rules.d/regulatory.rules
 	$(Q)ln -sf regulatory.rules udev/$(UDEV_LEVEL)regulatory.rules
+	$(Q)sed 's:$$(SBINDIR):$(SBINDIR):' -i udev/regulatory.rules
 	$(Q)$(INSTALL) -m 644 -t \
 		$(DESTDIR)/$(UDEV_RULE_DIR)/ \
 		udev/$(UDEV_LEVEL)regulatory.rules

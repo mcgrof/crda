@@ -143,7 +143,7 @@ nla_put_failure:
 
 int main(int argc, char **argv)
 {
-	int fd;
+	int fd = -1;
 	struct stat stat;
 	__u8 *db;
 	struct regdb_file_header *header;
@@ -162,7 +162,12 @@ int main(int argc, char **argv)
 	struct nlattr *nl_reg_rules;
 	int num_rules;
 
-	const char regdb[] = "/usr/lib/crda/regulatory.bin";
+	const char *regdb_paths[] = {
+		"/usr/lib/crda/regulatory.bin",
+		"/lib/crda/regulatory.bin",
+		NULL
+	};
+	const char **regdb = regdb_paths;
 
 	if (argc != 1) {
 		fprintf(stderr, "Usage: %s\n", argv[0]);
@@ -183,7 +188,12 @@ int main(int argc, char **argv)
 
 	memcpy(alpha2, env_country, 2);
 
-	fd = open(regdb, O_RDONLY);
+	while (*regdb != NULL) {
+		fd = open(*regdb, O_RDONLY);
+		if (fd >= 0)
+			break;
+		regdb++;
+	}
 	if (fd < 0) {
 		perror("failed to open db file");
 		return -ENOENT;

@@ -163,9 +163,9 @@ int main(int argc, char **argv)
 	int num_rules;
 
 	const char *regdb_paths[] = {
-		"/usr/local/lib/crda/regulatory.bin",
-		"/usr/lib/crda/regulatory.bin",
-		"/lib/crda/regulatory.bin",
+		"/usr/local/lib/crda/regulatory.bin", /* Users/preloads can override */
+		"/usr/lib/crda/regulatory.bin", /* General distribution package usage */
+		"/lib/crda/regulatory.bin", /* alternative for distributions */
 		NULL
 	};
 	const char **regdb = regdb_paths;

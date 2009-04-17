@@ -26,7 +26,7 @@ def print_ssl_64(output, name, val):
             output.write('\t')
         output.write('0x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x, ' % (ord(v1), ord(v2), ord(v3), ord(v4), ord(v5), ord(v6), ord(v7), ord(v8)))
         idx += 1
-        if idx == 8:
+        if idx == 2:
             idx = 0
             output.write('\n')
     if idx:

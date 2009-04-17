@@ -16,8 +16,11 @@ UDEV_LEVEL=$(CRDA_UDEV_LEVEL)-
 # a different location.
 UDEV_RULE_DIR?=/lib/udev/rules.d/
 
-# Used locally to retrieve all pubkeys during build time
-PUBKEY_DIR=pubkeys
+# If your distribution requires a custom pubkeys dir
+# you must update this variable to reflect where the
+# keys are put when building. For example you can run
+# with make PUBKEY_DIR=/usr/lib/crda/pubkeys
+PUBKEY_DIR?=pubkeys
 
 CFLAGS += -Wall -g
 
@@ -81,6 +84,7 @@ $(REG_BIN):
 
 keys-%.c: utils/key2pub.py $(wildcard $(PUBKEY_DIR)/*.pem)
 	$(NQ) '  GEN ' $@
+	$(NQ) '  Trusted pubkeys:' $(wildcard $(PUBKEY_DIR)/*.pem)
 	$(Q)./utils/key2pub.py --$* $(wildcard $(PUBKEY_DIR)/*.pem) $@
 
 %.o: %.c regdb.h

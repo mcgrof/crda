@@ -9,7 +9,31 @@ except ImportError, e:
        sys.stderr.write('On Debian GNU/Linux the package is called "python-m2crypto".\n')
        sys.exit(1)
 
-def print_ssl(output, name, val):
+def print_ssl_64(output, name, val):
+    while val[0] == '\0':
+        val = val[1:]
+    while len(val) % 8:
+        val = '\0' + val
+    vnew = []
+    while len(val):
+        vnew.append((val[0], val[1], val[2], val[3], val[4], val[5], val[6], val[7]))
+        val = val[8:]
+    vnew.reverse()
+    output.write('static BN_ULONG %s[%d] = {\n' % (name, len(vnew)))
+    idx = 0
+    for v1, v2, v3, v4, v5, v6, v7, v8 in vnew:
+        if not idx:
+            output.write('\t')
+        output.write('0x%.2x%.2x%.2x%.2x%.2x%.2x%.2x%.2x, ' % (ord(v1), ord(v2), ord(v3), ord(v4), ord(v5), ord(v6), ord(v7), ord(v8)))
+        idx += 1
+        if idx == 8:
+            idx = 0
+            output.write('\n')
+    if idx:
+        output.write('\n')
+    output.write('};\n\n')
+
+def print_ssl_32(output, name, val):
     while val[0] == '\0':
         val = val[1:]
     while len(val) % 4:
@@ -32,6 +56,13 @@ def print_ssl(output, name, val):
     if idx:
         output.write('\n')
     output.write('};\n\n')
+
+def print_ssl(output, name, val):
+    import struct
+    if len(struct.pack('@L', 0)) == 8:
+        return print_ssl_64(output, name, val)
+    else:
+        return print_ssl_32(output, name, val)
 
 def print_ssl_keys(output, n):
     output.write(r'''

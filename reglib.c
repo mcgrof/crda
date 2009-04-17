@@ -49,32 +49,28 @@ int crda_verify_db_signature(__u8 *db, int dblen, int siglen)
 	unsigned int i;
 	int ok = 0;
 
-	rsa = RSA_new();
-	if (!rsa) {
-		fprintf(stderr, "Failed to create RSA key.\n");
-		goto out;
-	}
-
 	if (SHA1(db, dblen, hash) != hash) {
 		fprintf(stderr, "Failed to calculate SHA1 sum.\n");
-		RSA_free(rsa);
 		goto out;
 	}
 
 	for (i = 0; (i < sizeof(keys)/sizeof(keys[0])) && (!ok); i++) {
+		rsa = RSA_new();
+		if (!rsa) {
+			fprintf(stderr, "Failed to create RSA key.\n");
+			goto out;
+		}
+
 		rsa->e = &keys[i].e;
 		rsa->n = &keys[i].n;
 
-		if (RSA_size(rsa) != siglen)
-			continue;
-
 		ok = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH,
 				db + dblen, siglen, rsa) == 1;
-	}
 
-	rsa->e = NULL;
-	rsa->n = NULL;
-	RSA_free(rsa);
+		rsa->e = NULL;
+		rsa->n = NULL;
+		RSA_free(rsa);
+	}
 #endif
 
 #ifdef USE_GCRYPT

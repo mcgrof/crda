@@ -24,7 +24,9 @@ PUBKEY_DIR?=pubkeys
 
 CFLAGS += -Wall -g
 
-all: $(REG_BIN) crda intersect verify
+all: all_noverify verify
+
+all_noverify: crda intersect regdbdump
 
 ifeq ($(USE_OPENSSL),1)
 CFLAGS += -DUSE_OPENSSL `pkg-config --cflags openssl`
@@ -74,11 +76,12 @@ $(REG_BIN):
 	$(NQ) '  EXIST ' $(REG_BIN)
 	$(NQ)
 	$(NQ) ERROR: The file: $(REG_BIN) is missing. You need this in place in order
-	$(NQ) to build CRDA. You can get it from:
+	$(NQ) to verify CRDA. You can get it from:
 	$(NQ)
 	$(NQ) $(REG_GIT)
 	$(NQ)
 	$(NQ) "Once cloned (no need to build) cp regulatory.bin to $(REG_BIN)"
+	$(NQ) "Use \"make noverify\" to disable verification"
 	$(NQ)
 	$(Q) exit 1
 

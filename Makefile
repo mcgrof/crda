@@ -21,6 +21,7 @@ UDEV_RULE_DIR?=/lib/udev/rules.d/
 # keys are put when building. For example you can run
 # with make PUBKEY_DIR=/usr/lib/crda/pubkeys
 PUBKEY_DIR?=pubkeys
+RUNTIME_PUBKEY_DIR?=/etc/wireless-regdb/pubkeys
 
 CFLAGS += -Wall -g
 
@@ -29,7 +30,7 @@ all: all_noverify verify
 all_noverify: crda intersect regdbdump
 
 ifeq ($(USE_OPENSSL),1)
-CFLAGS += -DUSE_OPENSSL `pkg-config --cflags openssl`
+CFLAGS += -DUSE_OPENSSL -DPUBKEY_DIR=\"$(RUNTIME_PUBKEY_DIR)\" `pkg-config --cflags openssl`
 LDLIBS += `pkg-config --libs openssl`
 
 reglib.o: keys-ssl.c

@@ -85,7 +85,7 @@ int crda_verify_db_signature(__u8 *db, int dblen, int siglen)
 			if ((keyfile = fopen(filename, "rb"))) {
 				rsa = PEM_read_RSA_PUBKEY(keyfile,
 					NULL, NULL, NULL);
-				if (rsa) 
+				if (rsa)
 					ok = RSA_verify(NID_sha1, hash, SHA_DIGEST_LENGTH,
 						db + dblen, siglen, rsa) == 1;
 				RSA_free(rsa);

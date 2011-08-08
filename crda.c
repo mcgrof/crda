@@ -21,7 +21,7 @@
 #include "regdb.h"
 #include "reglib.h"
 
-#ifndef CONFIG_LIBNL20
+#if !defined(CONFIG_LIBNL20) && !defined(CONFIG_LIBNL30)
 /* libnl 2.0 compatibility code */
 static inline struct nl_handle *nl_socket_alloc(void)
 {
@@ -44,7 +44,7 @@ static inline int __genl_ctrl_alloc_cache(struct nl_handle *h, struct nl_cache *
 
 #define genl_ctrl_alloc_cache __genl_ctrl_alloc_cache
 #define nl_sock nl_handle
-#endif /* CONFIG_LIBNL20 */
+#endif /* CONFIG_LIBNL20 && CONFIG_LIBNL30 */
 
 struct nl80211_state {
 	struct nl_sock *nl_sock;

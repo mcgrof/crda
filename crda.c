@@ -280,6 +280,7 @@ int main(int argc, char **argv)
 				country->reg_collection_ptr);
 
 	NLA_PUT_STRING(msg, NL80211_ATTR_REG_ALPHA2, alpha2);
+	NLA_PUT_U8(msg, NL80211_ATTR_DFS_REGION, country->creqs & 0x3);
 
 	nl_reg_rules = nla_nest_start(msg, NL80211_ATTR_REG_RULES);
 	if (!nl_reg_rules) {

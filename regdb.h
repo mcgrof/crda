@@ -96,7 +96,8 @@ struct regdb_file_reg_rules_collection {
 
 struct regdb_file_reg_country {
 	__u8	alpha2[2];
-	__u8	PAD[2];
+	__u8	PAD;
+	__u8	creqs; /* first two bits define DFS region */
 	/* pointer (offset) into the file to a struct
 	 * regdb_file_reg_rules_collection */
 	__be32	reg_collection_ptr;

@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 	struct regdb_file_header *header;
 	struct regdb_file_reg_country *countries;
 	int dblen, siglen, num_countries, i, j, r;
-	char alpha2[2];
+	char alpha2[3] = {}; /* NUL-terminate */
 	char *env_country;
 	struct nl80211_state nlstate;
 	struct nl_cb *cb = NULL;
@@ -279,7 +279,7 @@ int main(int argc, char **argv)
 				sizeof(*rcoll) + num_rules * sizeof(__be32),
 				country->reg_collection_ptr);
 
-	NLA_PUT_STRING(msg, NL80211_ATTR_REG_ALPHA2, (char *) country->alpha2);
+	NLA_PUT_STRING(msg, NL80211_ATTR_REG_ALPHA2, alpha2);
 
 	nl_reg_rules = nla_nest_start(msg, NL80211_ATTR_REG_RULES);
 	if (!nl_reg_rules) {

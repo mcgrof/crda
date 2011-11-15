@@ -4,8 +4,8 @@
 #include <arpa/inet.h>
 #include "reglib.h"
 
-static void reg_rule2rd(__u8 *db, int dblen,
-	__be32 ruleptr, struct ieee80211_reg_rule *rd_reg_rule)
+static void reg_rule2rd(uint8_t *db, int dblen,
+	uint32_t ruleptr, struct ieee80211_reg_rule *rd_reg_rule)
 {
 	struct regdb_file_reg_rule *rule;
 	struct regdb_file_freq_range *freq;
@@ -29,7 +29,7 @@ static void reg_rule2rd(__u8 *db, int dblen,
 }
 
 /* Converts a file regdomain to ieee80211_regdomain, easier to manage */
-struct ieee80211_regdomain *country2rd(__u8 *db, int dblen,
+struct ieee80211_regdomain *country2rd(uint8_t *db, int dblen,
 	struct regdb_file_reg_country *country)
 {
 	struct regdb_file_reg_rules_collection *rcoll;
@@ -41,7 +41,7 @@ struct ieee80211_regdomain *country2rd(__u8 *db, int dblen,
 	num_rules = ntohl(rcoll->reg_rule_num);
 	/* re-get pointer with sanity checking for num_rules */
 	rcoll = crda_get_file_ptr(db, dblen,
-			sizeof(*rcoll) + num_rules * sizeof(__be32),
+			sizeof(*rcoll) + num_rules * sizeof(uint32_t),
 			country->reg_collection_ptr);
 
 	size_of_rd = sizeof(struct ieee80211_regdomain) +

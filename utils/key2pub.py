@@ -87,7 +87,7 @@ static struct pubkey keys[] = {
 def print_gcrypt(output, name, val):
     while val[0] == '\0':
         val = val[1:]
-    output.write('static const __u8 %s[%d] = {\n' % (name, len(val)))
+    output.write('static const uint8_t %s[%d] = {\n' % (name, len(val)))
     idx = 0
     for v in val:
         if not idx:
@@ -104,8 +104,8 @@ def print_gcrypt(output, name, val):
 def print_gcrypt_keys(output, n):
     output.write(r'''
 struct key_params {
-	const __u8 *e, *n;
-	__u32 len_e, len_n; 
+	const uint8_t *e, *n;
+	uint32_t len_e, len_n;
 };
 
 #define KEYS(_e, _n) {			\

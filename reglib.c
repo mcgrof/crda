@@ -26,9 +26,9 @@
 #include "keys-gcrypt.c"
 #endif
 
-void *crda_get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr)
+void *crda_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr)
 {
-	__u32 p = ntohl(ptr);
+	uint32_t p = ntohl(ptr);
 
 	if (p > dblen - structlen) {
 		fprintf(stderr, "Invalid database file, bad pointer!\n");
@@ -44,11 +44,11 @@ void *crda_get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr)
  * at least one key in the array such that the signature is valid
  * against that key; 0 otherwise.
  */
-int crda_verify_db_signature(__u8 *db, int dblen, int siglen)
+int crda_verify_db_signature(uint8_t *db, int dblen, int siglen)
 {
 #ifdef USE_OPENSSL
 	RSA *rsa;
-	__u8 hash[SHA_DIGEST_LENGTH];
+	uint8_t hash[SHA_DIGEST_LENGTH];
 	unsigned int i;
 	int ok = 0;
 	DIR *pubkey_dir;
@@ -99,7 +99,7 @@ int crda_verify_db_signature(__u8 *db, int dblen, int siglen)
 #ifdef USE_GCRYPT
 	gcry_mpi_t mpi_e, mpi_n;
 	gcry_sexp_t rsa, signature, data;
-	__u8 hash[20];
+	uint8_t hash[20];
 	unsigned int i;
 	int ok = 0;
 

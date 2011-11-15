@@ -1,7 +1,7 @@
 #ifndef REG_DB_H
 #define REG_DB_H
 
-#include <linux/types.h>
+#include <stdint.h>
 
 /*
  * WARNING: This file needs to be kept in sync with
@@ -28,9 +28,9 @@
 
 struct regdb_file_header {
 	/* must be REGDB_MAGIC */
-	__be32	magic;
+	uint32_t	magic;
 	/* must be REGDB_VERSION */
-	__be32	version;
+	uint32_t	version;
 	/*
 	 * Pointer (offset) into file where country list starts
 	 * and number of countries. The country list is sorted
@@ -38,14 +38,14 @@ struct regdb_file_header {
 	 * become really huge). Each country is described by a
 	 * struct regdb_file_reg_country.
 	 */
-	__be32	reg_country_ptr;
-	__be32	reg_country_num;
+	uint32_t	reg_country_ptr;
+	uint32_t	reg_country_num;
 	/* length (in bytes) of the signature at the end of the file */
-	__be32	signature_length;
+	uint32_t	signature_length;
 };
 
 struct regdb_file_freq_range {
-	__be32	start_freq,	/* in kHz */
+	uint32_t	start_freq,	/* in kHz */
 		end_freq,	/* in kHz */
 		max_bandwidth;	/* in kHz */
 };
@@ -56,9 +56,9 @@ struct regdb_file_freq_range {
  */
 struct regdb_file_power_rule {
 	/* antenna gain is in mBi (100 * dBi) */
-	__be32	max_antenna_gain;
+	uint32_t	max_antenna_gain;
 	/* this is in mBm (100 * dBm) */
-	__be32	max_eirp;
+	uint32_t	max_eirp;
 };
 
 /* must match <linux/nl80211.h> enum nl80211_reg_rule_flags */
@@ -80,27 +80,27 @@ enum reg_rule_flags {
 
 struct regdb_file_reg_rule {
 	/* pointers (offsets) into the file */
-	__be32	freq_range_ptr; /* pointer to a struct regdb_file_freq_range */
-	__be32	power_rule_ptr; /* pointer to a struct regdb_file_power_rule */
+	uint32_t	freq_range_ptr; /* pointer to a struct regdb_file_freq_range */
+	uint32_t	power_rule_ptr; /* pointer to a struct regdb_file_power_rule */
 	/* rule flags using enum reg_rule_flags */
-	__be32 flags;
+	uint32_t flags;
 };
 
 struct regdb_file_reg_rules_collection {
-	__be32	reg_rule_num;
+	uint32_t	reg_rule_num;
 	/* pointers (offsets) into the file. There are reg_rule_num elements
 	 * in the reg_rule_ptrs array pointing to struct
 	 * regdb_file_reg_rule */
-	__be32	reg_rule_ptrs[];
+	uint32_t	reg_rule_ptrs[];
 };
 
 struct regdb_file_reg_country {
-	__u8	alpha2[2];
-	__u8	PAD;
-	__u8	creqs; /* first two bits define DFS region */
+	uint8_t	alpha2[2];
+	uint8_t	PAD;
+	uint8_t	creqs; /* first two bits define DFS region */
 	/* pointer (offset) into the file to a struct
 	 * regdb_file_reg_rules_collection */
-	__be32	reg_collection_ptr;
+	uint32_t	reg_collection_ptr;
 };
 
 

@@ -23,7 +23,7 @@
 static int is_valid_reg_rule(const struct ieee80211_reg_rule *rule)
 {
 	const struct ieee80211_freq_range *freq_range = &rule->freq_range;
-	__u32 freq_diff;
+	uint32_t freq_diff;
 
 	if (freq_range->start_freq_khz == 0 || freq_range->end_freq_khz == 0)
 		return 0;
@@ -48,7 +48,7 @@ static int reg_rules_intersect(
 {
 	struct ieee80211_freq_range *freq_range1, *freq_range2, *freq_range;
 	struct ieee80211_power_rule *power_rule1, *power_rule2, *power_rule;
-	__u32 freq_diff;
+	uint32_t freq_diff;
 
 	freq_range1 = &rule1->freq_range;
 	freq_range2 = &rule2->freq_range;
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
 {
 	int fd;
 	struct stat stat;
-	__u8 *db;
+	uint8_t *db;
 	struct regdb_file_header *header;
 	struct regdb_file_reg_country *countries;
 	int dblen, siglen, num_countries, i, r = 0;

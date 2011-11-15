@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 {
 	int fd;
 	struct stat stat;
-	__u8 *db;
+	uint8_t *db;
 	struct regdb_file_header *header;
 	struct regdb_file_reg_country *countries;
 	int dblen, siglen, num_countries, i, r = 0;

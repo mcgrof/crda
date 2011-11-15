@@ -2,7 +2,7 @@
 #define REG_LIB_H
 
 #include <stdlib.h>
-#include <linux/types.h>
+#include <stdint.h>
 
 #include "regdb.h"
 
@@ -10,24 +10,24 @@
 
 /* This matches the kernel's data structures */
 struct ieee80211_freq_range {
-	__u32 start_freq_khz;
-	__u32 end_freq_khz;
-	__u32 max_bandwidth_khz;
+	uint32_t start_freq_khz;
+	uint32_t end_freq_khz;
+	uint32_t max_bandwidth_khz;
 };
 
 struct ieee80211_power_rule {
-	__u32 max_antenna_gain;
-	__u32 max_eirp;
+	uint32_t max_antenna_gain;
+	uint32_t max_eirp;
 };
 
 struct ieee80211_reg_rule {
 	struct ieee80211_freq_range freq_range;
 	struct ieee80211_power_rule power_rule;
-	__u32 flags;
+	uint32_t flags;
 };
 
 struct ieee80211_regdomain {
-	__u32 n_reg_rules;
+	uint32_t n_reg_rules;
 	char alpha2[2];
 	struct ieee80211_reg_rule reg_rules[];
 };
@@ -61,21 +61,21 @@ static inline int is_valid_regdom(const char *alpha2)
 	return 1;
 }
 
-static inline __u32 max(__u32 a, __u32 b)
+static inline uint32_t max(uint32_t a, uint32_t b)
 {
 	return (a > b) ? a : b;
 }
 
-static inline __u32 min(__u32 a, __u32 b)
+static inline uint32_t min(uint32_t a, uint32_t b)
 {
 	return (a > b) ? b : a;
 }
 
-void *crda_get_file_ptr(__u8 *db, int dblen, int structlen, __be32 ptr);
-int crda_verify_db_signature(__u8 *db, int dblen, int siglen);
+void *crda_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr);
+int crda_verify_db_signature(uint8_t *db, int dblen, int siglen);
 
 /* File reg db entry -> rd converstion utilities */
-struct ieee80211_regdomain *country2rd(__u8 *db, int dblen,
+struct ieee80211_regdomain *country2rd(uint8_t *db, int dblen,
 	struct regdb_file_reg_country *country);
 
 /* reg helpers */

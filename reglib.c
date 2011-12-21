@@ -3,6 +3,13 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+
+#include <arpa/inet.h> /* ntohl */
+
 #include "reglib.h"
 
 #ifdef USE_OPENSSL
@@ -209,6 +216,68 @@ struct ieee80211_regdomain *country2rd(uint8_t *db, int dblen,
 		reg_rule2rd(db, dblen, rcoll->reg_rule_ptrs[i],
 			&rd->reg_rules[i]);
 	}
+
+	return rd;
+}
+
+struct ieee80211_regdomain *
+reglib_get_country_idx(unsigned int idx, const char *file)
+{
+	int fd;
+	struct stat stat;
+	uint8_t *db;
+	struct regdb_file_header *header;
+	struct regdb_file_reg_country *countries;
+	int dblen, siglen, num_countries;
+	struct ieee80211_regdomain *rd = NULL;
+	struct regdb_file_reg_country *country;
+
+	fd = open(file, O_RDONLY);
+
+	if (fd < 0)
+		return NULL;
+
+	if (fstat(fd, &stat))
+		return NULL;
+
+	dblen = stat.st_size;
+
+	db = mmap(NULL, dblen, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (db == MAP_FAILED)
+		return NULL;
+
+	header = crda_get_file_ptr(db, dblen, sizeof(*header), 0);
+
+	if (ntohl(header->magic) != REGDB_MAGIC)
+		return NULL;
+
+	if (ntohl(header->version) != REGDB_VERSION)
+		return NULL;
+
+	siglen = ntohl(header->signature_length);
+	/* adjust dblen so later sanity checks don't run into the signature */
+	dblen -= siglen;
+
+	if (dblen <= (int)sizeof(*header))
+		return NULL;
+
+	/* verify signature */
+	if (!crda_verify_db_signature(db, dblen, siglen))
+		return NULL;
+
+	num_countries = ntohl(header->reg_country_num);
+	countries = crda_get_file_ptr(db, dblen,
+			sizeof(struct regdb_file_reg_country) * num_countries,
+			header->reg_country_ptr);
+
+	if (idx >= num_countries)
+		return NULL;
+
+	country = countries + idx;
+
+	rd = country2rd(db, dblen, country);
+	if (!rd)
+		return NULL;
 
 	return rd;
 }

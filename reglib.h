@@ -78,6 +78,15 @@ int crda_verify_db_signature(uint8_t *db, int dblen, int siglen);
 struct ieee80211_regdomain *country2rd(uint8_t *db, int dblen,
 	struct regdb_file_reg_country *country);
 
+struct ieee80211_regdomain *
+reglib_get_country_idx(unsigned int idx, const char *file);
+
+#define reglib_for_each_country(__rd, __idx, __file)			\
+	for (__rd = reglib_get_country_idx(__idx, __file);		\
+	     __rd != NULL;						\
+	     __rd = reglib_get_country_idx(__idx, __file),		\
+	     __idx++)
+
 /* reg helpers */
 void print_regdom(struct ieee80211_regdomain *rd);
 

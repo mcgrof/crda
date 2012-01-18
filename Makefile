@@ -48,19 +48,26 @@ INSTALL ?= install
 NL1FOUND := $(shell pkg-config --atleast-version=1 libnl-1 && echo Y)
 NL2FOUND := $(shell pkg-config --atleast-version=2 libnl-2.0 && echo Y)
 NL3FOUND := $(shell pkg-config --atleast-version=3 libnl-3.0 && echo Y)
+NL32FOUND := $(shell pkg-config --atleast-version=3 libnl-3.2 && echo Y)
 
-ifeq ($(NL3FOUND),Y)
+ifeq ($(NL32FOUND),Y)
 CFLAGS += -DCONFIG_LIBNL30
-NLLIBS += -lnl-genl
-NLLIBNAME = libnl-3.0
+NLLIBS += $(shell pkg-config --libs libnl-genl-3.2)
+NLLIBNAME = libnl-3.2
 else
-	ifeq ($(NL2FOUND),Y)
-	CFLAGS += -DCONFIG_LIBNL20
-	NLLIBS += -lnl-genl
-	NLLIBNAME = libnl-2.0
+	ifeq ($(NL3FOUND),Y)
+	CFLAGS += -DCONFIG_LIBNL30
+	NLLIBS += $(shell pkg-config --libs libnl-genl-3.0)
+	NLLIBNAME = libnl-3.0
 	else
-		ifeq ($(NL1FOUND),Y)
-		NLLIBNAME = libnl-1
+		ifeq ($(NL2FOUND),Y)
+		CFLAGS += -DCONFIG_LIBNL20
+		NLLIBS += -lnl-genl
+		NLLIBNAME = libnl-2.0
+		else
+			ifeq ($(NL1FOUND),Y)
+			NLLIBNAME = libnl-1
+			endif
 		endif
 	endif
 endif

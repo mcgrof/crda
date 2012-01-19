@@ -1,7 +1,4 @@
-#include <errno.h>
 #include <stdio.h>
-
-#include "regdb.h"
 #include "reglib.h"
 
 int main(int argc, char **argv)

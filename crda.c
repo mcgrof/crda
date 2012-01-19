@@ -6,8 +6,6 @@
 
 #include <errno.h>
 #include <stdio.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -19,7 +17,6 @@
 #include <netlink/attr.h>
 #include "nl80211.h"
 
-#include "regdb.h"
 #include "reglib.h"
 
 #if !defined(CONFIG_LIBNL20) && !defined(CONFIG_LIBNL30) && !defined(CONFIG_LIBNL32)

@@ -212,6 +212,7 @@ struct ieee80211_regdomain *country2rd(uint8_t *db, int dblen,
 
 	rd->alpha2[0] = country->alpha2[0];
 	rd->alpha2[1] = country->alpha2[1];
+	rd->dfs_region = country->creqs & 0x3;
 	rd->n_reg_rules = num_rules;
 
 	for (i = 0; i < num_rules; i++) {

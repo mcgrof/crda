@@ -29,6 +29,7 @@ struct ieee80211_reg_rule {
 struct ieee80211_regdomain {
 	uint32_t n_reg_rules;
 	char alpha2[2];
+	uint8_t dfs_region;
 	struct ieee80211_reg_rule reg_rules[];
 };
 

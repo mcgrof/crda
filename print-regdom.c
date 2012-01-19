@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <arpa/inet.h>
+
+#include "nl80211.h"
+
 #include "reglib.h"
 
 static void print_reg_rule(struct ieee80211_reg_rule *rule)
@@ -29,23 +32,23 @@ static void print_reg_rule(struct ieee80211_reg_rule *rule)
 	else
 		printf("N/A)");
 
-	if (rule->flags & RRF_NO_OFDM)
+	if (rule->flags & NL80211_RRF_NO_OFDM)
 		printf(", NO-OFDM");
-	if (rule->flags & RRF_NO_CCK)
+	if (rule->flags & NL80211_RRF_NO_CCK)
 		printf(", NO-CCK");
-	if (rule->flags & RRF_NO_INDOOR)
+	if (rule->flags & NL80211_RRF_NO_INDOOR)
 		printf(", NO-INDOOR");
-	if (rule->flags & RRF_NO_OUTDOOR)
+	if (rule->flags & NL80211_RRF_NO_OUTDOOR)
 		printf(", NO-OUTDOOR");
-	if (rule->flags & RRF_DFS)
+	if (rule->flags & NL80211_RRF_DFS)
 		printf(", DFS");
-	if (rule->flags & RRF_PTP_ONLY)
+	if (rule->flags & NL80211_RRF_PTP_ONLY)
 		printf(", PTP-ONLY");
-	if (rule->flags & RRF_PTMP_ONLY)
+	if (rule->flags & NL80211_RRF_PTMP_ONLY)
 		printf(", PTMP-ONLY");
-	if (rule->flags & RRF_PASSIVE_SCAN)
+	if (rule->flags & NL80211_RRF_PASSIVE_SCAN)
 		printf(", PASSIVE-SCAN");
-	if (rule->flags & RRF_NO_IBSS)
+	if (rule->flags & NL80211_RRF_NO_IBSS)
 		printf(", NO-IBSS");
 
 	printf("\n");

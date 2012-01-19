@@ -13,6 +13,7 @@
 #include <arpa/inet.h> /* ntohl */
 
 #include "reglib.h"
+#include "regdb.h"
 
 #ifdef USE_OPENSSL
 #include <openssl/objects.h>

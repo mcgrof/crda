@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "regdb.h"
-
 /* Common regulatory structures, functions and helpers */
 
 /* This matches the kernel's data structures */

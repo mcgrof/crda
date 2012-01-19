@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <stdbool.h>
+#include <unistd.h>
 
 #include <arpa/inet.h> /* ntohl */
 
@@ -279,5 +281,77 @@ reglib_get_country_idx(unsigned int idx, const char *file)
 	if (!rd)
 		return NULL;
 
+	return rd;
+}
+
+struct ieee80211_regdomain *
+reglib_get_country_alpha2(const char *alpha2, const char *file)
+{
+	int fd;
+	struct stat stat;
+	uint8_t *db;
+	struct regdb_file_header *header;
+	struct regdb_file_reg_country *countries;
+	int dblen, siglen, num_countries;
+	struct ieee80211_regdomain *rd = NULL;
+	struct regdb_file_reg_country *country;
+	unsigned int i;
+	bool found_country = false;
+
+	fd = open(file, O_RDONLY);
+
+	if (fd < 0)
+		return NULL;
+
+	if (fstat(fd, &stat))
+		return NULL;
+
+	dblen = stat.st_size;
+
+	db = mmap(NULL, dblen, PROT_READ, MAP_PRIVATE, fd, 0);
+	if (db == MAP_FAILED)
+		return NULL;
+
+	header = crda_get_file_ptr(db, dblen, sizeof(*header), 0);
+
+	if (ntohl(header->magic) != REGDB_MAGIC)
+		return NULL;
+
+	if (ntohl(header->version) != REGDB_VERSION)
+		return NULL;
+
+	siglen = ntohl(header->signature_length);
+	/* adjust dblen so later sanity checks don't run into the signature */
+	dblen -= siglen;
+
+	if (dblen <= (int)sizeof(*header))
+		return NULL;
+
+	/* verify signature */
+	if (!crda_verify_db_signature(db, dblen, siglen))
+		return NULL;
+
+	num_countries = ntohl(header->reg_country_num);
+	countries = crda_get_file_ptr(db, dblen,
+			sizeof(struct regdb_file_reg_country) * num_countries,
+			header->reg_country_ptr);
+
+	for (i = 0; i < num_countries; i++) {
+		country = countries + i;
+		if (memcmp(country->alpha2, alpha2, 2) == 0) {
+			found_country = 1;
+			break;
+		}
+	}
+
+	if (!found_country)
+		goto out;
+
+	rd = country2rd(db, dblen, country);
+	if (!rd)
+		goto out;
+
+out:
+	close(fd);
 	return rd;
 }

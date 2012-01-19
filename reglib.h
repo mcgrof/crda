@@ -87,6 +87,9 @@ reglib_get_country_idx(unsigned int idx, const char *file);
 	     __rd = reglib_get_country_idx(__idx, __file),		\
 	     __idx++)
 
+struct ieee80211_regdomain *
+reglib_get_country_alpha2(const char *alpha2, const char *file);
+
 /* reg helpers */
 void print_regdom(struct ieee80211_regdomain *rd);
 

@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
+#include <unistd.h>
 
 #include <netlink/genl/genl.h>
 #include <netlink/genl/family.h>
@@ -333,5 +334,7 @@ nla_put_failure:
 	nlmsg_free(msg);
 out:
 	nl80211_cleanup(&nlstate);
+	close(fd);
+
 	return r;
 }

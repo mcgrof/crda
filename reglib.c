@@ -226,7 +226,7 @@ country2rd(uint8_t *db, int dblen,
 }
 
 struct ieee80211_regdomain *
-reglib_get_country_idx(unsigned int idx, const char *file)
+reglib_get_rd_idx(unsigned int idx, const char *file)
 {
 	int fd;
 	struct stat stat;
@@ -288,7 +288,7 @@ reglib_get_country_idx(unsigned int idx, const char *file)
 }
 
 struct ieee80211_regdomain *
-reglib_get_country_alpha2(const char *alpha2, const char *file)
+reglib_get_rd_alpha2(const char *alpha2, const char *file)
 {
 	int fd;
 	struct stat stat;

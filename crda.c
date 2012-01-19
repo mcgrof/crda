@@ -191,7 +191,7 @@ int main(int argc, char **argv)
 
 	close(fd);
 
-	rd = reglib_get_country_alpha2(alpha2, *regdb);
+	rd = reglib_get_rd_alpha2(alpha2, *regdb);
 	if (!rd) {
 		fprintf(stderr, "No country match in regulatory database.\n");
 		return -1;

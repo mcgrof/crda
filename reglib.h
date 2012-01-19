@@ -74,16 +74,16 @@ void *crda_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr);
 int crda_verify_db_signature(uint8_t *db, int dblen, int siglen);
 
 struct ieee80211_regdomain *
-reglib_get_country_idx(unsigned int idx, const char *file);
+reglib_get_rd_idx(unsigned int idx, const char *file);
 
 #define reglib_for_each_country(__rd, __idx, __file)			\
-	for (__rd = reglib_get_country_idx(__idx, __file);		\
+	for (__rd = reglib_get_rd_idx(__idx, __file);		\
 	     __rd != NULL;						\
-	     __rd = reglib_get_country_idx(__idx, __file),		\
+	     __rd = reglib_get_rd_idx(__idx, __file),		\
 	     __idx++)
 
 struct ieee80211_regdomain *
-reglib_get_country_alpha2(const char *alpha2, const char *file);
+reglib_get_rd_alpha2(const char *alpha2, const char *file);
 
 /* reg helpers */
 void print_regdom(struct ieee80211_regdomain *rd);

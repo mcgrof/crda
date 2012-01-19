@@ -186,8 +186,9 @@ static void reg_rule2rd(uint8_t *db, int dblen,
 }
 
 /* Converts a file regdomain to ieee80211_regdomain, easier to manage */
-struct ieee80211_regdomain *country2rd(uint8_t *db, int dblen,
-	struct regdb_file_reg_country *country)
+static struct ieee80211_regdomain *
+country2rd(uint8_t *db, int dblen,
+	   struct regdb_file_reg_country *country)
 {
 	struct regdb_file_reg_rules_collection *rcoll;
 	struct ieee80211_regdomain *rd;

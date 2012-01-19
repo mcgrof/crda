@@ -75,10 +75,6 @@ static inline uint32_t min(uint32_t a, uint32_t b)
 void *crda_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr);
 int crda_verify_db_signature(uint8_t *db, int dblen, int siglen);
 
-/* File reg db entry -> rd converstion utilities */
-struct ieee80211_regdomain *country2rd(uint8_t *db, int dblen,
-	struct regdb_file_reg_country *country);
-
 struct ieee80211_regdomain *
 reglib_get_country_idx(unsigned int idx, const char *file);
 

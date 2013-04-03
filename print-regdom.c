@@ -7,6 +7,22 @@
 
 #include "reglib.h"
 
+static const char *dfs_domain_name(enum nl80211_dfs_regions region)
+{
+	switch (region) {
+	case NL80211_DFS_UNSET:
+		return "DFS-UNSET";
+	case NL80211_DFS_FCC:
+		return "DFS-FCC";
+	case NL80211_DFS_ETSI:
+		return "DFS-ETSI";
+	case NL80211_DFS_JP:
+		return "DFS-JP";
+	default:
+		return "DFS-invalid";
+	}
+}
+
 static void print_reg_rule(struct ieee80211_reg_rule *rule)
 {
 	struct ieee80211_freq_range *freq;
@@ -57,7 +73,8 @@ static void print_reg_rule(struct ieee80211_reg_rule *rule)
 void print_regdom(struct ieee80211_regdomain *rd)
 {
 	unsigned int i;
-	printf("country %.2s:\n", rd->alpha2);
+	printf("country %.2s: %s\n", rd->alpha2,
+	       dfs_domain_name(rd->dfs_region));
 	for (i = 0; i < rd->n_reg_rules; i++)
 		print_reg_rule(&rd->reg_rules[i]);
 	printf("\n");

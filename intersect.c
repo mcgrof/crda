@@ -56,11 +56,11 @@ static int reg_rules_intersect(
 	power_rule = &intersected_rule->power_rule;
 
 	freq_range->start_freq_khz = max(freq_range1->start_freq_khz,
-		freq_range2->start_freq_khz);
+					 freq_range2->start_freq_khz);
 	freq_range->end_freq_khz = min(freq_range1->end_freq_khz,
-		freq_range2->end_freq_khz);
+				       freq_range2->end_freq_khz);
 	freq_range->max_bandwidth_khz = min(freq_range1->max_bandwidth_khz,
-		freq_range2->max_bandwidth_khz);
+					    freq_range2->max_bandwidth_khz);
 
 	freq_diff = freq_range->end_freq_khz - freq_range->start_freq_khz;
 	if (freq_range->max_bandwidth_khz > freq_diff)
@@ -71,7 +71,7 @@ static int reg_rules_intersect(
 	power_rule->max_antenna_gain = min(power_rule1->max_antenna_gain,
 		power_rule2->max_antenna_gain);
 
-	intersected_rule->flags = (rule1->flags | rule2->flags);
+	intersected_rule->flags = rule1->flags | rule2->flags;
 
 	if (!is_valid_reg_rule(intersected_rule))
 		return -EINVAL;

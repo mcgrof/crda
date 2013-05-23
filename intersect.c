@@ -110,10 +110,8 @@ static struct ieee80211_regdomain *regdom_intersect(
 
 	memset(intersected_rule, 0, sizeof(struct ieee80211_reg_rule));
 
-	if (!rd1 || !rd2) {
-		fprintf(stderr, "rd1 or or rd2 is null\n");
+	if (!rd1 || !rd2)
 		return NULL;
-	}
 
 	/* First we get a count of the rules we'll need, then we actually
 	 * build them. This is to so we can malloc() and free() a
@@ -133,19 +131,15 @@ static struct ieee80211_regdomain *regdom_intersect(
 		}
 	}
 
-	if (!num_rules) {
-		fprintf(stderr, "error: num_rules == 0\n");
+	if (!num_rules)
 		return NULL;
-	}
 
 	size_of_regd = sizeof(struct ieee80211_regdomain) +
 		((num_rules + 1) * sizeof(struct ieee80211_reg_rule));
 
 	rd = malloc(size_of_regd);
-	if (!rd) {
-		fprintf(stderr, "no memory left\n");
+	if (!rd)
 		return NULL;
-	}
 
 	memset(rd, 0, size_of_regd);
 
@@ -166,7 +160,6 @@ static struct ieee80211_regdomain *regdom_intersect(
 	}
 
 	if (rule_idx != num_rules) {
-		fprintf(stderr, "Error while doing regdom interesection :(\n");
 		free(rd);
 		return NULL;
 	}

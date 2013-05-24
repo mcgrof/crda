@@ -87,5 +87,8 @@ reglib_get_rd_alpha2(const char *alpha2, const char *file);
 
 /* reg helpers */
 void print_regdom(const struct ieee80211_regdomain *rd);
+struct ieee80211_regdomain *
+regdom_intersect(const struct ieee80211_regdomain *rd1,
+		 const struct ieee80211_regdomain *rd2);
 
 #endif

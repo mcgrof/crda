@@ -73,6 +73,12 @@ int main(int argc, char **argv)
 		intersected++;
 	}
 
+	if (!idx) {
+		printf("Invalid or empty regulatory file, note: "
+		       "a binary regulatory file should be used.\n");
+		return -EINVAL;
+	}
+
 	if (idx == 1) {
 		world = (struct ieee80211_regdomain *) rd;
 		rd = NULL;

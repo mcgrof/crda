@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <errno.h>
 #include "reglib.h"
 
 int main(int argc, char **argv)
@@ -14,6 +15,12 @@ int main(int argc, char **argv)
 	reglib_for_each_country(rd, idx, argv[1]) {
 		print_regdom(rd);
 		free((struct ieee80211_regdomain *) rd);
+	}
+
+	if (!idx) {
+		printf("Invalid or empty regulatory file, note: "
+		       "a binary regulatory file should be used.\n");
+		return -EINVAL;
 	}
 
 	return 0;

@@ -39,13 +39,14 @@ static int is_valid_reg_rule(const struct ieee80211_reg_rule *rule)
 
 /* Helper for regdom_intersect(), this does the real
  * mathematical intersection fun */
-static int reg_rules_intersect(
-	struct ieee80211_reg_rule *rule1,
-	struct ieee80211_reg_rule *rule2,
-	struct ieee80211_reg_rule *intersected_rule)
+static int reg_rules_intersect(const struct ieee80211_reg_rule *rule1,
+			       const struct ieee80211_reg_rule *rule2,
+			       struct ieee80211_reg_rule *intersected_rule)
 {
-	struct ieee80211_freq_range *freq_range1, *freq_range2, *freq_range;
-	struct ieee80211_power_rule *power_rule1, *power_rule2, *power_rule;
+	const struct ieee80211_freq_range *freq_range1, *freq_range2;
+	struct ieee80211_freq_range *freq_range;
+	const struct ieee80211_power_rule *power_rule1, *power_rule2;
+	struct ieee80211_power_rule *power_rule;
 	uint32_t freq_diff;
 
 	freq_range1 = &rule1->freq_range;
@@ -93,14 +94,15 @@ static int reg_rules_intersect(
  * resulting intersection of rules between rd1 and rd2. We will
  * malloc() this structure for you.
  */
-static struct ieee80211_regdomain *regdom_intersect(
-	struct ieee80211_regdomain *rd1,
-	struct ieee80211_regdomain *rd2)
+static struct ieee80211_regdomain *
+regdom_intersect(const struct ieee80211_regdomain *rd1,
+		 const struct ieee80211_regdomain *rd2)
 {
 	int r, size_of_regd;
 	unsigned int x, y;
 	unsigned int num_rules = 0, rule_idx = 0;
-	struct ieee80211_reg_rule *rule1, *rule2, *intersected_rule;
+	const struct ieee80211_reg_rule *rule1, *rule2;
+	struct ieee80211_reg_rule *intersected_rule;
 	struct ieee80211_regdomain *rd;
 	/* This is just a dummy holder to help us count */
 	struct ieee80211_reg_rule irule;
@@ -174,7 +176,8 @@ static struct ieee80211_regdomain *regdom_intersect(
 int main(int argc, char **argv)
 {
 	int r = 0;
-	struct ieee80211_regdomain *prev_world = NULL, *rd = NULL, *world = NULL;
+	const struct ieee80211_regdomain *rd;
+	struct ieee80211_regdomain *prev_world = NULL, *world = NULL;
 	int intersected = 0;
 	unsigned int idx = 0;
 
@@ -189,13 +192,13 @@ int main(int argc, char **argv)
 			continue;
 
 		if (!prev_world) {
-			prev_world = rd;
+			prev_world = (struct ieee80211_regdomain *) rd;
 			continue;
 		}
 
 		if (world) {
 			free(prev_world);
-			prev_world = world;
+			prev_world = (struct ieee80211_regdomain *) world;
 		}
 
 		world = regdom_intersect(prev_world, rd);
@@ -235,7 +238,7 @@ int main(int argc, char **argv)
 	}
 
 	if (idx == 1) {
-		world = rd;
+		world = (struct ieee80211_regdomain *) rd;
 		rd = NULL;
 	}
 
@@ -255,7 +258,7 @@ out:
 		return r;
 	}
 	if (intersected > 1) {
-		free(rd);
+		free((struct ieee80211_regdomain *)rd);
 		free(prev_world);
 	}
 	free(world);

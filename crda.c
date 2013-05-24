@@ -116,10 +116,10 @@ static int error_handler(struct sockaddr_nl __attribute__((unused)) *nla,
 	exit(err->error);
 }
 
-static int put_reg_rule(struct ieee80211_reg_rule *rule, struct nl_msg *msg)
+static int put_reg_rule(const struct ieee80211_reg_rule *rule, struct nl_msg *msg)
 {
-	struct ieee80211_freq_range *freq_range;
-	struct ieee80211_power_rule *power_rule;
+	const struct ieee80211_freq_range *freq_range;
+	const struct ieee80211_power_rule *power_rule;
 
 	freq_range = &rule->freq_range;
 	power_rule = &rule->power_rule;
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
 	int finished = 0;
 
 	struct nlattr *nl_reg_rules;
-	struct ieee80211_regdomain *rd = NULL;
+	const struct ieee80211_regdomain *rd = NULL;
 
 	const char *regdb_paths[] = {
 		"/usr/local/lib/crda/regulatory.bin", /* Users/preloads can override */
@@ -199,7 +199,7 @@ int main(int argc, char **argv)
 
 	r = nl80211_init(&nlstate);
 	if (r) {
-		free(rd);
+		free((struct ieee80211_regdomain *) rd);
 		return -EIO;
 	}
 
@@ -267,7 +267,7 @@ nla_put_failure:
 	nlmsg_free(msg);
 out:
 	nl80211_cleanup(&nlstate);
-	free(rd);
+	free((struct ieee80211_regdomain *) rd);
 
 	return r;
 }

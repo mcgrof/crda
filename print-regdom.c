@@ -23,10 +23,10 @@ static const char *dfs_domain_name(enum nl80211_dfs_regions region)
 	}
 }
 
-static void print_reg_rule(struct ieee80211_reg_rule *rule)
+static void print_reg_rule(const struct ieee80211_reg_rule *rule)
 {
-	struct ieee80211_freq_range *freq;
-	struct ieee80211_power_rule *power;
+	const struct ieee80211_freq_range *freq;
+	const struct ieee80211_power_rule *power;
 
 	freq  = &rule->freq_range;
 	power = &rule->power_rule;
@@ -70,7 +70,7 @@ static void print_reg_rule(struct ieee80211_reg_rule *rule)
 	printf("\n");
 }
 
-void print_regdom(struct ieee80211_regdomain *rd)
+void print_regdom(const struct ieee80211_regdomain *rd)
 {
 	unsigned int i;
 	printf("country %.2s: %s\n", rd->alpha2,

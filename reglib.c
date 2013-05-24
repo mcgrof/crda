@@ -188,7 +188,7 @@ static void reg_rule2rd(uint8_t *db, int dblen,
 }
 
 /* Converts a file regdomain to ieee80211_regdomain, easier to manage */
-static struct ieee80211_regdomain *
+const static struct ieee80211_regdomain *
 country2rd(uint8_t *db, int dblen,
 	   struct regdb_file_reg_country *country)
 {
@@ -226,7 +226,7 @@ country2rd(uint8_t *db, int dblen,
 	return rd;
 }
 
-struct ieee80211_regdomain *
+const struct ieee80211_regdomain *
 reglib_get_rd_idx(unsigned int idx, const char *file)
 {
 	int fd;
@@ -235,7 +235,7 @@ reglib_get_rd_idx(unsigned int idx, const char *file)
 	struct regdb_file_header *header;
 	struct regdb_file_reg_country *countries;
 	int dblen, siglen, num_countries;
-	struct ieee80211_regdomain *rd = NULL;
+	const struct ieee80211_regdomain *rd = NULL;
 	struct regdb_file_reg_country *country;
 
 	fd = open(file, O_RDONLY);
@@ -288,7 +288,7 @@ reglib_get_rd_idx(unsigned int idx, const char *file)
 	return rd;
 }
 
-struct ieee80211_regdomain *
+const struct ieee80211_regdomain *
 reglib_get_rd_alpha2(const char *alpha2, const char *file)
 {
 	int fd;
@@ -297,7 +297,7 @@ reglib_get_rd_alpha2(const char *alpha2, const char *file)
 	struct regdb_file_header *header;
 	struct regdb_file_reg_country *countries;
 	int dblen, siglen, num_countries;
-	struct ieee80211_regdomain *rd = NULL;
+	const struct ieee80211_regdomain *rd = NULL;
 	struct regdb_file_reg_country *country;
 	unsigned int i;
 	bool found_country = false;

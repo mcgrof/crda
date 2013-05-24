@@ -3,7 +3,7 @@
 
 int main(int argc, char **argv)
 {
-	struct ieee80211_regdomain *rd = NULL;
+	const struct ieee80211_regdomain *rd = NULL;
 	unsigned int idx = 0;
 
 	if (argc != 2) {
@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 
 	reglib_for_each_country(rd, idx, argv[1]) {
 		print_regdom(rd);
-		free(rd);
+		free((struct ieee80211_regdomain *) rd);
 	}
 
 	return 0;

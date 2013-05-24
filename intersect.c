@@ -9,13 +9,6 @@
 /* Intersects regulatory domains, this will skip any regulatory marked with
  * an alpha2 of '00', which is used to indicate a regulatory domain */
 
-#define BUG_ON(foo) do { \
-	if (foo) { \
-		printf("BUG\n"); \
-		exit(-1); \
-	} \
-	} while (0)
-
 /* Sanity check on a regulatory rule */
 static int is_valid_reg_rule(const struct ieee80211_reg_rule *rule)
 {

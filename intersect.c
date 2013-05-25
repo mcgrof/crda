@@ -79,16 +79,12 @@ int main(int argc, char **argv)
 		return -EINVAL;
 	}
 
-	if (idx == 1) {
-		world = (struct ieee80211_regdomain *) rd;
-		rd = NULL;
-	}
-
-
 	if (intersected > 1)
 		printf("%d regulatory domains intersected\n", intersected);
-	else
+	else {
+		world = prev_world;
 		printf("Only one intersection completed\n");
+	}
 
 	/* Tada! */
 	printf("== World regulatory domain: ==\n");

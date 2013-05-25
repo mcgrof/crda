@@ -83,7 +83,14 @@ int main(int argc, char **argv)
 		printf("%d regulatory domains intersected\n", intersected);
 	else {
 		world = prev_world;
-		printf("Only one intersection completed\n");
+		printf("No intersections completed\n");
+		if (idx > 1) {
+			printf("Since more than one regulatory domain is "
+			       "present and no intersections were possible "
+			       "no globally allowed spectrum is possible so "
+			       "consider enabling passive scan flags\n");
+			return r;
+		}
 	}
 
 	/* Tada! */

@@ -50,7 +50,7 @@ int main(int argc, char **argv)
 					"with country (%.2s)\n",
 					prev_world->alpha2,
 					rd->alpha2);
-			goto out;
+			continue;
 		}
 
 		if (intersected)
@@ -94,7 +94,6 @@ int main(int argc, char **argv)
 	printf("== World regulatory domain: ==\n");
 	print_regdom(world);
 
-out:
 	if (!intersected) {
 		free(world);
 		return r;

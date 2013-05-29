@@ -357,6 +357,7 @@ reglib_get_rd_alpha2(const char *alpha2, const char *file)
 
 out:
 	close(fd);
+	munmap(db, dblen);
 	return rd;
 }
 

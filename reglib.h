@@ -45,7 +45,7 @@ static inline int reglib_isalpha_upper(char letter)
 	return 0;
 }
 
-static inline int is_alpha2(const char *alpha2)
+static inline int reglib_is_alpha2(const char *alpha2)
 {
 	if (reglib_isalpha_upper(alpha2[0]) && reglib_isalpha_upper(alpha2[1]))
 		return 1;
@@ -54,7 +54,7 @@ static inline int is_alpha2(const char *alpha2)
 
 static inline int is_valid_regdom(const char *alpha2)
 {
-	if (!is_alpha2(alpha2) && !reglib_is_world_regdom(alpha2))
+	if (!reglib_is_alpha2(alpha2) && !reglib_is_world_regdom(alpha2))
 		return 0;
 
 	return 1;

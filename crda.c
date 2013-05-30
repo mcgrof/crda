@@ -170,7 +170,7 @@ int main(int argc, char **argv)
 		return -EINVAL;
 	}
 
-	if (!is_valid_regdom(env_country)) {
+	if (!reglib_is_valid_regdom(env_country)) {
 		fprintf(stderr, "COUNTRY environment variable must be an "
 			"ISO ISO 3166-1-alpha-2 (uppercase) or 00\n");
 		return -EINVAL;

@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 {
 	int r = 0;
 	const struct ieee80211_regdomain *rd;
-	struct ieee80211_regdomain *prev_world = NULL, *world = NULL;
+	struct ieee80211_regdomain *prev_rd_intsct = NULL, *rd_intsct = NULL;
 	int intersected = 0;
 	unsigned int idx = 0;
 
@@ -29,19 +29,19 @@ int main(int argc, char **argv)
 			continue;
 		}
 
-		if (!prev_world) {
-			prev_world = (struct ieee80211_regdomain *) rd;
+		if (!prev_rd_intsct) {
+			prev_rd_intsct = (struct ieee80211_regdomain *) rd;
 			continue;
 		}
 
-		if (world) {
-			free(prev_world);
-			prev_world = (struct ieee80211_regdomain *) world;
+		if (rd_intsct) {
+			free(prev_rd_intsct);
+			prev_rd_intsct = (struct ieee80211_regdomain *) rd_intsct;
 		}
 
-		world = regdom_intersect(prev_world, rd);
-		if (!world) {
-			free(prev_world);
+		rd_intsct = regdom_intersect(prev_rd_intsct, rd);
+		if (!rd_intsct) {
+			free(prev_rd_intsct);
 			free((struct ieee80211_regdomain *) rd);
 			fprintf(stderr, "Intersection not possible\n");
 			return -ENOENT;
@@ -50,20 +50,20 @@ int main(int argc, char **argv)
 		if (intersected)
 			/* Use UTF-8 Intersection symbol ? (0xE2,0x88,0xA9) :) */
 			printf("WW (%d) intersect %c%c (%d) ==> %d rules\n",
-				prev_world->n_reg_rules,
+				prev_rd_intsct->n_reg_rules,
 				rd->alpha2[0],
 				rd->alpha2[1],
 				rd->n_reg_rules,
-				world->n_reg_rules);
+				rd_intsct->n_reg_rules);
 		else
 			printf("%c%c (%d) intersect %c%c (%d) ==> %d rules\n",
-				prev_world->alpha2[0],
-				prev_world->alpha2[1],
-				prev_world->n_reg_rules,
+				prev_rd_intsct->alpha2[0],
+				prev_rd_intsct->alpha2[1],
+				prev_rd_intsct->n_reg_rules,
 				rd->alpha2[0],
 				rd->alpha2[1],
 				rd->n_reg_rules,
-				world->n_reg_rules);
+				rd_intsct->n_reg_rules);
 		intersected++;
 		free((struct ieee80211_regdomain *) rd);
 	}
@@ -77,26 +77,26 @@ int main(int argc, char **argv)
 	if (intersected > 1)
 		printf("%d regulatory domains intersected\n", intersected);
 	else {
-		world = prev_world;
-		prev_world = NULL;
+		rd_intsct = prev_rd_intsct;
+		prev_rd_intsct = NULL;
 		printf("No intersections completed\n");
 		if (idx > 1) {
 			printf("Since more than one regulatory domain is "
 			       "present and no intersections were possible "
 			       "no globally allowed spectrum is possible so "
 			       "consider enabling passive scan flags\n");
-			free(world);
+			free(rd_intsct);
 			return r;
 		}
 	}
 
-	if (prev_world)
-		free(prev_world);
+	if (prev_rd_intsct)
+		free(prev_rd_intsct);
 
 	/* Tada! */
 	printf("== World regulatory domain: ==\n");
-	print_regdom(world);
+	print_regdom(rd_intsct);
 
-	free(world);
+	free(rd_intsct);
 	return r;
 }

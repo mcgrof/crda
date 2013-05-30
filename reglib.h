@@ -65,7 +65,7 @@ static inline uint32_t reglib_max(uint32_t a, uint32_t b)
 	return (a > b) ? a : b;
 }
 
-static inline uint32_t min(uint32_t a, uint32_t b)
+static inline uint32_t reglib_min(uint32_t a, uint32_t b)
 {
 	return (a > b) ? b : a;
 }

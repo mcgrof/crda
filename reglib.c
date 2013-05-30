@@ -50,7 +50,7 @@ void *reglib_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr)
 }
 
 /*
- * crda_verify_db_signature():
+ * reglib_verify_db_signature():
  *
  * Checks the validity of the signature found on the regulatory
  * database against the array 'keys'. Returns 1 if there exists
@@ -59,7 +59,7 @@ void *reglib_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr)
  */
 
 #ifdef USE_OPENSSL
-int crda_verify_db_signature(uint8_t *db, int dblen, int siglen)
+int reglib_verify_db_signature(uint8_t *db, int dblen, int siglen)
 {
 	RSA *rsa;
 	uint8_t hash[SHA_DIGEST_LENGTH];
@@ -118,7 +118,7 @@ out:
 #endif /* USE_OPENSSL */
 
 #ifdef USE_GCRYPT
-int crda_verify_db_signature(uint8_t *db, int dblen, int siglen)
+int reglib_verify_db_signature(uint8_t *db, int dblen, int siglen)
 {
 	gcry_mpi_t mpi_e, mpi_n;
 	gcry_sexp_t rsa, signature, data;
@@ -180,7 +180,7 @@ out:
 #endif /* USE_GCRYPT */
 
 #if !defined(USE_OPENSSL) && !defined(USE_GCRYPT)
-int crda_verify_db_signature(uint8_t *db, int dblen, int siglen)
+int reglib_verify_db_signature(uint8_t *db, int dblen, int siglen)
 {
 	return 1;
 }
@@ -295,7 +295,7 @@ reglib_get_rd_idx(unsigned int idx, const char *file)
 		goto out;
 
 	/* verify signature */
-	if (!crda_verify_db_signature(db, dblen, siglen))
+	if (!reglib_verify_db_signature(db, dblen, siglen))
 		goto out;
 
 	num_countries = ntohl(header->reg_country_num);
@@ -366,7 +366,7 @@ reglib_get_rd_alpha2(const char *alpha2, const char *file)
 		goto out;
 
 	/* verify signature */
-	if (!crda_verify_db_signature(db, dblen, siglen))
+	if (!reglib_verify_db_signature(db, dblen, siglen))
 		goto out;
 
 	num_countries = ntohl(header->reg_country_num);

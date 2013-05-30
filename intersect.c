@@ -43,48 +43,21 @@ int main(int argc, char **argv)
 		if (!rd_intsct) {
 			free(prev_rd_intsct);
 			free((struct ieee80211_regdomain *) rd);
-			fprintf(stderr, "Intersection not possible\n");
 			return -ENOENT;
 		}
 
-		if (intersected)
-			/* Use UTF-8 Intersection symbol ? (0xE2,0x88,0xA9) :) */
-			printf("WW (%d) intersect %c%c (%d) ==> %d rules\n",
-				prev_rd_intsct->n_reg_rules,
-				rd->alpha2[0],
-				rd->alpha2[1],
-				rd->n_reg_rules,
-				rd_intsct->n_reg_rules);
-		else
-			printf("%c%c (%d) intersect %c%c (%d) ==> %d rules\n",
-				prev_rd_intsct->alpha2[0],
-				prev_rd_intsct->alpha2[1],
-				prev_rd_intsct->n_reg_rules,
-				rd->alpha2[0],
-				rd->alpha2[1],
-				rd->n_reg_rules,
-				rd_intsct->n_reg_rules);
 		intersected++;
 		free((struct ieee80211_regdomain *) rd);
 	}
 
-	if (!idx) {
-		printf("Invalid or empty regulatory file, note: "
-		       "a binary regulatory file should be used.\n");
+	if (!idx)
 		return -EINVAL;
-	}
 
-	if (intersected > 1)
-		printf("%d regulatory domains intersected\n", intersected);
-	else {
+	if (intersected <= 0) {
 		rd_intsct = prev_rd_intsct;
 		prev_rd_intsct = NULL;
-		printf("No intersections completed\n");
 		if (idx > 1) {
-			printf("Since more than one regulatory domain is "
-			       "present and no intersections were possible "
-			       "no globally allowed spectrum is possible so "
-			       "consider enabling passive scan flags\n");
+			r = -ENOENT;
 			free(rd_intsct);
 			return r;
 		}

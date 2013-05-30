@@ -135,13 +135,14 @@ int crda_verify_db_signature(uint8_t *db, int dblen, int siglen)
 	if (gcry_sexp_build(&data, NULL, "(data (flags pkcs1) (hash sha1 %b))",
 			    20, hash)) {
 		fprintf(stderr, "Failed to build data S-expression.\n");
-		goto out;
+		return ok;
 	}
 
 	if (gcry_sexp_build(&signature, NULL, "(sig-val (rsa (s %b)))",
 			    siglen, db + dblen)) {
 		fprintf(stderr, "Failed to build signature S-expression.\n");
-		goto out;
+		gcry_sexp_release(data);
+		return ok;
 	}
 
 	for (i = 0; (i < sizeof(keys)/sizeof(keys[0])) && (!ok); i++) {
@@ -161,12 +162,15 @@ int crda_verify_db_signature(uint8_t *db, int dblen, int siglen)
 		}
 
 		ok = gcry_pk_verify(signature, data, rsa) == 0;
+		gcry_sexp_release(rsa);
 	}
 
 	if (!ok)
 		fprintf(stderr, "Database signature verification failed.\n");
 
 out:
+	gcry_sexp_release(data);
+	gcry_sexp_release(signature);
 	return ok;
 }
 #endif /* USE_GCRYPT */

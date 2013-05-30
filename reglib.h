@@ -76,9 +76,9 @@ int reglib_verify_db_signature(uint8_t *db, int dblen, int siglen);
 const struct ieee80211_regdomain *
 reglib_get_rd_idx(unsigned int idx, const char *file);
 
-#define reglib_for_each_country(__rd, __idx, __file)			\
+#define reglib_for_each_country(__rd, __idx, __file)		\
 	for (__rd = reglib_get_rd_idx(__idx, __file);		\
-	     __rd != NULL;						\
+	     __rd != NULL;					\
 	     __rd = reglib_get_rd_idx(++__idx, __file))		\
 
 const struct ieee80211_regdomain *

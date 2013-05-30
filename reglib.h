@@ -70,7 +70,7 @@ static inline uint32_t min(uint32_t a, uint32_t b)
 	return (a > b) ? b : a;
 }
 
-void *crda_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr);
+void *reglib_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr);
 int crda_verify_db_signature(uint8_t *db, int dblen, int siglen);
 
 const struct ieee80211_regdomain *

@@ -37,7 +37,7 @@
 #include "keys-gcrypt.c"
 #endif
 
-void *crda_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr)
+void *reglib_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr)
 {
 	uint32_t p = ntohl(ptr);
 
@@ -196,9 +196,9 @@ static void reg_rule2rd(uint8_t *db, int dblen,
 	struct ieee80211_freq_range *rd_freq_range = &rd_reg_rule->freq_range;
 	struct ieee80211_power_rule *rd_power_rule = &rd_reg_rule->power_rule;
 
-	rule  = crda_get_file_ptr(db, dblen, sizeof(*rule), ruleptr);
-	freq  = crda_get_file_ptr(db, dblen, sizeof(*freq), rule->freq_range_ptr);
-	power = crda_get_file_ptr(db, dblen, sizeof(*power), rule->power_rule_ptr);
+	rule  = reglib_get_file_ptr(db, dblen, sizeof(*rule), ruleptr);
+	freq  = reglib_get_file_ptr(db, dblen, sizeof(*freq), rule->freq_range_ptr);
+	power = reglib_get_file_ptr(db, dblen, sizeof(*power), rule->power_rule_ptr);
 
 	rd_freq_range->start_freq_khz = ntohl(freq->start_freq);
 	rd_freq_range->end_freq_khz = ntohl(freq->end_freq);
@@ -219,11 +219,11 @@ country2rd(uint8_t *db, int dblen,
 	struct ieee80211_regdomain *rd;
 	int i, num_rules, size_of_rd;
 
-	rcoll = crda_get_file_ptr(db, dblen, sizeof(*rcoll),
+	rcoll = reglib_get_file_ptr(db, dblen, sizeof(*rcoll),
 				country->reg_collection_ptr);
 	num_rules = ntohl(rcoll->reg_rule_num);
 	/* re-get pointer with sanity checking for num_rules */
-	rcoll = crda_get_file_ptr(db, dblen,
+	rcoll = reglib_get_file_ptr(db, dblen,
 			sizeof(*rcoll) + num_rules * sizeof(uint32_t),
 			country->reg_collection_ptr);
 
@@ -279,7 +279,7 @@ reglib_get_rd_idx(unsigned int idx, const char *file)
 		return NULL;
 	}
 
-	header = crda_get_file_ptr(db, dblen, sizeof(*header), 0);
+	header = reglib_get_file_ptr(db, dblen, sizeof(*header), 0);
 
 	if (ntohl(header->magic) != REGDB_MAGIC)
 		goto out;
@@ -299,7 +299,7 @@ reglib_get_rd_idx(unsigned int idx, const char *file)
 		goto out;
 
 	num_countries = ntohl(header->reg_country_num);
-	countries = crda_get_file_ptr(db, dblen,
+	countries = reglib_get_file_ptr(db, dblen,
 			sizeof(struct regdb_file_reg_country) * num_countries,
 			header->reg_country_ptr);
 
@@ -350,7 +350,7 @@ reglib_get_rd_alpha2(const char *alpha2, const char *file)
 		return NULL;
 	}
 
-	header = crda_get_file_ptr(db, dblen, sizeof(*header), 0);
+	header = reglib_get_file_ptr(db, dblen, sizeof(*header), 0);
 
 	if (ntohl(header->magic) != REGDB_MAGIC)
 		goto out;
@@ -370,7 +370,7 @@ reglib_get_rd_alpha2(const char *alpha2, const char *file)
 		goto out;
 
 	num_countries = ntohl(header->reg_country_num);
-	countries = crda_get_file_ptr(db, dblen,
+	countries = reglib_get_file_ptr(db, dblen,
 			sizeof(struct regdb_file_reg_country) * num_countries,
 			header->reg_country_ptr);
 

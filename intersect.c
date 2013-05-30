@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 			prev_rd_intsct = (struct ieee80211_regdomain *) rd_intsct;
 		}
 
-		rd_intsct = regdom_intersect(prev_rd_intsct, rd);
+		rd_intsct = reglib_intersect_rds(prev_rd_intsct, rd);
 		if (!rd_intsct) {
 			free(prev_rd_intsct);
 			free((struct ieee80211_regdomain *) rd);

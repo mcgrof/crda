@@ -417,7 +417,7 @@ static int is_valid_reg_rule(const struct ieee80211_reg_rule *rule)
 }
 
 /*
- * Helper for regdom_intersect(), this does the real
+ * Helper for reglib_intersect_rds(), this does the real
  * mathematical intersection fun
  */
 static int reg_rules_intersect(const struct ieee80211_reg_rule *rule1,
@@ -463,7 +463,7 @@ static int reg_rules_intersect(const struct ieee80211_reg_rule *rule1,
 }
 
 /**
- * regdom_intersect - do the intersection between two regulatory domains
+ * reglib_intersect_rds - do the intersection between two regulatory domains
  * @rd1: first regulatory domain
  * @rd2: second regulatory domain
  *
@@ -476,8 +476,8 @@ static int reg_rules_intersect(const struct ieee80211_reg_rule *rule1,
  * malloc() this structure for you.
  */
 struct ieee80211_regdomain *
-regdom_intersect(const struct ieee80211_regdomain *rd1,
-		 const struct ieee80211_regdomain *rd2)
+reglib_intersect_rds(const struct ieee80211_regdomain *rd1,
+		     const struct ieee80211_regdomain *rd2)
 {
 	int r, size_of_regd;
 	unsigned int x, y;

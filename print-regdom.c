@@ -70,7 +70,7 @@ static void print_reg_rule(const struct ieee80211_reg_rule *rule)
 	printf("\n");
 }
 
-void print_regdom(const struct ieee80211_regdomain *rd)
+void reglib_print_regdom(const struct ieee80211_regdomain *rd)
 {
 	unsigned int i;
 	printf("country %.2s: %s\n", rd->alpha2,

@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 
 	/* Tada! */
 	printf("== World regulatory domain: ==\n");
-	print_regdom(rd_intsct);
+	reglib_print_regdom(rd_intsct);
 
 	free(rd_intsct);
 	return r;

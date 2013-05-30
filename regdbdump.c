@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 	}
 
 	reglib_for_each_country(rd, idx, argv[1]) {
-		print_regdom(rd);
+		reglib_print_regdom(rd);
 		free((struct ieee80211_regdomain *) rd);
 	}
 

@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 
 	/* We intersect only when we have to rd structures ready */
 	reglib_for_each_country(rd, idx, argv[1]) {
-		if (is_world_regdom((const char *) rd->alpha2)) {
+		if (reglib_is_world_regdom((const char *) rd->alpha2)) {
 			free((struct ieee80211_regdomain *) rd);
 			continue;
 		}

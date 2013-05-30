@@ -262,33 +262,37 @@ reglib_get_rd_idx(unsigned int idx, const char *file)
 	if (fd < 0)
 		return NULL;
 
-	if (fstat(fd, &stat))
+	if (fstat(fd, &stat)) {
+		close(fd);
 		return NULL;
+	}
 
 	dblen = stat.st_size;
 
 	db = mmap(NULL, dblen, PROT_READ, MAP_PRIVATE, fd, 0);
-	if (db == MAP_FAILED)
+	if (db == MAP_FAILED) {
+		close(fd);
 		return NULL;
+	}
 
 	header = crda_get_file_ptr(db, dblen, sizeof(*header), 0);
 
 	if (ntohl(header->magic) != REGDB_MAGIC)
-		return NULL;
+		goto out;
 
 	if (ntohl(header->version) != REGDB_VERSION)
-		return NULL;
+		goto out;
 
 	siglen = ntohl(header->signature_length);
 	/* adjust dblen so later sanity checks don't run into the signature */
 	dblen -= siglen;
 
 	if (dblen <= (int)sizeof(*header))
-		return NULL;
+		goto out;
 
 	/* verify signature */
 	if (!crda_verify_db_signature(db, dblen, siglen))
-		return NULL;
+		goto out;
 
 	num_countries = ntohl(header->reg_country_num);
 	countries = crda_get_file_ptr(db, dblen,
@@ -296,14 +300,17 @@ reglib_get_rd_idx(unsigned int idx, const char *file)
 			header->reg_country_ptr);
 
 	if (idx >= num_countries)
-		return NULL;
+		goto out;
 
 	country = countries + idx;
 
 	rd = country2rd(db, dblen, country);
 	if (!rd)
-		return NULL;
+		goto out;
 
+out:
+	close(fd);
+	munmap(db, dblen);
 	return rd;
 }
 

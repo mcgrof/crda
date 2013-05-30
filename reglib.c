@@ -438,7 +438,7 @@ static int reg_rules_intersect(const struct ieee80211_reg_rule *rule1,
 	power_rule2 = &rule2->power_rule;
 	power_rule = &intersected_rule->power_rule;
 
-	freq_range->start_freq_khz = max(freq_range1->start_freq_khz,
+	freq_range->start_freq_khz = reglib_max(freq_range1->start_freq_khz,
 					 freq_range2->start_freq_khz);
 	freq_range->end_freq_khz = min(freq_range1->end_freq_khz,
 				       freq_range2->end_freq_khz);

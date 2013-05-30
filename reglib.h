@@ -60,7 +60,7 @@ static inline int reglib_is_valid_regdom(const char *alpha2)
 	return 1;
 }
 
-static inline uint32_t max(uint32_t a, uint32_t b)
+static inline uint32_t reglib_max(uint32_t a, uint32_t b)
 {
 	return (a > b) ? a : b;
 }

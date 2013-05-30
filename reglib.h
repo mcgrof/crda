@@ -90,4 +90,17 @@ struct ieee80211_regdomain *
 reglib_intersect_rds(const struct ieee80211_regdomain *rd1,
 		     const struct ieee80211_regdomain *rd2);
 
+/**
+ * reglib_intersect_regdb - intersects a regulatory database
+ *
+ * @regdb_file: the regulatory database to intersect
+ *
+ * Goes through an entire regulatory database and intersects all regulatory
+ * domains. This will skip any regulatory marked with an alpha2 of '00', which
+ * is used to indicate a world regulatory domain. If intersection is able
+ * to find rules that fit all regulatory domains it return a regulatory
+ * domain with such rules otherwise it returns NULL.
+ */
+const struct ieee80211_regdomain *reglib_intersect_regdb(char *regdb_file);
+
 #endif

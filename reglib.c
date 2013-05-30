@@ -554,6 +554,58 @@ reglib_intersect_rds(const struct ieee80211_regdomain *rd1,
 	return rd;
 }
 
+const struct ieee80211_regdomain *reglib_intersect_regdb(char *regdb_file)
+{
+	const struct ieee80211_regdomain *rd;
+	struct ieee80211_regdomain *prev_rd_intsct = NULL, *rd_intsct = NULL;
+	int intersected = 0;
+	unsigned int idx = 0;
+
+	reglib_for_each_country(rd, idx, regdb_file) {
+		if (reglib_is_world_regdom((const char *) rd->alpha2)) {
+			free((struct ieee80211_regdomain *) rd);
+			continue;
+		}
+
+		if (!prev_rd_intsct) {
+			prev_rd_intsct = (struct ieee80211_regdomain *) rd;
+			continue;
+		}
+
+		if (rd_intsct) {
+			free(prev_rd_intsct);
+			prev_rd_intsct = (struct ieee80211_regdomain *) rd_intsct;
+		}
+
+		rd_intsct = reglib_intersect_rds(prev_rd_intsct, rd);
+		if (!rd_intsct) {
+			free(prev_rd_intsct);
+			free((struct ieee80211_regdomain *) rd);
+			return NULL;
+		}
+
+		intersected++;
+		free((struct ieee80211_regdomain *) rd);
+	}
+
+	if (!idx)
+		return NULL;
+
+	if (intersected <= 0) {
+		rd_intsct = prev_rd_intsct;
+		prev_rd_intsct = NULL;
+		if (idx > 1) {
+			free(rd_intsct);
+			return NULL;
+		}
+	}
+
+	if (prev_rd_intsct)
+		free(prev_rd_intsct);
+
+	return rd_intsct;
+}
+
 static const char *dfs_domain_name(enum regdb_dfs_regions region)
 {
 	switch (region) {

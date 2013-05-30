@@ -7,7 +7,7 @@
 #include "reglib.h"
 
 /* Intersects regulatory domains, this will skip any regulatory marked with
- * an alpha2 of '00', which is used to indicate a regulatory domain */
+ * an alpha2 of '00', which is used to indicate a world regulatory domain */
 
 int main(int argc, char **argv)
 {
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 		free(prev_rd_intsct);
 
 	/* Tada! */
-	printf("== World regulatory domain: ==\n");
+	printf("Intersected regulatory domain:\n");
 	reglib_print_regdom(rd_intsct);
 
 	free(rd_intsct);

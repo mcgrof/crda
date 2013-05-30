@@ -7,6 +7,10 @@
  * WARNING: This file needs to be kept in sync with
  *  - the parser (dbparse.py)
  *  - the generator code (db2bin.py)
+ *
+ * As it is only Linux is using these so we have a direct one to
+ * one map for flags. Each respective OS flag is listed where
+ * appropriate.
  */
 
 /* spells "RGDB" */
@@ -61,8 +65,9 @@ struct regdb_file_power_rule {
 	uint32_t	max_eirp;
 };
 
-/* must match <linux/nl80211.h> enum nl80211_reg_rule_flags */
-
+/*
+ * The Linux map defined in <linux/uapi/nl80211.h> enum nl80211_reg_rule_flags
+ */
 enum reg_rule_flags {
 	RRF_NO_OFDM		= 1<<0, /* OFDM modulation not allowed */
 	RRF_NO_CCK		= 1<<1, /* CCK modulation not allowed */
@@ -76,6 +81,21 @@ enum reg_rule_flags {
 					 * Point links */
 	RRF_PASSIVE_SCAN	= 1<<7, /* passive scan is required */
 	RRF_NO_IBSS		= 1<<8, /* IBSS is not allowed */
+};
+
+/**
+ * enum regdb_dfs_regions - regulatory DFS regions
+ *
+ * @REGDB_DFS_UNSET: Country has no DFS master region specified
+ * @REGDB_DFS_FCC: Country follows DFS master rules from FCC
+ * @REGDB_DFS_ETSI: Country follows DFS master rules from ETSI
+ * @REGDB_DFS_JP: Country follows DFS master rules from JP/MKK/Telec
+ */
+enum regdb_dfs_regions {
+	REGDB_DFS_UNSET	= 0,
+	REGDB_DFS_FCC	= 1,
+	REGDB_DFS_ETSI	= 2,
+	REGDB_DFS_JP	= 3,
 };
 
 struct regdb_file_reg_rule {

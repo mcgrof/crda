@@ -158,10 +158,14 @@ int crda_verify_db_signature(uint8_t *db, int dblen, int siglen)
 				    "(public-key (rsa (n %m) (e %m)))",
 				    mpi_n, mpi_e)) {
 			fprintf(stderr, "Failed to build RSA S-expression.\n");
+			gcry_mpi_release(mpi_e);
+			gcry_mpi_release(mpi_n);
 			goto out;
 		}
 
 		ok = gcry_pk_verify(signature, data, rsa) == 0;
+		gcry_mpi_release(mpi_e);
+		gcry_mpi_release(mpi_n);
 		gcry_sexp_release(rsa);
 	}
 

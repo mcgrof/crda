@@ -3,20 +3,19 @@
 #include <string.h>
 #include <arpa/inet.h>
 
-#include "nl80211.h"
-
 #include "reglib.h"
+#include "regdb.h"
 
-static const char *dfs_domain_name(enum nl80211_dfs_regions region)
+static const char *dfs_domain_name(enum regdb_dfs_regions region)
 {
 	switch (region) {
-	case NL80211_DFS_UNSET:
+	case REGDB_DFS_UNSET:
 		return "DFS-UNSET";
-	case NL80211_DFS_FCC:
+	case REGDB_DFS_FCC:
 		return "DFS-FCC";
-	case NL80211_DFS_ETSI:
+	case REGDB_DFS_ETSI:
 		return "DFS-ETSI";
-	case NL80211_DFS_JP:
+	case REGDB_DFS_JP:
 		return "DFS-JP";
 	default:
 		return "DFS-invalid";
@@ -48,23 +47,23 @@ static void print_reg_rule(const struct ieee80211_reg_rule *rule)
 	else
 		printf("N/A)");
 
-	if (rule->flags & NL80211_RRF_NO_OFDM)
+	if (rule->flags & RRF_NO_OFDM)
 		printf(", NO-OFDM");
-	if (rule->flags & NL80211_RRF_NO_CCK)
+	if (rule->flags & RRF_NO_CCK)
 		printf(", NO-CCK");
-	if (rule->flags & NL80211_RRF_NO_INDOOR)
+	if (rule->flags & RRF_NO_INDOOR)
 		printf(", NO-INDOOR");
-	if (rule->flags & NL80211_RRF_NO_OUTDOOR)
+	if (rule->flags & RRF_NO_OUTDOOR)
 		printf(", NO-OUTDOOR");
-	if (rule->flags & NL80211_RRF_DFS)
+	if (rule->flags & RRF_DFS)
 		printf(", DFS");
-	if (rule->flags & NL80211_RRF_PTP_ONLY)
+	if (rule->flags & RRF_PTP_ONLY)
 		printf(", PTP-ONLY");
-	if (rule->flags & NL80211_RRF_PTMP_ONLY)
+	if (rule->flags & RRF_PTMP_ONLY)
 		printf(", PTMP-ONLY");
-	if (rule->flags & NL80211_RRF_PASSIVE_SCAN)
+	if (rule->flags & RRF_PASSIVE_SCAN)
 		printf(", PASSIVE-SCAN");
-	if (rule->flags & NL80211_RRF_NO_IBSS)
+	if (rule->flags & RRF_NO_IBSS)
 		printf(", NO-IBSS");
 
 	printf("\n");

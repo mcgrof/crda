@@ -298,18 +298,18 @@ static void reg_rule2rd(uint8_t *db, int dblen,
 
 /* Converts a file regdomain to ieee80211_regdomain, easier to manage */
 const static struct ieee80211_regdomain *
-country2rd(uint8_t *db, int dblen,
+country2rd(const struct reglib_regdb_ctx *ctx,
 	   struct regdb_file_reg_country *country)
 {
 	struct regdb_file_reg_rules_collection *rcoll;
 	struct ieee80211_regdomain *rd;
 	int i, num_rules, size_of_rd;
 
-	rcoll = reglib_get_file_ptr(db, dblen, sizeof(*rcoll),
-				country->reg_collection_ptr);
+	rcoll = reglib_get_file_ptr(ctx->db, ctx->dblen, sizeof(*rcoll),
+				    country->reg_collection_ptr);
 	num_rules = ntohl(rcoll->reg_rule_num);
 	/* re-get pointer with sanity checking for num_rules */
-	rcoll = reglib_get_file_ptr(db, dblen,
+	rcoll = reglib_get_file_ptr(ctx->db, ctx->dblen,
 			sizeof(*rcoll) + num_rules * sizeof(uint32_t),
 			country->reg_collection_ptr);
 
@@ -328,7 +328,7 @@ country2rd(uint8_t *db, int dblen,
 	rd->n_reg_rules = num_rules;
 
 	for (i = 0; i < num_rules; i++) {
-		reg_rule2rd(db, dblen, rcoll->reg_rule_ptrs[i],
+		reg_rule2rd(ctx->db, ctx->dblen, rcoll->reg_rule_ptrs[i],
 			&rd->reg_rules[i]);
 	}
 
@@ -351,7 +351,7 @@ reglib_get_rd_idx(unsigned int idx, const char *file)
 
 	country = ctx->countries + idx;
 
-	rd = country2rd(ctx->db, ctx->dblen, country);
+	rd = country2rd(ctx, country);
 	if (!rd)
 		goto out;
 
@@ -384,7 +384,7 @@ reglib_get_rd_alpha2(const char *alpha2, const char *file)
 	if (!found_country)
 		goto out;
 
-	rd = country2rd(ctx->db, ctx->dblen, country);
+	rd = country2rd(ctx, country);
 	if (!rd)
 		goto out;
 

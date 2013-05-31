@@ -186,6 +186,92 @@ int reglib_verify_db_signature(uint8_t *db, int dblen, int siglen)
 }
 #endif
 
+const struct reglib_regdb_ctx *reglib_malloc_regdb_ctx(const char *regdb_file)
+{
+	struct regdb_file_header *header;
+	struct reglib_regdb_ctx *ctx;
+
+	ctx = malloc(sizeof(struct reglib_regdb_ctx));
+	if (!ctx)
+		return NULL;
+
+	memset(ctx, 0, sizeof(struct reglib_regdb_ctx));
+
+	ctx->fd = open(regdb_file, O_RDONLY);
+
+	if (ctx->fd < 0) {
+		free(ctx);
+		return NULL;
+	}
+
+	if (fstat(ctx->fd, &ctx->stat)) {
+		close(ctx->fd);
+		free(ctx);
+		return NULL;
+	}
+
+	ctx->real_dblen = ctx->stat.st_size;
+
+	ctx->db = mmap(NULL, ctx->real_dblen, PROT_READ,
+		       MAP_PRIVATE, ctx->fd, 0);
+	if (ctx->db == MAP_FAILED) {
+		close(ctx->fd);
+		free(ctx);
+		return NULL;
+	}
+
+	ctx->header = reglib_get_file_ptr(ctx->db, ctx->dblen,
+					  sizeof(struct regdb_file_header),
+					  0);
+	header = ctx->header;
+
+	if (ntohl(header->magic) != REGDB_MAGIC)
+		goto err_out;
+
+	if (ntohl(header->version) != REGDB_VERSION)
+		goto err_out;
+
+	ctx->siglen = ntohl(header->signature_length);
+	/* The actual dblen does not take into account the signature */
+	ctx->dblen = ctx->real_dblen - ctx->siglen;
+
+	if (ctx->dblen <= sizeof(*header))
+		goto err_out;
+
+	/* verify signature */
+	if (!reglib_verify_db_signature(ctx->db, ctx->dblen, ctx->siglen))
+		goto err_out;
+
+	ctx->verified = true;
+	ctx->num_countries = ntohl(header->reg_country_num);
+	ctx->countries = reglib_get_file_ptr(ctx->db,
+					     ctx->dblen,
+					     sizeof(struct regdb_file_reg_country) * ctx->num_countries,
+					     header->reg_country_ptr);
+	return ctx;
+
+err_out:
+	close(ctx->fd);
+	munmap(ctx->db, ctx->real_dblen);
+	free(ctx);
+	return NULL;
+}
+
+void reglib_free_regdb_ctx(const struct reglib_regdb_ctx *regdb_ctx)
+{
+	struct reglib_regdb_ctx *ctx;
+
+	if (!regdb_ctx)
+		return;
+
+	ctx = (struct reglib_regdb_ctx *) regdb_ctx;
+
+	memset(ctx, 0, sizeof(struct reglib_regdb_ctx));
+	close(ctx->fd);
+	munmap(ctx->db, ctx->real_dblen);
+	free(ctx);
+}
+
 static void reg_rule2rd(uint8_t *db, int dblen,
 	uint32_t ruleptr, struct ieee80211_reg_rule *rd_reg_rule)
 {
@@ -252,130 +338,43 @@ country2rd(uint8_t *db, int dblen,
 const struct ieee80211_regdomain *
 reglib_get_rd_idx(unsigned int idx, const char *file)
 {
-	int fd;
-	struct stat stat;
-	uint8_t *db;
-	struct regdb_file_header *header;
-	struct regdb_file_reg_country *countries;
-	int dblen, siglen, num_countries;
-	const struct ieee80211_regdomain *rd = NULL;
+	const struct reglib_regdb_ctx *ctx;
 	struct regdb_file_reg_country *country;
+	const struct ieee80211_regdomain *rd = NULL;
 
-	fd = open(file, O_RDONLY);
-
-	if (fd < 0)
+	ctx = reglib_malloc_regdb_ctx(file);
+	if (!ctx)
 		return NULL;
 
-	if (fstat(fd, &stat)) {
-		close(fd);
-		return NULL;
-	}
-
-	dblen = stat.st_size;
-
-	db = mmap(NULL, dblen, PROT_READ, MAP_PRIVATE, fd, 0);
-	if (db == MAP_FAILED) {
-		close(fd);
-		return NULL;
-	}
-
-	header = reglib_get_file_ptr(db, dblen, sizeof(*header), 0);
-
-	if (ntohl(header->magic) != REGDB_MAGIC)
+	if (idx >= ctx->num_countries)
 		goto out;
 
-	if (ntohl(header->version) != REGDB_VERSION)
-		goto out;
+	country = ctx->countries + idx;
 
-	siglen = ntohl(header->signature_length);
-	/* adjust dblen so later sanity checks don't run into the signature */
-	dblen -= siglen;
-
-	if (dblen <= (int)sizeof(*header))
-		goto out;
-
-	/* verify signature */
-	if (!reglib_verify_db_signature(db, dblen, siglen))
-		goto out;
-
-	num_countries = ntohl(header->reg_country_num);
-	countries = reglib_get_file_ptr(db, dblen,
-			sizeof(struct regdb_file_reg_country) * num_countries,
-			header->reg_country_ptr);
-
-	if (idx >= num_countries)
-		goto out;
-
-	country = countries + idx;
-
-	rd = country2rd(db, dblen, country);
+	rd = country2rd(ctx->db, ctx->dblen, country);
 	if (!rd)
 		goto out;
 
 out:
-	close(fd);
-	munmap(db, dblen);
+	reglib_free_regdb_ctx(ctx);
 	return rd;
 }
 
 const struct ieee80211_regdomain *
 reglib_get_rd_alpha2(const char *alpha2, const char *file)
 {
-	int fd;
-	struct stat stat;
-	uint8_t *db;
-	struct regdb_file_header *header;
-	struct regdb_file_reg_country *countries;
-	int dblen, siglen, num_countries;
+	const struct reglib_regdb_ctx *ctx;
 	const struct ieee80211_regdomain *rd = NULL;
 	struct regdb_file_reg_country *country;
-	unsigned int i;
 	bool found_country = false;
+	unsigned int i;
 
-	fd = open(file, O_RDONLY);
-
-	if (fd < 0)
+	ctx = reglib_malloc_regdb_ctx(file);
+	if (!ctx)
 		return NULL;
 
-	if (fstat(fd, &stat)) {
-		close(fd);
-		return NULL;
-	}
-
-	dblen = stat.st_size;
-
-	db = mmap(NULL, dblen, PROT_READ, MAP_PRIVATE, fd, 0);
-	if (db == MAP_FAILED) {
-		close(fd);
-		return NULL;
-	}
-
-	header = reglib_get_file_ptr(db, dblen, sizeof(*header), 0);
-
-	if (ntohl(header->magic) != REGDB_MAGIC)
-		goto out;
-
-	if (ntohl(header->version) != REGDB_VERSION)
-		goto out;
-
-	siglen = ntohl(header->signature_length);
-	/* adjust dblen so later sanity checks don't run into the signature */
-	dblen -= siglen;
-
-	if (dblen <= (int)sizeof(*header))
-		goto out;
-
-	/* verify signature */
-	if (!reglib_verify_db_signature(db, dblen, siglen))
-		goto out;
-
-	num_countries = ntohl(header->reg_country_num);
-	countries = reglib_get_file_ptr(db, dblen,
-			sizeof(struct regdb_file_reg_country) * num_countries,
-			header->reg_country_ptr);
-
-	for (i = 0; i < num_countries; i++) {
-		country = countries + i;
+	for (i = 0; i < ctx->num_countries; i++) {
+		country = ctx->countries + i;
 		if (memcmp(country->alpha2, alpha2, 2) == 0) {
 			found_country = 1;
 			break;
@@ -385,13 +384,12 @@ reglib_get_rd_alpha2(const char *alpha2, const char *file)
 	if (!found_country)
 		goto out;
 
-	rd = country2rd(db, dblen, country);
+	rd = country2rd(ctx->db, ctx->dblen, country);
 	if (!rd)
 		goto out;
 
 out:
-	close(fd);
-	munmap(db, dblen);
+	reglib_free_regdb_ctx(ctx);
 	return rd;
 }
 

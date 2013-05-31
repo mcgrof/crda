@@ -139,12 +139,12 @@ const struct reglib_regdb_ctx *reglib_malloc_regdb_ctx(const char *regdb_file);
 void reglib_free_regdb_ctx(const struct reglib_regdb_ctx *regdb_ctx);
 
 const struct ieee80211_regdomain *
-reglib_get_rd_idx(unsigned int idx, const char *file);
+reglib_get_rd_idx(unsigned int idx, const struct reglib_regdb_ctx *ctx);
 
-#define reglib_for_each_country(__rd, __idx, __file)		\
-	for (__rd = reglib_get_rd_idx(__idx, __file);		\
+#define reglib_for_each_country(__rd, __idx, __ctx)		\
+	for (__rd = reglib_get_rd_idx(__idx, __ctx);		\
 	     __rd != NULL;					\
-	     __rd = reglib_get_rd_idx(++__idx, __file))		\
+	     __rd = reglib_get_rd_idx(++__idx, __ctx))		\
 
 const struct ieee80211_regdomain *
 reglib_get_rd_alpha2(const char *alpha2, const char *file);
@@ -166,6 +166,7 @@ reglib_intersect_rds(const struct ieee80211_regdomain *rd1,
  * to find rules that fit all regulatory domains it return a regulatory
  * domain with such rules otherwise it returns NULL.
  */
-const struct ieee80211_regdomain *reglib_intersect_regdb(char *regdb_file);
+const struct ieee80211_regdomain *
+reglib_intersect_regdb(const struct reglib_regdb_ctx *ctx);
 
 #endif

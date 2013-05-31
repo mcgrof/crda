@@ -336,28 +336,19 @@ country2rd(const struct reglib_regdb_ctx *ctx,
 }
 
 const struct ieee80211_regdomain *
-reglib_get_rd_idx(unsigned int idx, const char *file)
+reglib_get_rd_idx(unsigned int idx, const struct reglib_regdb_ctx *ctx)
 {
-	const struct reglib_regdb_ctx *ctx;
 	struct regdb_file_reg_country *country;
-	const struct ieee80211_regdomain *rd = NULL;
 
-	ctx = reglib_malloc_regdb_ctx(file);
 	if (!ctx)
 		return NULL;
 
 	if (idx >= ctx->num_countries)
-		goto out;
+		return NULL;
 
 	country = ctx->countries + idx;
 
-	rd = country2rd(ctx, country);
-	if (!rd)
-		goto out;
-
-out:
-	reglib_free_regdb_ctx(ctx);
-	return rd;
+	return country2rd(ctx, country);
 }
 
 const struct ieee80211_regdomain *
@@ -552,14 +543,18 @@ reglib_intersect_rds(const struct ieee80211_regdomain *rd1,
 	return rd;
 }
 
-const struct ieee80211_regdomain *reglib_intersect_regdb(char *regdb_file)
+const struct ieee80211_regdomain *
+reglib_intersect_regdb(const struct reglib_regdb_ctx *ctx)
 {
 	const struct ieee80211_regdomain *rd;
 	struct ieee80211_regdomain *prev_rd_intsct = NULL, *rd_intsct = NULL;
 	int intersected = 0;
 	unsigned int idx = 0;
 
-	reglib_for_each_country(rd, idx, regdb_file) {
+	if (!ctx)
+		return NULL;
+
+	reglib_for_each_country(rd, idx, ctx) {
 		if (reglib_is_world_regdom((const char *) rd->alpha2)) {
 			free((struct ieee80211_regdomain *) rd);
 			continue;

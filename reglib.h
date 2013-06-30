@@ -112,8 +112,9 @@ static inline uint32_t reglib_min(uint32_t a, uint32_t b)
 	return (a > b) ? b : a;
 }
 
-void *reglib_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr);
-int reglib_verify_db_signature(uint8_t *db, int dblen, int siglen);
+void *
+reglib_get_file_ptr(uint8_t *db, size_t dblen, size_t structlen, uint32_t ptr);
+int reglib_verify_db_signature(uint8_t *db, size_t dblen, size_t siglen);
 
 /**
  * reglib_malloc_regdb_ctx - create a regdb context for usage with reglib

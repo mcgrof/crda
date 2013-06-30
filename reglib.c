@@ -10,6 +10,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <string.h>
+#include <limits.h>
 
 #include <arpa/inet.h> /* ntohl */
 
@@ -37,9 +38,15 @@
 #include "keys-gcrypt.c"
 #endif
 
-void *reglib_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr)
+void *
+reglib_get_file_ptr(uint8_t *db, size_t dblen, size_t structlen, uint32_t ptr)
 {
 	uint32_t p = ntohl(ptr);
+
+	if (structlen > dblen) {
+		fprintf(stderr, "Invalid database file, too short!\n");
+		exit(3);
+	}
 
 	if (p > dblen - structlen) {
 		fprintf(stderr, "Invalid database file, bad pointer!\n");
@@ -47,6 +54,17 @@ void *reglib_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr)
 	}
 
 	return (void *)(db + p);
+}
+
+static size_t
+reglib_array_len(size_t baselen, unsigned int elemcount, size_t elemlen)
+{
+	if (elemcount > (SIZE_MAX - baselen) / elemlen) {
+		fprintf(stderr, "Invalid database file, count too large!\n");
+		exit(3);
+	}
+
+	return baselen + elemcount * elemlen;
 }
 
 /*
@@ -59,7 +77,7 @@ void *reglib_get_file_ptr(uint8_t *db, int dblen, int structlen, uint32_t ptr)
  */
 
 #ifdef USE_OPENSSL
-int reglib_verify_db_signature(uint8_t *db, int dblen, int siglen)
+int reglib_verify_db_signature(uint8_t *db, size_t dblen, size_t siglen)
 {
 	RSA *rsa;
 	uint8_t hash[SHA_DIGEST_LENGTH];
@@ -118,7 +136,7 @@ out:
 #endif /* USE_OPENSSL */
 
 #ifdef USE_GCRYPT
-int reglib_verify_db_signature(uint8_t *db, int dblen, int siglen)
+int reglib_verify_db_signature(uint8_t *db, size_t dblen, size_t siglen)
 {
 	gcry_mpi_t mpi_e, mpi_n;
 	gcry_sexp_t rsa, signature, data;
@@ -180,7 +198,7 @@ out:
 #endif /* USE_GCRYPT */
 
 #if !defined(USE_OPENSSL) && !defined(USE_GCRYPT)
-int reglib_verify_db_signature(uint8_t *db, int dblen, int siglen)
+int reglib_verify_db_signature(uint8_t *db, size_t dblen, size_t siglen)
 {
 	return 1;
 }
@@ -220,7 +238,7 @@ const struct reglib_regdb_ctx *reglib_malloc_regdb_ctx(const char *regdb_file)
 		return NULL;
 	}
 
-	ctx->header = reglib_get_file_ptr(ctx->db, ctx->dblen,
+	ctx->header = reglib_get_file_ptr(ctx->db, ctx->real_dblen,
 					  sizeof(struct regdb_file_header),
 					  0);
 	header = ctx->header;
@@ -232,11 +250,12 @@ const struct reglib_regdb_ctx *reglib_malloc_regdb_ctx(const char *regdb_file)
 		goto err_out;
 
 	ctx->siglen = ntohl(header->signature_length);
+
+	if (ctx->siglen > ctx->real_dblen - sizeof(*header))
+		goto err_out;
+
 	/* The actual dblen does not take into account the signature */
 	ctx->dblen = ctx->real_dblen - ctx->siglen;
-
-	if (ctx->dblen <= sizeof(*header))
-		goto err_out;
 
 	/* verify signature */
 	if (!reglib_verify_db_signature(ctx->db, ctx->dblen, ctx->siglen))
@@ -272,7 +291,7 @@ void reglib_free_regdb_ctx(const struct reglib_regdb_ctx *regdb_ctx)
 	free(ctx);
 }
 
-static void reg_rule2rd(uint8_t *db, int dblen,
+static void reg_rule2rd(uint8_t *db, size_t dblen,
 	uint32_t ruleptr, struct ieee80211_reg_rule *rd_reg_rule)
 {
 	struct regdb_file_reg_rule *rule;
@@ -303,18 +322,21 @@ country2rd(const struct reglib_regdb_ctx *ctx,
 {
 	struct regdb_file_reg_rules_collection *rcoll;
 	struct ieee80211_regdomain *rd;
-	int i, num_rules, size_of_rd;
+	unsigned int i, num_rules;
+	size_t size_of_rd;
 
 	rcoll = reglib_get_file_ptr(ctx->db, ctx->dblen, sizeof(*rcoll),
 				    country->reg_collection_ptr);
 	num_rules = ntohl(rcoll->reg_rule_num);
 	/* re-get pointer with sanity checking for num_rules */
 	rcoll = reglib_get_file_ptr(ctx->db, ctx->dblen,
-			sizeof(*rcoll) + num_rules * sizeof(uint32_t),
-			country->reg_collection_ptr);
+				    reglib_array_len(sizeof(*rcoll), num_rules,
+						     sizeof(uint32_t)),
+				    country->reg_collection_ptr);
 
-	size_of_rd = sizeof(struct ieee80211_regdomain) +
-		num_rules * sizeof(struct ieee80211_reg_rule);
+	size_of_rd = reglib_array_len(sizeof(struct ieee80211_regdomain),
+				      num_rules,
+				      sizeof(struct ieee80211_reg_rule));
 
 	rd = malloc(size_of_rd);
 	if (!rd)
@@ -468,7 +490,8 @@ struct ieee80211_regdomain *
 reglib_intersect_rds(const struct ieee80211_regdomain *rd1,
 		     const struct ieee80211_regdomain *rd2)
 {
-	int r, size_of_regd;
+	int r;
+	size_t size_of_regd;
 	unsigned int x, y;
 	unsigned int num_rules = 0, rule_idx = 0;
 	const struct ieee80211_reg_rule *rule1, *rule2;
@@ -506,8 +529,9 @@ reglib_intersect_rds(const struct ieee80211_regdomain *rd1,
 	if (!num_rules)
 		return NULL;
 
-	size_of_regd = sizeof(struct ieee80211_regdomain) +
-		((num_rules + 1) * sizeof(struct ieee80211_reg_rule));
+	size_of_regd = reglib_array_len(sizeof(struct ieee80211_regdomain),
+					num_rules + 1,
+					sizeof(struct ieee80211_reg_rule));
 
 	rd = malloc(size_of_regd);
 	if (!rd)

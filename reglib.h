@@ -150,6 +150,16 @@ reglib_get_rd_idx(unsigned int idx, const struct reglib_regdb_ctx *ctx);
 const struct ieee80211_regdomain *
 reglib_get_rd_alpha2(const char *alpha2, const char *file);
 
+/**
+ * reglib_is_valid_rd - validate regulatory domain data structure
+ *
+ * @rd: regulatory domain data structure to validate
+ *
+ * You can use this to validate regulatory domain data structures
+ * for possible inconsistencies.
+ */
+int reglib_is_valid_rd(const struct ieee80211_regdomain *rd);
+
 /* reg helpers */
 void reglib_print_regdom(const struct ieee80211_regdomain *rd);
 struct ieee80211_regdomain *

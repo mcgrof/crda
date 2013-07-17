@@ -427,6 +427,22 @@ static int is_valid_reg_rule(const struct ieee80211_reg_rule *rule)
 	return 1;
 }
 
+int reglib_is_valid_rd(const struct ieee80211_regdomain *rd)
+{
+	const struct ieee80211_reg_rule *reg_rule = NULL;
+	unsigned int i;
+
+	if (!rd->n_reg_rules)
+		return 0;
+
+	for (i = 0; i < rd->n_reg_rules; i++) {
+		reg_rule = &rd->reg_rules[i];
+		if (!is_valid_reg_rule(reg_rule))
+		return 0;
+	}
+	return 1;
+}
+
 /*
  * Helper for reglib_intersect_rds(), this does the real
  * mathematical intersection fun

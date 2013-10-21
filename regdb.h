@@ -79,9 +79,11 @@ enum reg_rule_flags {
 					 * links */
 	RRF_PTMP_ONLY		= 1<<6, /* this is only for Point To Multi
 					 * Point links */
-	RRF_PASSIVE_SCAN	= 1<<7, /* passive scan is required */
-	RRF_NO_IBSS		= 1<<8, /* IBSS is not allowed */
+	RRF_NO_IR		= 1<<7, /* do not initiate radiation */
+	__RRF_NO_IBSS		= 1<<8, /* old no-IBSS rule, maps to no-ir */
 };
+
+#define RRF_NO_IR_ALL	(RRF_NO_IR | __RRF_NO_IBSS)
 
 /**
  * enum regdb_dfs_regions - regulatory DFS regions

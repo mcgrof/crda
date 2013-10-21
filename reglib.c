@@ -313,6 +313,9 @@ static void reg_rule2rd(uint8_t *db, size_t dblen,
 	rd_power_rule->max_eirp = ntohl(power->max_eirp);
 
 	rd_reg_rule->flags = ntohl(rule->flags);
+
+	if (rd_reg_rule->flags & RRF_NO_IR_ALL)
+		rd_reg_rule->flags |= RRF_NO_IR_ALL;
 }
 
 /* Converts a file regdomain to ieee80211_regdomain, easier to manage */
@@ -694,10 +697,8 @@ static void print_reg_rule(const struct ieee80211_reg_rule *rule)
 		printf(", PTP-ONLY");
 	if (rule->flags & RRF_PTMP_ONLY)
 		printf(", PTMP-ONLY");
-	if (rule->flags & RRF_PASSIVE_SCAN)
-		printf(", PASSIVE-SCAN");
-	if (rule->flags & RRF_NO_IBSS)
-		printf(", NO-IBSS");
+	if (rule->flags & RRF_NO_IR_ALL)
+		printf(", NO-IR");
 
 	printf("\n");
 }

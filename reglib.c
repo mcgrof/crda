@@ -673,11 +673,6 @@ static void print_reg_rule(const struct ieee80211_reg_rule *rule)
 
 	printf("(");
 
-	if (power->max_antenna_gain)
-		printf("%.2f, ", ((float)(power->max_antenna_gain)/100.0));
-	else
-		printf("N/A, ");
-
 	if (power->max_eirp)
 		printf("%.2f)", ((float)(power->max_eirp)/100.0));
 	else

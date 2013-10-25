@@ -1,10 +1,12 @@
 #ifndef REG_LIB_H
 #define REG_LIB_H
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <sys/stat.h>
+#include <math.h>
 
 #include "regdb.h"
 
@@ -34,6 +36,19 @@ struct ieee80211_regdomain {
 	uint8_t dfs_region;
 	struct ieee80211_reg_rule reg_rules[];
 };
+
+/* Remove this once upstream nl80211.h gets this */
+#define NL80211_RRF_NO_IR (1<<7)
+
+#define REGLIB_MHZ_TO_KHZ(freq) ((freq) * 1000)
+#define REGLIB_KHZ_TO_MHZ(freq) ((freq) / 1000)
+#define REGLIB_DBI_TO_MBI(gain) ((gain) * 100)
+#define REGLIB_MBI_TO_DBI(gain) ((gain) / 100)
+#define REGLIB_DBM_TO_MBM(gain) ((gain) * 100)
+#define REGLIB_MBM_TO_DBM(gain) ((gain) / 100)
+
+#define REGLIB_MW_TO_DBM(gain) (10 * log10(gain))
+#define REGLIB_MW_TO_MBM(gain) (REGLIB_DBM_TO_MBM(REGLIB_MW_TO_DBM(gain)))
 
 /**
  * struct reglib_regdb_ctx - reglib regdb context
@@ -179,5 +194,34 @@ reglib_intersect_rds(const struct ieee80211_regdomain *rd1,
  */
 const struct ieee80211_regdomain *
 reglib_intersect_regdb(const struct reglib_regdb_ctx *ctx);
+
+/**
+ * @reglib_create_parse_stream - provide a clean new stream for processing
+ *
+ * @fp: FILE stream, could be stdin, or a stream from an open file.
+ *
+ * In order to parse a stream we recommend to create a new stream
+ * using this helper. A new stream is preferred in order to work
+ * with stdin, as otherwise we cannot rewind() and move around
+ * the stream. This helper will create new stream using tmpfile()
+ * and also remove all comments. It will be closed and the file
+ * deleted when the process terminates.
+ */
+FILE *reglib_create_parse_stream(FILE *fp);
+
+/**
+ * @reglib_parse_country - parse stream to build a regulatory domain
+ *
+ * @fp: FILE stream, could be stdin, or a stream from an open file.
+ *
+ * Parse stream and return back a built regulatory domain. Returns
+ * NULL if one could not be built.
+ */
+struct ieee80211_regdomain *reglib_parse_country(FILE *fp);
+
+#define reglib_for_each_country_stream(__fp, __rd)		\
+	for (__rd = reglib_parse_country(__fp);			\
+	     __rd != NULL;					\
+	     __rd = reglib_parse_country(__fp))			\
 
 #endif

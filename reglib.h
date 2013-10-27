@@ -219,6 +219,22 @@ FILE *reglib_create_parse_stream(FILE *fp);
  */
 struct ieee80211_regdomain *reglib_parse_country(FILE *fp);
 
+/**
+ * @reglib_optimize_regdom - optimize a regulatory domain
+ *
+ * @rd: a regulatory domain to be optimized
+ *
+ * A regulatory domain may exist without optimal expressions
+ * over its rules. This will look for regulatory rules that can
+ * be combined together to reduce the size of the regulatory
+ * domain and its expression.
+ *
+ * Regulatory rules will be combined if their max allowed
+ * bandwidth, max EIRP, and flags all match.
+ */
+struct ieee80211_regdomain *
+reglib_optimize_regdom(struct ieee80211_regdomain *rd);
+
 #define reglib_for_each_country_stream(__fp, __rd)		\
 	for (__rd = reglib_parse_country(__fp);			\
 	     __rd != NULL;					\

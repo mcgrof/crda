@@ -459,6 +459,49 @@ int reglib_is_valid_rd(const struct ieee80211_regdomain *rd)
 	return 1;
 }
 
+static int reg_rules_union(const struct ieee80211_reg_rule *rule1,
+			   const struct ieee80211_reg_rule *rule2,
+			   struct ieee80211_reg_rule *union_rule)
+{
+	const struct ieee80211_freq_range *freq_range1, *freq_range2;
+	struct ieee80211_freq_range *freq_range;
+	const struct ieee80211_power_rule *power_rule1, *power_rule2;
+	struct ieee80211_power_rule *power_rule;
+
+	freq_range1 = &rule1->freq_range;
+	freq_range2 = &rule2->freq_range;
+	freq_range = &union_rule->freq_range;
+
+	power_rule1 = &rule1->power_rule;
+	power_rule2 = &rule2->power_rule;
+	power_rule = &union_rule->power_rule;
+
+
+	if (freq_range1->end_freq_khz < freq_range2->start_freq_khz)
+		return -EINVAL;
+	if (freq_range2->end_freq_khz < freq_range1->start_freq_khz)
+		return -EINVAL;
+
+	freq_range->start_freq_khz = reglib_min(freq_range1->start_freq_khz,
+					 freq_range2->start_freq_khz);
+	freq_range->end_freq_khz = reglib_max(freq_range1->end_freq_khz,
+				       freq_range2->end_freq_khz);
+	freq_range->max_bandwidth_khz = reglib_max(freq_range1->max_bandwidth_khz,
+					    freq_range2->max_bandwidth_khz);
+
+	power_rule->max_eirp = reglib_max(power_rule1->max_eirp,
+		power_rule2->max_eirp);
+	power_rule->max_antenna_gain = reglib_max(power_rule1->max_antenna_gain,
+		power_rule2->max_antenna_gain);
+
+	union_rule->flags = rule1->flags | rule2->flags;
+
+	if (!is_valid_reg_rule(union_rule))
+		return -EINVAL;
+
+	return 0;
+}
+
 /*
  * Helper for reglib_intersect_rds(), this does the real
  * mathematical intersection fun
@@ -971,14 +1014,18 @@ static int reglib_parse_rule(FILE *fp, struct ieee80211_reg_rule *reg_rule)
 
 	memset(line, 0, sizeof(line));
 	line_p = fgets(line, sizeof(line), fp);
-	if (line_p != line)
+	if (line_p != line) {
+		free(reglib_rule_parsers);
 		return -EINVAL;
+	}
 
 	for (i = 0; i < reglib_rule_parsers->n_parsers; i++) {
 		r = reglib_rule_parsers->rule_parsers[i](line, reg_rule);
 		if (r == 0)
 			break;
 	}
+
+	free(reglib_rule_parsers);
 
 	return r;
 }
@@ -1151,8 +1198,10 @@ struct ieee80211_regdomain *__reglib_parse_country(FILE *fp)
 
 	line_p = fgets(line, sizeof(line), fp);
 
-	if (line_p != line)
+	if (line_p != line) {
+		free(reglib_country_parsers);
 		return NULL;
+	}
 
 	for (i = 0; i < reglib_country_parsers->n_parsers; i++) {
 		r = reglib_country_parsers->country_parsers[i](line, &tmp_rd);
@@ -1162,10 +1211,13 @@ struct ieee80211_regdomain *__reglib_parse_country(FILE *fp)
 
 	if (r != 0) {
 		fprintf(stderr, "Invalid country line: %s", line);
+		free(reglib_country_parsers);
 		return NULL;
 	}
 
 	rd = reglib_parse_rules(fp, &tmp_rd);
+
+	free(reglib_country_parsers);
 
 	return rd;
 }
@@ -1249,4 +1301,248 @@ FILE *reglib_create_parse_stream(FILE *f)
 	fflush(fp);
 
 	return fp;
+}
+
+/*
+ * Just whatever for now, nothing formal, but note that as bands
+ * grow we'll want to make this a bit more formal somehow.
+ */
+static uint32_t reglib_deduce_band(uint32_t start_freq_khz)
+{
+	uint32_t freq_mhz = REGLIB_KHZ_TO_MHZ(start_freq_khz);
+
+	if (freq_mhz >= 4000)
+		return 5;
+	if (freq_mhz > 2000 && freq_mhz < 4000)
+		return 2;
+	if (freq_mhz > 50000)
+		return 60;
+	return 1234;
+}
+
+/*
+ * The idea behind a rule key is that if two rule keys share the
+ * same key they can be merged together if their frequencies overlap.
+ */
+static uint64_t reglib_rule_key(struct ieee80211_reg_rule *reg_rule)
+{
+	struct ieee80211_power_rule *power_rule;
+	struct ieee80211_freq_range *freq_range;
+	uint32_t band;
+	uint32_t key;
+
+	freq_range = &reg_rule->freq_range;
+	band = reglib_deduce_band(freq_range->start_freq_khz);
+
+	power_rule = &reg_rule->power_rule;
+
+	key = ((power_rule->max_eirp ^  0) <<  0) ^
+	      ((reg_rule->flags      ^  8) <<  8) ^
+	      ((band                 ^ 16) << 16);
+
+	return key;
+}
+
+struct reglib_optimize_map {
+	bool optimized;
+	uint32_t key;
+};
+
+/* Does the provided rule suffice both of the other two */
+static int reglib_opt_rule_fit(struct ieee80211_reg_rule *rule1,
+			       struct ieee80211_reg_rule *rule2,
+			       struct ieee80211_reg_rule *opt_rule)
+{
+	struct ieee80211_reg_rule interesected_rule;
+	struct ieee80211_reg_rule *int_rule;
+	int r;
+
+	memset(&interesected_rule, 0, sizeof(struct ieee80211_reg_rule));
+	int_rule = &interesected_rule;
+
+	r = reg_rules_intersect(rule1, opt_rule, int_rule);
+	if (r != 0)
+		return r;
+	r = reg_rules_intersect(rule2, opt_rule, int_rule);
+	if (r != 0)
+		return r;
+
+	return 0;
+}
+
+static int reg_rule_optimize(struct ieee80211_reg_rule *rule1,
+			     struct ieee80211_reg_rule *rule2,
+			     struct ieee80211_reg_rule *opt_rule)
+{
+	int r;
+
+	r = reg_rules_union(rule1, rule2, opt_rule);
+	if (r != 0)
+		return r;
+	r = reglib_opt_rule_fit(rule1, rule2, opt_rule);
+	if (r != 0)
+		return r;
+
+	return 0;
+}
+
+/*
+ * Here's the math explanation:
+ *
+ * This takes each pivot frequency on the regulatory domain, computes
+ * the union between it each regulatory rule on the regulatory domain
+ * sequentially, and after that it tries to verify that the pivot frequency
+ * fits on it by computing an intersection between it and the union, if
+ * a rule exist as a possible intersection then we know the rule can be
+ * subset of the combination of the two frequency ranges (union) computed.
+ */
+static unsigned int reg_rule_optimize_rd(struct ieee80211_regdomain *rd,
+					 unsigned int rule_idx,
+					 struct ieee80211_reg_rule *opt_rule,
+					 struct reglib_optimize_map *opt_map)
+{
+	unsigned int i;
+	struct ieee80211_reg_rule *rule1;
+	struct ieee80211_reg_rule *rule2;
+
+	struct ieee80211_reg_rule tmp_optimized_rule;
+	struct ieee80211_reg_rule *tmp_opt_rule;
+
+	struct ieee80211_reg_rule *target_rule;
+
+	unsigned int optimized = 0;
+	int r;
+
+	if (rule_idx > rd->n_reg_rules)
+		return 0;
+
+	rule1 = &rd->reg_rules[rule_idx];
+
+	memset(&tmp_optimized_rule, 0, sizeof(struct ieee80211_reg_rule));
+	tmp_opt_rule = &tmp_optimized_rule;
+
+	memset(opt_rule, 0, sizeof(*opt_rule));
+
+	for (i = 0; i < rd->n_reg_rules; i++) {
+		if (rule_idx == i)
+			continue;
+		rule2 = &rd->reg_rules[i];
+		if (opt_map[rule_idx].key != opt_map[i].key)
+			continue;
+
+		target_rule = optimized ? opt_rule : rule1;
+		r = reg_rule_optimize(target_rule, rule2, tmp_opt_rule);
+		if (r != 0)
+			continue;
+		memcpy(opt_rule, tmp_opt_rule, sizeof(*tmp_opt_rule));
+
+		if (!opt_map[i].optimized) {
+			opt_map[i].optimized = true;
+			optimized++;
+		}
+		if (!opt_map[rule_idx].optimized) {
+			opt_map[rule_idx].optimized = true;
+			optimized++;
+		}
+	}
+	return optimized;
+}
+
+struct ieee80211_regdomain *
+reglib_optimize_regdom(struct ieee80211_regdomain *rd)
+{
+	struct ieee80211_regdomain *opt_rd = NULL;
+	struct ieee80211_reg_rule *reg_rule;
+	struct ieee80211_reg_rule *reg_rule_dst;
+	struct ieee80211_reg_rule optimized_reg_rule;
+	struct ieee80211_reg_rule *opt_reg_rule;
+	struct reglib_optimize_map *opt_map;
+	unsigned int i, idx = 0, non_opt = 0, opt = 0;
+	size_t num_rules, size_of_regd, size_of_opt_map;
+	unsigned int num_opts = 0;
+
+	size_of_opt_map = (rd->n_reg_rules + 2) *
+		sizeof(struct reglib_optimize_map);
+	opt_map = malloc(size_of_opt_map);
+	if (!opt_map)
+		return NULL;
+
+	memset(opt_map, 0, size_of_opt_map);
+	memset(&optimized_reg_rule, 0, sizeof(struct ieee80211_reg_rule));
+
+	opt_reg_rule = &optimized_reg_rule;
+
+	for (i = 0; i < rd->n_reg_rules; i++) {
+		reg_rule = &rd->reg_rules[i];
+		opt_map[i].key = reglib_rule_key(reg_rule);
+	}
+	for (i = 0; i < rd->n_reg_rules; i++) {
+		reg_rule = &rd->reg_rules[i];
+		if (opt_map[i].optimized)
+			continue;
+		num_opts = reg_rule_optimize_rd(rd, i, opt_reg_rule, opt_map);
+		if (!num_opts)
+			non_opt++;
+		else
+			opt += (num_opts ? 1 : 0);
+	}
+
+	num_rules = non_opt + opt;
+
+	if (num_rules > rd->n_reg_rules)
+		goto fail_opt_map;
+
+	size_of_regd = reglib_array_len(sizeof(struct ieee80211_regdomain),
+					num_rules + 1,
+					sizeof(struct ieee80211_reg_rule));
+
+	opt_rd = malloc(size_of_regd);
+	if (!opt_rd)
+		goto fail_opt_map;
+	memset(opt_rd, 0, size_of_regd);
+
+	opt_rd->n_reg_rules = num_rules;
+	opt_rd->alpha2[0] = rd->alpha2[0];
+	opt_rd->alpha2[1] = rd->alpha2[1];
+	opt_rd->dfs_region = rd->dfs_region;
+
+	memset(opt_map, 0, size_of_opt_map);
+	memset(&optimized_reg_rule, 0, sizeof(struct ieee80211_reg_rule));
+
+	opt_reg_rule = &optimized_reg_rule;
+
+	for (i = 0; i < rd->n_reg_rules; i++) {
+		reg_rule = &rd->reg_rules[i];
+		opt_map[i].key = reglib_rule_key(reg_rule);
+	}
+
+	for (i = 0; i < rd->n_reg_rules; i++) {
+		reg_rule = &rd->reg_rules[i];
+		reg_rule_dst = &opt_rd->reg_rules[idx];
+		if (opt_map[i].optimized)
+			continue;
+		num_opts = reg_rule_optimize_rd(rd, i, opt_reg_rule, opt_map);
+		if (!num_opts)
+			memcpy(reg_rule_dst, reg_rule, sizeof(struct ieee80211_reg_rule));
+		else
+			memcpy(reg_rule_dst, opt_reg_rule, sizeof(struct ieee80211_reg_rule));
+		idx++;
+	}
+
+	if (idx != num_rules)
+		goto fail;
+
+	for (i = 0; i < opt_rd->n_reg_rules; i++) {
+		reg_rule = &opt_rd->reg_rules[i];
+		if (!is_valid_reg_rule(reg_rule))
+			goto fail;
+	}
+
+	free(opt_map);
+	return opt_rd;
+fail:
+	free(opt_rd);
+fail_opt_map:
+	free(opt_map);
+	return NULL;
 }

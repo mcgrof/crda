@@ -59,6 +59,7 @@ def print_ssl_32(output, name, val):
 
 def print_ssl(output, name, val):
     import struct
+    output.write('#include <stdint.h>\n')
     if len(struct.pack('@L', 0)) == 8:
         return print_ssl_64(output, name, val)
     else:
@@ -85,6 +86,7 @@ static struct pubkey keys[] = {
     pass
 
 def print_gcrypt(output, name, val):
+    output.write('#include <stdint.h>\n')
     while val[0] == '\0':
         val = val[1:]
     output.write('static const uint8_t %s[%d] = {\n' % (name, len(val)))

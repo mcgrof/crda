@@ -141,12 +141,14 @@ int main(int argc, char **argv)
 {
 	int fd = -1;
 	int i = 0, j, r;
-	char alpha2[3] = {}; /* NUL-terminate */
+	char alpha2[3];
 	char *env_country;
 	struct nl80211_state nlstate;
 	struct nl_cb *cb = NULL;
 	struct nl_msg *msg;
 	int finished = 0;
+
+	memset(alpha2, 0, 3);
 
 	struct nlattr *nl_reg_rules;
 	const struct ieee80211_regdomain *rd = NULL;

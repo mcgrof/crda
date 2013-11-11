@@ -1127,7 +1127,7 @@ reglib_parse_country_simple(char *line, struct ieee80211_regdomain *rd)
 	char alpha2[2];
 	int hits;
 
-	memset(rd, 0, sizeof(rd));
+	memset(rd, 0, sizeof(*rd));
 	memset(alpha2, 0, sizeof(alpha2));
 	memset(dfs_region_alpha, 0, sizeof(dfs_region_alpha));
 
@@ -1149,7 +1149,7 @@ static int reglib_parse_country_dfs(char *line, struct ieee80211_regdomain *rd)
 	char alpha2[2];
 	int hits;
 
-	memset(rd, 0, sizeof(rd));
+	memset(rd, 0, sizeof(*rd));
 	memset(alpha2, 0, sizeof(alpha2));
 	memset(dfs_region_alpha, 0, sizeof(dfs_region_alpha));
 

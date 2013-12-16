@@ -28,10 +28,11 @@ RUNTIME_PUBKEY_DIR?=/etc/wireless-regdb/pubkeys
 CFLAGS += -O2 -fpic
 CFLAGS += -std=gnu99 -Wall -Werror -pedantic
 CFLAGS += -Wall -g
-LDLIBS += -lm
 LDLIBREG += -lreg
+LDLIBS += $(LDLIBREG)
+LDLIBS += -lm
 LIBREG += libreg.so
-LDFLAGS += -L ./ $(LDLIBREG)
+LDFLAGS += -L ./
 
 all: all_noverify verify
 

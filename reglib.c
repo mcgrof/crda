@@ -750,6 +750,8 @@ static void print_reg_rule(const struct ieee80211_reg_rule *rule)
 		printf(", PTMP-ONLY");
 	if (rule->flags & RRF_NO_IR_ALL)
 		printf(", NO-IR");
+	if (rule->flags & RRF_AUTO_BW)
+		printf(", AUTO-BW");
 
 	printf("\n");
 }
@@ -793,6 +795,8 @@ static uint32_t reglib_parse_rule_flag(char *flag_s)
 		return RRF_PTMP_ONLY;
 	if (strncmp(flag_s, "NO-IR", 5) == 0)
 		return RRF_NO_IR;
+	if (strncmp(flag_s, "AUTO-BW", 7) == 0)
+		return RRF_AUTO_BW;
 
 	return 0;
 }

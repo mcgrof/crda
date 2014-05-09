@@ -81,6 +81,7 @@ enum reg_rule_flags {
 					 * Point links */
 	RRF_NO_IR		= 1<<7, /* do not initiate radiation */
 	__RRF_NO_IBSS		= 1<<8, /* old no-IBSS rule, maps to no-ir */
+	RRF_AUTO_BW		= 1<<11, /* Auto BW calculations */
 };
 
 #define RRF_NO_IR_ALL	(RRF_NO_IR | __RRF_NO_IBSS)

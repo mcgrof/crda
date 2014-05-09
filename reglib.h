@@ -37,9 +37,6 @@ struct ieee80211_regdomain {
 	struct ieee80211_reg_rule reg_rules[];
 };
 
-/* Remove this once upstream nl80211.h gets this */
-#define NL80211_RRF_NO_IR (1<<7)
-
 #define REGLIB_MHZ_TO_KHZ(freq) ((freq) * 1000)
 #define REGLIB_KHZ_TO_MHZ(freq) ((freq) / 1000)
 #define REGLIB_DBI_TO_MBI(gain) ((gain) * 100)

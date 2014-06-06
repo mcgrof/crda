@@ -750,6 +750,8 @@ static void print_reg_rule(const struct ieee80211_reg_rule *rule)
 		printf(", PTMP-ONLY");
 	if (rule->flags & RRF_NO_IR_ALL)
 		printf(", NO-IR");
+	if (rule->flags & RRF_OCB_ONLY)
+		printf(", OCB-ONLY");
 
 	printf("\n");
 }

@@ -723,6 +723,11 @@ static void print_reg_rule(const struct ieee80211_reg_rule *rule)
 	else
 		printf("N/A)");
 
+	if (rule->dfs_cac_ms)
+		printf(", (%u)", rule->dfs_cac_ms);
+	else
+		printf(", (N/A)");
+
 	if (rule->flags & RRF_NO_OFDM)
 		printf(", NO-OFDM");
 	if (rule->flags & RRF_NO_CCK)
@@ -801,6 +806,7 @@ static int reglib_parse_rule(FILE *fp, struct ieee80211_reg_rule *reg_rule)
 	char *line_p;
 	int hits, r = 0;
 	float start_freq_khz, end_freq_khz, max_bandwidth_khz, max_eirp;
+	unsigned int dfs_cac_ms = 0;
 
 	memset(line, 0, sizeof(line));
 	line_p = fgets(line, sizeof(line), fp);
@@ -846,8 +852,15 @@ static int reglib_parse_rule(FILE *fp, struct ieee80211_reg_rule *reg_rule)
 
 	/* Next get optional arguments (flags ...) */
 	strsep(&line_p, ",");
-	if (line_p)
+	if (line_p) {
+		/* Check DFS CAC time */
+		hits = sscanf(line_p, " (%u)", &dfs_cac_ms);
+		if (hits == 1)
+			reg_rule->dfs_cac_ms = dfs_cac_ms;
+
+		/* Check flags */
 		reg_rule->flags = reglib_parse_rule_flag(line_p);
+	}
 
 	return r;
 }

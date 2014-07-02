@@ -28,6 +28,7 @@ struct ieee80211_reg_rule {
 	struct ieee80211_freq_range freq_range;
 	struct ieee80211_power_rule power_rule;
 	uint32_t flags;
+	uint32_t dfs_cac_ms;
 };
 
 struct ieee80211_regdomain {

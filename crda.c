@@ -131,6 +131,9 @@ static int put_reg_rule(const struct ieee80211_reg_rule *rule, struct nl_msg *ms
 	NLA_PUT_U32(msg, NL80211_ATTR_POWER_RULE_MAX_ANT_GAIN,	power_rule->max_antenna_gain);
 	NLA_PUT_U32(msg, NL80211_ATTR_POWER_RULE_MAX_EIRP,	power_rule->max_eirp);
 
+	if (rule->dfs_cac_ms)
+		NLA_PUT_U32(msg, NL80211_ATTR_DFS_CAC_TIME, rule->dfs_cac_ms);
+
 	return 0;
 
 nla_put_failure:

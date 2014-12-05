@@ -23,12 +23,13 @@ The package build requirements currently are:
  * libgcrypt or libssl (openssl) header files
  * nl library and header files (libnl1 and libnl-dev)
    available at git://git.kernel.org/pub/scm/libs/netlink/libnl.git
- * RSA public key of John Linville, we include this as part of this package
-   so you do not need to install it. This RSA public key comes
-   from the wireless-regdb.git tree and we keep it up to date here.
+ * RSA public key of John Linville and Seth Forshee, we include these
+   as part of this package so you do not need to install it. The RSA
+   public keys comes from the wireless-regdb.git tree and we keep them
+   up to date here.
  * regulatory database, clone this tree:
 
-   git://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-regdb.git
+   git://git.kernel.org/pub/scm/linux/kernel/git/sforshee/wireless-regdb.git
 
    and then stuff regulatory.bin (no need to build) provided there in
    REG_BIN location specified in this Makefile. This regulatory.bin file
@@ -62,13 +63,14 @@ user reboots or all the wireless modules get unloaded and reloaded.
 
 Under certain circumstances it may be desirable to have the regulatory
 agent accept multiple keys, this can be achieved by stuffing all the keys
-desired into pubkeys. Right now we only use John Linville's public key.
+desired into pubkeys. Right now we use John Linville's and Seth Forshee's
+public keys.
 
  REGDB AUTHORS
 ===============
 
-Authors of regulatory.bin (John Linville) first need a private key, which can
-be generated with something like this:
+Authors of regulatory.bin first need a private key, which can be generated
+with something like this:
 
 	openssl genrsa -out your.key.priv.pem 2048
 

@@ -1,11 +1,14 @@
 *~
+db2rd
 regulatory.sqlite
 regulatory.bin
 crda
 dump
 intersect
+optimize
 regdbdump
 *.o
+*.so
 *.pyc
 keys-*.c
 key.priv.pem

@@ -443,7 +443,7 @@ int reglib_is_valid_rd(const struct ieee80211_regdomain *rd)
 	for (i = 0; i < rd->n_reg_rules; i++) {
 		reg_rule = &rd->reg_rules[i];
 		if (!is_valid_reg_rule(reg_rule))
-		return 0;
+			return 0;
 	}
 	return 1;
 }

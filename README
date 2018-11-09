@@ -1,5 +1,6 @@
  Central Regulatory Domain Agent (CRDA)
 ========================================
+<https://wireless.wiki.kernel.org/en/developers/regulatory/crda>
 
 This is the Central Regulatory Domain Agent for Linux. It serves one
 purpose: tell Linux kernel what to enforce. In essence it is a udev
@@ -46,6 +47,7 @@ with this package as regulatory.rules
 
  OVERVIEW
 ==========
+<https://wireless.wiki.kernel.org/en/developers/regulatory>
 
 The database is maintained on the wireless-regdb.git tree. This git
 tree maintains a binary regulatory database file which is produced

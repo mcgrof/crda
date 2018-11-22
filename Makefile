@@ -121,12 +121,12 @@ $(LIBREG): regdb.h reglib.h reglib.c
 install-libreg-headers:
 	$(NQ) '  INSTALL  libreg-headers'
 	$(Q)mkdir -p $(DESTDIR)/$(INCLUDE_DIR)
-	$(Q)cp *.h $(DESTDIR)/$(INCLUDE_DIR)/
+	$(Q)$(INSTALL) -m 644 *.h $(DESTDIR)/$(INCLUDE_DIR)/
 
 install-libreg:
 	$(NQ) '  INSTALL  libreg'
 	$(Q)mkdir -p $(DESTDIR)/$(LIBDIR)
-	$(Q)cp $(LIBREG) $(DESTDIR)/$(LIBDIR)/
+	$(Q)$(INSTALL) -m 644 $(LIBREG) $(DESTDIR)/$(LIBDIR)/
 	$(Q)ldconfig
 
 %.o: %.c regdb.h $(LIBREG)
